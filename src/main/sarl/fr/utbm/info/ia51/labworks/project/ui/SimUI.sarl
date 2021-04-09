@@ -5,8 +5,22 @@ import java.awt.^event.KeyListener
 import fr.utbm.info.ia51.framework.environment.EnvironmentListener
 import java.awt.^event.KeyEvent
 import fr.utbm.info.ia51.framework.environment.EnvironmentEvent
+import javax.swing.JButton
+import javax.swing.JPanel
+import java.awt.BorderLayout
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
+	
+	val startButton : JButton
+	
+	new{
+		this.title="Traffic Simulator"
+		this.startButton = new JButton("Start Simulation")
+		this.startButton.toolTipText = "Start Simulation"
+		var topPanel = new JPanel
+		this.contentPane.layout = new BorderLayout
+		this.contentPane.add(BorderLayout::NORTH, topPanel)
+	}
 	
 	def keyPressed(arg0 : KeyEvent) {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")

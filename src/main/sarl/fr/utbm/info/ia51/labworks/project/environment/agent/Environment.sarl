@@ -1,7 +1,11 @@
 package fr.utbm.info.ia51.labworks.project.environment.^agent
 
+import io.sarl.core.Initialize
 
 agent Environment{
 	
+	on Initialize{
+		
+	}
 	
 }

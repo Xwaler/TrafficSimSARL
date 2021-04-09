@@ -1,8 +1,6 @@
 package fr.utbm.info.ia51.labworks.project.environment.^agent
 
 import java.util.EventListener
-import fr.utbm.info.ia51.labworks.pacman.environment.^agent.Controller
-import fr.utbm.info.ia51.labworks.pacman.environment.^agent.Car
 import fr.utbm.info.ia51.framework.environment.EnvironmentEvent
 
 interface EnvironmentListener extends EventListener{
