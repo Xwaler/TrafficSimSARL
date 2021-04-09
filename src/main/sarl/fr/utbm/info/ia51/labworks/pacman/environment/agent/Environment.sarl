@@ -34,13 +34,14 @@ import java.util.logging.Logger
 
 agent Environment {
 
-	uses MazeManager, MazeFrontEnd, DefaultContextInteractions, Lifecycle
+	//uses MazeManager, MazeFrontEnd, DefaultContextInteractions, Lifecycle
 	
 	var listeners = <EnvironmentListener>newArrayList
-	var car : Car
+	var cars  = <Car>newArrayList
 	var controller : Controller
 	var time = 0
 	val actions = <MazeChangeQuery>newLinkedList
+	
 
 	on Initialize {
 //		var width = occurrence.parameters.get(0) as Integer

@@ -25,6 +25,8 @@ import fr.utbm.info.ia51.framework.util.Resources;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.Controller;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.EnvironmentEvent;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.EnvironmentListener;
+import fr.utbm.info.ia51.labworks.pacman.environment.agent.Player;
+import fr.utbm.info.ia51.labworks.pacman.environment.maze.Direction;
 import fr.utbm.info.ia51.labworks.pacman.environment.maze.GhostBody;
 import fr.utbm.info.ia51.labworks.pacman.environment.maze.PacmanBody;
 import fr.utbm.info.ia51.labworks.pacman.environment.maze.PacmanObject;
@@ -251,7 +253,7 @@ public class PacManGUI extends JFrame implements KeyListener, EnvironmentListene
   
   private final long waitingDuration;
   
-  private /* Player */Object player;
+  private Player player;
   
   private Controller controller;
   
@@ -302,14 +304,16 @@ public class PacManGUI extends JFrame implements KeyListener, EnvironmentListene
     }
   }
   
-  public void bindPlayer(final /* Player */Object player) {
-    throw new Error("Unresolved compilation problems:"
-      + "\nThe field PacManGUI.player refers to the missing type Player");
+  public void bindPlayer(final Player player) {
+    synchronized (this) {
+      this.player = player;
+    }
   }
   
-  public void unbindPlayer(final /* Player */Object player) {
-    throw new Error("Unresolved compilation problems:"
-      + "\nThe field PacManGUI.player refers to the missing type Player");
+  public void unbindPlayer(final Player player) {
+    synchronized (this) {
+      this.player = null;
+    }
   }
   
   public void bindController(final Controller controller) {
@@ -367,15 +371,27 @@ public class PacManGUI extends JFrame implements KeyListener, EnvironmentListene
   }
   
   public void keyPressed(final KeyEvent e) {
-    throw new Error("Unresolved compilation problems:"
-      + "\nPlayer cannot be resolved to a type."
-      + "\nThe field PacManGUI.player refers to the missing type Player"
-      + "\nThe field PacManGUI.player refers to the missing type Player"
-      + "\n!== cannot be resolved"
-      + "\nmove cannot be resolved"
-      + "\nmove cannot be resolved"
-      + "\nmove cannot be resolved"
-      + "\nmove cannot be resolved");
+    Player player = null;
+    synchronized (this) {
+      player = this.player;
+    }
+    if ((player != null)) {
+      int _keyCode = e.getKeyCode();
+      switch (_keyCode) {
+        case KeyEvent.VK_LEFT:
+          player.move(Direction.WEST);
+          break;
+        case KeyEvent.VK_RIGHT:
+          player.move(Direction.EAST);
+          break;
+        case KeyEvent.VK_UP:
+          player.move(Direction.NORTH);
+          break;
+        case KeyEvent.VK_DOWN:
+          player.move(Direction.SOUTH);
+          break;
+      }
+    }
   }
   
   public void keyReleased(final KeyEvent e) {
@@ -411,5 +427,5 @@ public class PacManGUI extends JFrame implements KeyListener, EnvironmentListene
   }
   
   @SyntheticMember
-  private static final long serialVersionUID = 2365635359L;
+  private static final long serialVersionUID = 3932571013L;
 }

@@ -25,21 +25,15 @@ import fr.utbm.info.ia51.labworks.pacman.environment.agent.Car;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.Controller;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.EnvironmentListener;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.MazeChangeQuery;
-import fr.utbm.info.ia51.labworks.pacman.environment.agent.MazeFrontEnd;
-import fr.utbm.info.ia51.labworks.pacman.environment.agent.MazeManager;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.RunBeginingOfStep;
 import fr.utbm.info.ia51.labworks.pacman.environment.agent.RunEndOfStep;
-import io.sarl.core.DefaultContextInteractions;
 import io.sarl.core.Destroy;
 import io.sarl.core.Initialize;
-import io.sarl.core.Lifecycle;
-import io.sarl.lang.annotation.ImportedCapacityFeature;
 import io.sarl.lang.annotation.PerceptGuardEvaluator;
 import io.sarl.lang.annotation.SarlElementType;
 import io.sarl.lang.annotation.SarlSpecification;
 import io.sarl.lang.annotation.SyntheticMember;
 import io.sarl.lang.core.Agent;
-import io.sarl.lang.core.AtomicSkillReference;
 import io.sarl.lang.core.BuiltinCapacitiesProvider;
 import io.sarl.lang.core.DynamicSkillProvider;
 import java.util.ArrayList;
@@ -48,7 +42,6 @@ import java.util.LinkedList;
 import java.util.UUID;
 import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Pure;
 
 @SarlSpecification("0.11")
@@ -57,7 +50,7 @@ import org.eclipse.xtext.xbase.lib.Pure;
 public class Environment extends Agent {
   private ArrayList<EnvironmentListener> listeners = CollectionLiterals.<EnvironmentListener>newArrayList();
   
-  private Car car;
+  private ArrayList<Car> cars = CollectionLiterals.<Car>newArrayList();
   
   private Controller controller;
   
@@ -102,62 +95,6 @@ public class Environment extends Agent {
   }
   
   private void $behaviorUnit$RunBeginingOfStep$4(final RunBeginingOfStep occurrence) {
-  }
-  
-  @Extension
-  @ImportedCapacityFeature(MazeManager.class)
-  @SyntheticMember
-  private transient AtomicSkillReference $CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEMANAGER;
-  
-  @SyntheticMember
-  @Pure
-  private MazeManager $CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEMANAGER$CALLER() {
-    if (this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEMANAGER == null || this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEMANAGER.get() == null) {
-      this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEMANAGER = $getSkill(MazeManager.class);
-    }
-    return $castSkill(MazeManager.class, this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEMANAGER);
-  }
-  
-  @Extension
-  @ImportedCapacityFeature(MazeFrontEnd.class)
-  @SyntheticMember
-  private transient AtomicSkillReference $CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEFRONTEND;
-  
-  @SyntheticMember
-  @Pure
-  private MazeFrontEnd $CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEFRONTEND$CALLER() {
-    if (this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEFRONTEND == null || this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEFRONTEND.get() == null) {
-      this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEFRONTEND = $getSkill(MazeFrontEnd.class);
-    }
-    return $castSkill(MazeFrontEnd.class, this.$CAPACITY_USE$FR_UTBM_INFO_IA51_LABWORKS_PACMAN_ENVIRONMENT_AGENT_MAZEFRONTEND);
-  }
-  
-  @Extension
-  @ImportedCapacityFeature(DefaultContextInteractions.class)
-  @SyntheticMember
-  private transient AtomicSkillReference $CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS;
-  
-  @SyntheticMember
-  @Pure
-  private DefaultContextInteractions $CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER() {
-    if (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) {
-      this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = $getSkill(DefaultContextInteractions.class);
-    }
-    return $castSkill(DefaultContextInteractions.class, this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-  }
-  
-  @Extension
-  @ImportedCapacityFeature(Lifecycle.class)
-  @SyntheticMember
-  private transient AtomicSkillReference $CAPACITY_USE$IO_SARL_CORE_LIFECYCLE;
-  
-  @SyntheticMember
-  @Pure
-  private Lifecycle $CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER() {
-    if (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) {
-      this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = $getSkill(Lifecycle.class);
-    }
-    return $castSkill(Lifecycle.class, this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
   }
   
   @SyntheticMember
