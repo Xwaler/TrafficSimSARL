@@ -41,14 +41,14 @@ import org.eclipse.xtext.xbase.lib.Pure;
 @SarlSpecification("0.11")
 @SarlElementType(10)
 @SuppressWarnings("all")
-public class Player {
+public class Car {
   private Direction lastInputDirection;
   
   private final UUID bodyId;
   
   private final Logger logger;
   
-  Player(final UUID bodyId, final Logger logger) {
+  Car(final UUID bodyId, final Logger logger) {
     this.bodyId = bodyId;
     this.logger = logger;
   }
@@ -93,7 +93,7 @@ public class Player {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    Player other = (Player) obj;
+    Car other = (Car) obj;
     if (!Objects.equals(this.bodyId, other.bodyId))
       return false;
     return super.equals(obj);

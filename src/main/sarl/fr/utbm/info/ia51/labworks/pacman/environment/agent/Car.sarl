@@ -32,7 +32,7 @@ import java.util.logging.Logger
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-class Player {
+class Car {
 
 	var lastInputDirection : Direction 
 	
