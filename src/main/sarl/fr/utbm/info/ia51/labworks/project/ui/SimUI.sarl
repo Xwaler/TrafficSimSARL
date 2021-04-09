@@ -8,16 +8,24 @@ import fr.utbm.info.ia51.framework.environment.EnvironmentEvent
 import javax.swing.JButton
 import javax.swing.JPanel
 import java.awt.BorderLayout
+import javax.swing.BoxLayout
+import java.awt.Toolkit
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
+	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
+	var width = screenSize.width
+	var height = screenSize.height
 	val startButton : JButton
 	
-	new{
+	new {
+		this.visible = true
+		this.setSize(this.width, this.height)
 		this.title="Traffic Simulator"
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start Simulation"
 		var topPanel = new JPanel
+		topPanel.layout = new BoxLayout(topPanel, BoxLayout::X_AXIS)
 		this.contentPane.layout = new BorderLayout
 		this.contentPane.add(BorderLayout::NORTH, topPanel)
 	}
