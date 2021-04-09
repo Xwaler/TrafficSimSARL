@@ -1,1 +1,27 @@
 package fr.utbm.info.ia51.labworks.project.ui
+
+import javax.swing.JFrame
+import java.awt.^event.KeyListener
+import fr.utbm.info.ia51.framework.environment.EnvironmentListener
+import java.awt.^event.KeyEvent
+import fr.utbm.info.ia51.framework.environment.EnvironmentEvent
+
+class SimUI extends JFrame implements KeyListener, EnvironmentListener{
+	
+	def keyPressed(arg0 : KeyEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def keyReleased(arg0 : KeyEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def keyTyped(arg0 : KeyEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def environmentChanged(^event : EnvironmentEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+}

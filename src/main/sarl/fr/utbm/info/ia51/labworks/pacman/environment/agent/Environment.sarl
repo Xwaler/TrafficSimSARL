@@ -31,138 +31,143 @@ import java.util.Collections
 import java.util.TreeMap
 import java.util.logging.Logger
 
-
+/** Definition of the agent that is managing the environment.
+ * 
+ * @author $Author: sgalland$
+ * @version $FullVersion$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
 agent Environment {
 
-	//uses MazeManager, MazeFrontEnd, DefaultContextInteractions, Lifecycle
+	uses MazeManager, MazeFrontEnd, DefaultContextInteractions, Lifecycle
 	
 	var listeners = <EnvironmentListener>newArrayList
-	var cars  = <Car>newArrayList
+	var player : Player
 	var controller : Controller
 	var time = 0
 	val actions = <MazeChangeQuery>newLinkedList
-	
 
 	on Initialize {
-//		var width = occurrence.parameters.get(0) as Integer
-//		var height = occurrence.parameters.get(1) as Integer
-//		var nbCars = occurrence.parameters.get(2) as Integer
-//		var perceptionDistance = occurrence.parameters.get(3) as Integer
-//		for (i : 4..<occurrence.parameters.size) {
-//			var o = occurrence.parameters.get(i)
-//			if (o instanceof EnvironmentListener) {
-//				this.listeners += o
-//			}
-//		}
-//		setSkill(new DefaultMazeManagerSkill(width, height))
-//		setSkill(new DefaultMazeFrontEndSkill())
-//		this.controller = new Controller(defaultSpace, defaultAddress)
-//		var pacmanBody = createPacman
-//		this.player = new Player(pacmanBody.agentId, Logger::getLogger(ID.toString))
-//		for (i : 0..<nbGhosts) {
-//			var ghostBody = createGhost(perceptionDistance)
-//			spawnInContextWithID(typeof(Ghost), ghostBody.agentId, defaultContext)
-//		}
-//		firePlayerBinding
-//		fireControllerBinding
-//		fireEnvironmentChange
+		var width = occurrence.parameters.get(0) as Integer
+		var height = occurrence.parameters.get(1) as Integer
+		var nbGhosts = occurrence.parameters.get(2) as Integer
+		var perceptionDistance = occurrence.parameters.get(3) as Integer
+		for (i : 4..<occurrence.parameters.size) {
+			var o = occurrence.parameters.get(i)
+			if (o instanceof EnvironmentListener) {
+				this.listeners += o
+			}
+		}
+		setSkill(new DefaultMazeManagerSkill(width, height))
+		setSkill(new DefaultMazeFrontEndSkill())
+		this.controller = new Controller(defaultSpace, defaultAddress)
+		var pacmanBody = createPacman
+		this.player = new Player(pacmanBody.agentId, Logger::getLogger(ID.toString))
+		for (i : 0..<nbGhosts) {
+			var ghostBody = createGhost(perceptionDistance)
+			spawnInContextWithID(typeof(Ghost), ghostBody.agentId, defaultContext)
+		}
+		firePlayerBinding
+		fireControllerBinding
+		fireEnvironmentChange
 	}
 	
 	def fireEnvironmentChange {
-//		var objects = new TreeMap<Point2i, PacmanObject>
-//		for (obj : getPacmanObjects) {
-//			objects.put(obj.position, obj)
-//		}
-//		var ^event = new EnvironmentEvent(ID, this.time, mazeWidth, mazeHeight, Collections::unmodifiableMap(objects))
-//		for (listener : this.listeners) {
-//			listener.environmentChanged(^event)
-//		}
+		var objects = new TreeMap<Point2i, PacmanObject>
+		for (obj : getPacmanObjects) {
+			objects.put(obj.position, obj)
+		}
+		var ^event = new EnvironmentEvent(ID, this.time, mazeWidth, mazeHeight, Collections::unmodifiableMap(objects))
+		for (listener : this.listeners) {
+			listener.environmentChanged(^event)
+		}
 	}
 	
 	def firePlayerBinding {
-//		for (listener : this.listeners) {
-//			listener.bindPlayer(this.player)
-//		}
+		for (listener : this.listeners) {
+			listener.bindPlayer(this.player)
+		}
 	}
 
 	def firePlayerUnbinding {
-//		for (listener : this.listeners) {
-//			listener.unbindPlayer(this.player)
-//		}
+		for (listener : this.listeners) {
+			listener.unbindPlayer(this.player)
+		}
 	}
 
 	def fireControllerBinding {
-//		for (listener : this.listeners) {
-//			listener.bindController(this.controller)
-//		}
+		for (listener : this.listeners) {
+			listener.bindController(this.controller)
+		}
 	}
 
 	def fireControllerUnbinding {
-//		for (listener : this.listeners) {
-//			listener.unbindController(this.controller)
-//		}
+		for (listener : this.listeners) {
+			listener.unbindController(this.controller)
+		}
 	}
 
 	def fireGameOver {
-//		for (listener : this.listeners) {
-//			listener.gameOver()
-//		}
+		for (listener : this.listeners) {
+			listener.gameOver()
+		}
 	}
 
 	on Destroy {
-//		firePlayerUnbinding
-//		fireControllerUnbinding;
-//		clearSkill(typeof(MazeManager));
-//		clearSkill(typeof(MazeFrontEnd))
+		firePlayerUnbinding
+		fireControllerUnbinding;
+		clearSkill(typeof(MazeManager));
+		clearSkill(typeof(MazeFrontEnd))
 	}
 	
 	on Action [occurrence.time >= time] {
-//		synchronized(this) {
-//			this.actions += new MazeChangeQuery(occurrence.source.UUID, occurrence.direction)
-//			
-//			if (this.actions.size >= bodyCount - 1) {
-//				emit(new RunEndOfStep) [it == defaultAddress]
-//			}
-//		}
+		synchronized(this) {
+			this.actions += new MazeChangeQuery(occurrence.source.UUID, occurrence.direction)
+			
+			if (this.actions.size >= bodyCount - 1) {
+				emit(new RunEndOfStep) [it == defaultAddress]
+			}
+		}
 	}
 	
 	on RunEndOfStep {
-//		synchronized(this) {
-//			// Endogenous behavior: move the pacman from the player's action
-//			var avatarDirection = this.player.direction
-//			var avatarAction = new MazeChangeQuery(this.player.bodyId, avatarDirection)
-//			this.actions += avatarAction
-//
-//			// Endogenous behavior: decrease the super power of Pacman
-//			getSuperPowerAccessor(this.player.bodyId).decreaseSuperPower
-//
-//			// Change the state of the universe
-//			if (applyActions(this.actions)) {
-//				// Pacman is dead.
-//				emit(new PacManIsDead)
-//				fireGameOver
-//				killMe
-//			}
-//			
-//			// Increase time
-//			this.time++
-//			
-//			// Notify about environment's changes
-//			fireEnvironmentChange
-//			
-//			// Move to next step
-//			emit(new RunBeginingOfStep)
-//		}
+		synchronized(this) {
+			// Endogenous behavior: move the pacman from the player's action
+			var avatarDirection = this.player.direction
+			var avatarAction = new MazeChangeQuery(this.player.bodyId, avatarDirection)
+			this.actions += avatarAction
+
+			// Endogenous behavior: decrease the super power of Pacman
+			getSuperPowerAccessor(this.player.bodyId).decreaseSuperPower
+
+			// Change the state of the universe
+			if (applyActions(this.actions)) {
+				// Pacman is dead.
+				emit(new PacManIsDead)
+				fireGameOver
+				killMe
+			}
+			
+			// Increase time
+			this.time++
+			
+			// Notify about environment's changes
+			fireEnvironmentChange
+			
+			// Move to next step
+			emit(new RunBeginingOfStep)
+		}
 	}
 	
 	on RunBeginingOfStep {
-//		synchronized(this) {
-//			this.actions.clear
-//			
-//			for (e : getPerceptions().entrySet) {
-//				sendPerception(this.time, e.key.agentId, e.value, e.key.position)
-//			}
-//		}
+		synchronized(this) {
+			this.actions.clear
+			
+			for (e : getPerceptions().entrySet) {
+				sendPerception(this.time, e.key.agentId, e.value, e.key.position)
+			}
+		}
 	}
 	
 }

@@ -1,1 +1,8 @@
 package fr.utbm.info.ia51.labworks.project
+
+agent TrafficSimBoot{
+	
+	on Initialize{
+		var ui = new SimUI();
+	}
+}
