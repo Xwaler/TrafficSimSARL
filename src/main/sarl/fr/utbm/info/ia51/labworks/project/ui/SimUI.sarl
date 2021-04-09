@@ -10,24 +10,62 @@ import javax.swing.JPanel
 import java.awt.BorderLayout
 import javax.swing.BoxLayout
 import java.awt.Toolkit
+import javax.swing.JTextField
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
 	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
 	var width = screenSize.width
 	var height = screenSize.height
+	
 	val startButton : JButton
+	val settingsButton : JButton
+	val tauxAccident : JTextField
+	val mesureFlux : JTextField
+	val vitesseTrajet : JTextField
 	
 	new {
+		
 		this.visible = true
 		this.setSize(this.width, this.height)
 		this.title="Traffic Simulator"
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+		this.setResizable(false)
+		
 		this.startButton = new JButton("Start Simulation")
-		this.startButton.toolTipText = "Start Simulation"
-		var topPanel = new JPanel
-		topPanel.layout = new BoxLayout(topPanel, BoxLayout::X_AXIS)
+		this.startButton.toolTipText = "Start the simulation"
+		this.settingsButton = new JButton("Settings")
+		
+		
+		
+		val graphViewPanel = new JPanel
+		graphViewPanel.layout = new BoxLayout(graphViewPanel,BoxLayout::X_AXIS)
+		
+		val feedBackPanel = new JPanel
+		feedBackPanel.layout = new BoxLayout(feedBackPanel, BoxLayout::Y_AXIS)
+		this.tauxAccident = new JTextField()
+		this.mesureFlux = new JTextField()
+		this.vitesseTrajet = new JTextField()
+		feedBackPanel.add(this.tauxAccident)
+		feedBackPanel.add(this.mesureFlux)
+		feedBackPanel.add(this.vitesseTrajet)
+		
+		
+		val btnPanel = new JPanel
+		btnPanel.layout = new BoxLayout(btnPanel, BoxLayout::X_AXIS)
+		btnPanel.add(this.startButton)
+		btnPanel.add(this.settingsButton)
+		btnPanel.setBounds(10, 10, 110, 110)
+
+		val leftPane = new JPanel
+		leftPane.layout = new BorderLayout
+		leftPane.add(BorderLayout::NORTH,feedBackPanel)
+		leftPane.add(BorderLayout::SOUTH, btnPanel)
+		
+		
 		this.contentPane.layout = new BorderLayout
-		this.contentPane.add(BorderLayout::NORTH, topPanel)
+		this.contentPane.add(BorderLayout::CENTER, graphViewPanel)
+		this.contentPane.add(BorderLayout::EAST, leftPane)
 	}
 	
 	def keyPressed(arg0 : KeyEvent) {
