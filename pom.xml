@@ -25,6 +25,31 @@
 			<artifactId>io.janusproject.kernel</artifactId>
 			<version>3.0.11.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.gis</groupId>
+			<artifactId>gisroad</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.gis.ui</groupId>
+			<artifactId>gisroadfx</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.gis.ui</groupId>
+			<artifactId>gisroadinputoutput</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.core</groupId>
+			<artifactId>mathphysics</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.arakhne.afc.core</groupId>
+			<artifactId>mathstochastic</artifactId>
+			<version>17.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
