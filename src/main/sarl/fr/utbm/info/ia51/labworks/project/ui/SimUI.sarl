@@ -11,12 +11,16 @@ import java.awt.BorderLayout
 import javax.swing.BoxLayout
 import java.awt.Toolkit
 import javax.swing.JTextField
+import java.awt.Insets
+import java.awt.FlowLayout
+import java.awt.Dimension
+import java.awt.Color
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
 	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
-	var width = screenSize.width
-	var height = screenSize.height
+	var width = screenSize.width-100
+	var height = screenSize.height-100
 	
 	val startButton : JButton
 	val settingsButton : JButton
@@ -26,7 +30,6 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
 	new {
 		
-		this.visible = true
 		this.setSize(this.width, this.height)
 		this.title="Traffic Simulator"
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
@@ -34,12 +37,16 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start the simulation"
+		this.startButton.setMargin(new Insets(20,20,20,20))
 		this.settingsButton = new JButton("Settings")
+		this.settingsButton.setMargin(new Insets(20, 20, 20, 20))
 		
 		
 		
 		val graphViewPanel = new JPanel
-		graphViewPanel.layout = new BoxLayout(graphViewPanel,BoxLayout::X_AXIS)
+		graphViewPanel.layout = new BoxLayout(graphViewPanel, BoxLayout::X_AXIS)
+		graphViewPanel.setPreferredSize(new Dimension(this.width-400, this.height))
+		graphViewPanel.setBackground(Color.black)
 		
 		val feedBackPanel = new JPanel
 		feedBackPanel.layout = new BoxLayout(feedBackPanel, BoxLayout::Y_AXIS)
@@ -52,13 +59,15 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		
 		
 		val btnPanel = new JPanel
-		btnPanel.layout = new BoxLayout(btnPanel, BoxLayout::X_AXIS)
+		btnPanel.setLayout(new FlowLayout())
 		btnPanel.add(this.startButton)
 		btnPanel.add(this.settingsButton)
-		btnPanel.setBounds(10, 10, 110, 110)
+		//btnPanel.setBounds(110, 110, 110, 110)
 
 		val leftPane = new JPanel
 		leftPane.layout = new BorderLayout
+		leftPane.setPreferredSize(new Dimension(400, this.height))
+		leftPane.setBackground(Color.red)
 		leftPane.add(BorderLayout::NORTH,feedBackPanel)
 		leftPane.add(BorderLayout::SOUTH, btnPanel)
 		
@@ -66,6 +75,8 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		this.contentPane.layout = new BorderLayout
 		this.contentPane.add(BorderLayout::CENTER, graphViewPanel)
 		this.contentPane.add(BorderLayout::EAST, leftPane)
+		this.visible = true
+		pack()
 	}
 	
 	def keyPressed(arg0 : KeyEvent) {
