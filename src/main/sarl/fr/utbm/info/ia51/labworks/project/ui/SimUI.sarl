@@ -19,6 +19,7 @@ import javax.swing.JLabel
 import java.awt.GridLayout
 import java.awt.Font
 import javax.swing.SwingConstants
+import java.awt.^event.ActionListener
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
@@ -41,8 +42,14 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start the simulation"
+		this.startButton.addActionListener [
+			
+		]
 		this.startButton.setMargin(new Insets(20,20,20,20))
 		this.settingsButton = new JButton("Settings")
+		this.settingsButton.addActionListener [
+			
+		]
 		this.settingsButton.setMargin(new Insets(20, 20, 20, 20))
 		
 		
@@ -58,6 +65,7 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		val tauxPanel = new JPanel
 		tauxPanel.setLayout(new FlowLayout())
 		this.tauxAccident = new JTextField()
+		this.tauxAccident.setEditable(false)
 		this.tauxAccident.setPreferredSize(new Dimension(200, 30))
 		val tauxAccidentLabel = new JLabel("Taux d'accident :")
 		tauxPanel.add(tauxAccidentLabel)
@@ -66,6 +74,7 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		val mesurePanel = new JPanel
 		mesurePanel.setLayout(new FlowLayout())
 		this.mesureFlux = new JTextField()
+		this.mesureFlux.setEditable(false)
 		this.mesureFlux.setPreferredSize(new Dimension(200, 30))
 		val mesureFluxLabel = new JLabel("Mesure du flux :")
 		mesurePanel.add(mesureFluxLabel)
@@ -74,6 +83,7 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		val trajetPanel = new JPanel
 		trajetPanel.setLayout(new FlowLayout())
 		this.vitesseTrajet = new JTextField()
+		this.vitesseTrajet.setEditable(false)
 		this.vitesseTrajet.setPreferredSize(new Dimension(200,30))
 		val vitesseTrajetLabel = new JLabel("Vitesse de trajet :")
 		trajetPanel.add(vitesseTrajetLabel)
