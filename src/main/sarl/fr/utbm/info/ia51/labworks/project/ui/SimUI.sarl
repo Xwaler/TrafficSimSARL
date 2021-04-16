@@ -18,28 +18,123 @@ import java.awt.Color
 import javax.swing.JLabel
 import java.awt.GridLayout
 import java.awt.Font
-import javax.swing.SwingConstants
-import java.awt.^event.ActionListener
+import javax.swing.JSlider
+import javax.swing.border.EmptyBorder
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
 	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
 	var width = screenSize.width-100
 	var height = screenSize.height-100
+	var settingsWidth = 700
+	var settingsHeight = 500
+	var defaultRate = 50
 	
 	val startButton : JButton
 	val settingsButton : JButton
+	val validateButton : JButton
+	val leaveButton : JButton
 	val tauxAccident : JTextField
 	val mesureFlux : JTextField
 	val vitesseTrajet : JTextField
+	val carNb : JTextField
+	val carRate : JSlider
+	val listeningRate : JTextField
 	
 	new {
 		
+		/* Settings Frame for the popup */
+		
+		/* Initiate Settings Frame */
+		val settingsFrame = new JFrame()
+		settingsFrame.layout = new BorderLayout
+		settingsFrame.setPreferredSize(new Dimension(this.settingsWidth, this.settingsHeight))
+		settingsFrame.setLocation(((this.width - this.settingsWidth) / 2), ((this.height - this.settingsHeight) / 2))
+		
+		/* Settings Frame Title widget */
+		val settingsTitlePane = new JPanel()
+		settingsTitlePane.setLayout(new FlowLayout())
+		val settingsTitle = new JLabel("Modifier les paramètres")
+		settingsTitle.setFont(new Font("", Font.PLAIN, 20))
+		settingsTitle.setPreferredSize(new Dimension(300, 100))
+		settingsTitle.setHorizontalAlignment(JLabel.CENTER)
+		settingsTitlePane.add(settingsTitle)
+		settingsTitlePane.setPreferredSize(new Dimension(400, 100))
+		
+		/* Settings parameters widgets */
+		val settingsPane = new JPanel()
+		settingsPane.layout = new BoxLayout(settingsPane, BoxLayout::Y_AXIS)
+		
+		/* Car Number widget */
+		val carNbPanel = new JPanel()
+		carNbPanel.layout = new FlowLayout()
+		val carNbLabel = new JLabel("Nombre de voiture :")
+		this.carNb = new JTextField()
+		this.carNb.setPreferredSize(new Dimension(200, 30))
+		carNbPanel.add(carNbLabel)
+		carNbPanel.add(carNb)
+		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+		
+		/* Rate of autonomous cars widget */
+		val carRatePanel = new JPanel()
+		carRatePanel.layout = new FlowLayout()
+		val carRateLabel = new JLabel("Taux de voiture autonome :")
+		this.carRate = new JSlider(JSlider.HORIZONTAL, 0, 100, this.defaultRate)
+		this.carRate.setMajorTickSpacing(20);
+		this.carRate.setMinorTickSpacing(20);
+		this.carRate.setPaintTicks(true);
+		this.carRate.setPaintLabels(true);
+		carRatePanel.add(carRateLabel)
+		carRatePanel.add(carRate)
+		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+		
+		/* Listening Rate parameter widget */
+		val listeningRatePanel = new JPanel()
+		listeningRatePanel.layout = new FlowLayout()
+		val listeningRateLabel = new JLabel("Taux d'obéissance :")
+		this.listeningRate = new JTextField()
+		this.listeningRate.setPreferredSize(new Dimension(200, 30))
+		listeningRatePanel.add(listeningRateLabel)
+		listeningRatePanel.add(listeningRate)
+		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+		
+		/* Bouton panel */
+		val btnSettingsPane = new JPanel()
+		btnSettingsPane.layout = new FlowLayout()
+		this.validateButton = new JButton("Valider et Quitter")
+		this.validateButton.addActionListener [
+			settingsFrame.setVisible(false)
+		]
+		this.validateButton.setMargin(new Insets(10, 10, 10, 10))
+		this.leaveButton = new JButton("Quitter")
+		this.leaveButton.addActionListener [
+			settingsFrame.setVisible(false)
+		]
+		this.leaveButton.setMargin(new Insets(10, 10, 10, 10))
+		btnSettingsPane.add(this.leaveButton)
+		btnSettingsPane.add(this.validateButton)
+		btnSettingsPane.setBorder(new EmptyBorder(50, 50, 50, 50))
+		
+		/* add widgets and panel to the frame */
+		settingsPane.add(carNbPanel)
+		settingsPane.add(carRatePanel)
+		settingsPane.add(listeningRatePanel)
+		
+		settingsFrame.add(BorderLayout::NORTH, settingsTitlePane)
+		settingsFrame.add(BorderLayout::CENTER, settingsPane)
+		settingsFrame.add(BorderLayout::SOUTH, btnSettingsPane)
+		settingsFrame.pack()
+		
+		/* ------------------------ */
+		
+		
+		/* Main UI initiation */
 		this.setSize(this.width, this.height)
 		this.title="Traffic Simulator"
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 		this.setResizable(false)
 		
+		/* Btn initiation with action listeners */
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start the simulation"
 		this.startButton.addActionListener [
@@ -48,16 +143,32 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		this.startButton.setMargin(new Insets(20,20,20,20))
 		this.settingsButton = new JButton("Settings")
 		this.settingsButton.addActionListener [
-			
+			settingsFrame.setVisible(true)
 		]
 		this.settingsButton.setMargin(new Insets(20, 20, 20, 20))
 		
 		
+		/* Graph view widget  */
 		
 		val graphViewPanel = new JPanel
 		graphViewPanel.layout = new BoxLayout(graphViewPanel, BoxLayout::X_AXIS)
 		graphViewPanel.setPreferredSize(new Dimension(this.width-400, this.height))
 		graphViewPanel.setBackground(Color.black)
+		
+		
+		/* Widgets of the left panel*/
+		
+		/* Title of the panel */
+		val titlePanel = new JPanel
+		titlePanel.setLayout(new FlowLayout())
+		val title = new JLabel("Traffic Simulation")
+		title.setFont(new Font("", Font.PLAIN, 30))
+		title.setPreferredSize(new Dimension(300, 200))
+		title.setHorizontalAlignment(JLabel.CENTER)
+		titlePanel.add(title)
+		titlePanel.setPreferredSize(new Dimension(400, 250))
+		
+		/* Widget for the feedback of all the measured values */
 		
 		val feedBackPanel = new JPanel
 		feedBackPanel.layout = new GridLayout(3,1)
@@ -93,34 +204,29 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		feedBackPanel.add(mesurePanel)
 		feedBackPanel.add(trajetPanel)
 		
+		/* Btn widget */
 		val btnPanel = new JPanel
 		btnPanel.setLayout(new FlowLayout())
 		btnPanel.add(this.startButton)
 		btnPanel.add(this.settingsButton)
+		btnPanel.setBorder(new EmptyBorder(50, 50, 50, 50))
 
 		val leftPane = new JPanel
 		leftPane.layout = new BorderLayout
 		leftPane.setPreferredSize(new Dimension(400, this.height))
 		
-		val titlePanel = new JPanel
-		titlePanel.setLayout(new FlowLayout())
-		val title = new JLabel("Traffic Simulation")
-		title.setFont(new Font("", Font.PLAIN, 30))
-		title.setPreferredSize(new Dimension(300,200))
-		title.setHorizontalAlignment(JLabel.CENTER)
-		titlePanel.add(title)
-		titlePanel.setPreferredSize(new Dimension(400,250))
-		
+		/* Add widget to the left pane of the main ui */
 		leftPane.add(BorderLayout::NORTH,titlePanel)
 		leftPane.add(BorderLayout::CENTER,feedBackPanel)
 		leftPane.add(BorderLayout::SOUTH, btnPanel)
 		
-		
+		/* Add everything to the main frame */
 		this.contentPane.layout = new BorderLayout
 		this.contentPane.add(BorderLayout::CENTER, graphViewPanel)
 		this.contentPane.add(BorderLayout::EAST, leftPane)
+		this.setLocationRelativeTo(null)
+		this.pack()
 		this.visible = true
-		pack()
 	}
 	
 	def keyPressed(arg0 : KeyEvent) {
