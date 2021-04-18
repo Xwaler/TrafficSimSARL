@@ -7,11 +7,12 @@ import io.sarl.core.Lifecycle
 import fr.utbm.info.ia51.labworks.project.environment.^agent.Environment
 
 agent TrafficSimBoot{
-	
 	uses Lifecycle
+
+	var nbCar : int = 10
 	
 	on Initialize{
 		var ui = new SimUI();
-		spawn(typeof(Environment),ui)
+		spawn(typeof(Environment), nbCar, ui)
 	}
 }

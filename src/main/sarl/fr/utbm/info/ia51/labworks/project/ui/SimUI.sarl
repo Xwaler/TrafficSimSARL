@@ -39,7 +39,7 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	val vitesseTrajet : JTextField
 	val carNb : JTextField
 	val carRate : JSlider
-	val listeningRate : JTextField
+	val obedienceRate : JTextField
 	
 	new {
 		
@@ -88,14 +88,14 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		carRatePanel.add(carRate)
 		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
 		
-		/* Listening Rate parameter widget */
-		val listeningRatePanel = new JPanel()
-		listeningRatePanel.layout = new FlowLayout()
-		val listeningRateLabel = new JLabel("Taux d'obéissance :")
-		this.listeningRate = new JTextField()
-		this.listeningRate.setPreferredSize(new Dimension(200, 30))
-		listeningRatePanel.add(listeningRateLabel)
-		listeningRatePanel.add(listeningRate)
+		/* obedience Rate parameter widget */
+		val obedienceRatePanel = new JPanel()
+		obedienceRatePanel.layout = new FlowLayout()
+		val obedienceRateLabel = new JLabel("Taux d'obéissance :")
+		this.obedienceRate = new JTextField()
+		this.obedienceRate.setPreferredSize(new Dimension(200, 30))
+		obedienceRatePanel.add(obedienceRateLabel)
+		obedienceRatePanel.add(obedienceRate)
 		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
 		
 		/* Bouton panel */
@@ -118,7 +118,7 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		/* add widgets and panel to the frame */
 		settingsPane.add(carNbPanel)
 		settingsPane.add(carRatePanel)
-		settingsPane.add(listeningRatePanel)
+		settingsPane.add(obedienceRatePanel)
 		
 		settingsFrame.add(BorderLayout::NORTH, settingsTitlePane)
 		settingsFrame.add(BorderLayout::CENTER, settingsPane)
