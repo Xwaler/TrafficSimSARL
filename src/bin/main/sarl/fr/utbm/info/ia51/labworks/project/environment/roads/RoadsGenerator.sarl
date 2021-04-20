@@ -1,0 +1,15 @@
+package fr.utbm.info.ia51.labworks.project.environment.roads
+
+import org.arakhne.afc.gis.road.RoadPolyline
+
+class RoadsGenerator {
+	def roadGeneration() {
+		
+		var roadLine = new RoadPolyline;
+		
+		roadLine.addPoint(1, 2);
+		roadLine.addPoint(3, 4);
+		
+	}
+	
+}
