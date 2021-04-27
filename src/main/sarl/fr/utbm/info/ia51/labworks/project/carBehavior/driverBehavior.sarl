@@ -3,12 +3,10 @@
  */
 package fr.utbm.info.ia51.labworks.project.carBehavior
 
-
 import io.sarl.core.Logging
 
-
 /** 
- * @author theau
+ * @author theau pepito
  * 
  */
 behavior driverBehavior {
