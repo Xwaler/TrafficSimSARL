@@ -4,6 +4,13 @@
 package fr.utbm.info.ia51.labworks.project.carBehavior
 
 import io.sarl.core.Logging
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+import io.sarl.core.Lifecycle
+=======
+>>>>>>> b843a5dcf78edba3f0f6412705c02d64d8d891b2
+>>>>>>> Stashed changes
 
 /** 
  * @author theau pepito
@@ -11,37 +18,37 @@ import io.sarl.core.Logging
  */
 behavior driverBehavior {
 	
-	uses Logging
+	uses Logging,Lifecycle
 	
 	var reactionTimeVal : Double
 	var safetyDistanceVal : Double
 	var listeningVal : Double
 
-	def setSafetyDistanceVal(value : double){
+	def setSafetyDistanceVal(value : Double){
 		this.safetyDistanceVal = value
 	}
 
-	def getSafetyDistanceVal : double{
+	def getSafetyDistanceVal : Double{
 		if(this.safetyDistanceVal != null && this.safetyDistanceVal > 0){
 			return this.safetyDistanceVal
 		}
 	}
 	
-	def setReactionTimeVal(value : double){
+	def setReactionTimeVal(value : Double){
 		this.reactionTimeVal = value
 	}
 
-	def getReactionTimeVal : double{
+	def getReactionTimeVal : Double{
 		if(this.reactionTimeVal != null && this.reactionTimeVal >0){
 			return this.reactionTimeVal
 		}
 	}
 	
-	def setListeningVal(value : double){
+	def setListeningVal(value : Double){
 		this.listeningVal = value
 	}
 
-	def getListeningVal : double{
+	def getListeningVal : Double{
 		if(this.listeningVal != null && this.listeningVal >0){
 			return this.listeningVal
 		}
