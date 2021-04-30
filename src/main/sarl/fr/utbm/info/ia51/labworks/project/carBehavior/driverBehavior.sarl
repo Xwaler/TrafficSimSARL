@@ -8,7 +8,7 @@ import io.sarl.core.Lifecycle
 
 
 /** 
- * @author theau pepito
+ * @author theau
  * 
  */
 behavior driverBehavior {
@@ -19,32 +19,32 @@ behavior driverBehavior {
 	var safetyDistanceVal : Double
 	var listeningVal : Double
 
-	def setSafetyDistanceVal(value : Double){
+	def setSafetyDistanceVal(value : double){
 		this.safetyDistanceVal = value
 	}
 
-	def getSafetyDistanceVal : Double{
-		if(this.safetyDistanceVal != null && this.safetyDistanceVal > 0){
+	def getSafetyDistanceVal : double{
+		if(this.safetyDistanceVal !== null && this.safetyDistanceVal > 0){
 			return this.safetyDistanceVal
 		}
 	}
 	
-	def setReactionTimeVal(value : Double){
+	def setReactionTimeVal(value : double){
 		this.reactionTimeVal = value
 	}
 
-	def getReactionTimeVal : Double{
-		if(this.reactionTimeVal != null && this.reactionTimeVal >0){
+	def getReactionTimeVal : double{
+		if(this.reactionTimeVal !== null && this.reactionTimeVal >0){
 			return this.reactionTimeVal
 		}
 	}
 	
-	def setListeningVal(value : Double){
+	def setListeningVal(value : double){
 		this.listeningVal = value
 	}
 
-	def getListeningVal : Double{
-		if(this.listeningVal != null && this.listeningVal >0){
+	def getListeningVal : double{
+		if(this.listeningVal !== null && this.listeningVal >0){
 			return this.listeningVal
 		}
 	}
