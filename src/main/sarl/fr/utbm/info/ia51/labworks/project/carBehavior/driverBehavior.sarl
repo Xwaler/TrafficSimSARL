@@ -4,13 +4,8 @@
 package fr.utbm.info.ia51.labworks.project.carBehavior
 
 import io.sarl.core.Logging
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
 import io.sarl.core.Lifecycle
-=======
->>>>>>> b843a5dcf78edba3f0f6412705c02d64d8d891b2
->>>>>>> Stashed changes
+
 
 /** 
  * @author theau pepito
