@@ -10,6 +10,14 @@ import io.sarl.core.Logging
 import io.sarl.core.Behaviors
 import io.sarl.lang.core.Behavior
 
+import org.arakhne.afc.math.geometry.d2.d.Point2d
+import org.arakhne.afc.simulation.framework.base.preferences.PreferenceManager
+import org.arakhne.afc.simulation.framework.framework1d.agents.AbstractSimulatedAgent1d
+import org.arakhne.afc.simulation.framework.framework1d.agents.cruisespeed.RoadCruiseSpeedManager
+import org.arakhne.afc.simulation.framework.framework1d.agents.destination.StandardDestinationTester
+import org.arakhne.afc.simulation.framework.framework1d.agents.path.RandomPathSelection
+import org.arakhne.afc.simulation.framework.framework1d.preferences.PreferenceManager1d
+
 
 /** 
  * @author theau

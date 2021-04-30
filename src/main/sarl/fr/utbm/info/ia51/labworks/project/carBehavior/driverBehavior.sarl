@@ -24,17 +24,17 @@ behavior driverBehavior {
 	}
 
 	def getSafetyDistanceVal : double{
-		if(this.safetyDistanceVal !== null && this.safetyDistanceVal > 0){
+		if (this.safetyDistanceVal !== null && this.safetyDistanceVal > 0){
 			return this.safetyDistanceVal
 		}
 	}
-	
+
 	def setReactionTimeVal(value : double){
 		this.reactionTimeVal = value
 	}
 
 	def getReactionTimeVal : double{
-		if(this.reactionTimeVal !== null && this.reactionTimeVal >0){
+		if (this.reactionTimeVal !== null && this.reactionTimeVal >0){
 			return this.reactionTimeVal
 		}
 	}
@@ -44,7 +44,7 @@ behavior driverBehavior {
 	}
 
 	def getListeningVal : double{
-		if(this.listeningVal !== null && this.listeningVal >0){
+		if (this.listeningVal !== null && this.listeningVal >0){
 			return this.listeningVal
 		}
 	}

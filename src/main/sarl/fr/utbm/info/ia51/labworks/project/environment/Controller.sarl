@@ -1,0 +1,6 @@
+package fr.utbm.info.ia51.labworks.project.environment
+
+final class Controller{
+	
+
+}

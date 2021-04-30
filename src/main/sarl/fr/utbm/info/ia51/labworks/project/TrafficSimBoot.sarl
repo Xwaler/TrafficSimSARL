@@ -4,7 +4,7 @@ package fr.utbm.info.ia51.labworks.project
 import fr.utbm.info.ia51.labworks.project.ui.SimUI
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
-import fr.utbm.info.ia51.labworks.project.environment.^agent.Environment
+import fr.utbm.info.ia51.labworks.project.environment.Environment
 
 agent TrafficSimBoot{
 	uses Lifecycle
