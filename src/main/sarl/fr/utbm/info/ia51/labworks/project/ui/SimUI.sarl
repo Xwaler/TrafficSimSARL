@@ -20,6 +20,7 @@ import java.awt.GridLayout
 import java.awt.Font
 import javax.swing.JSlider
 import javax.swing.border.EmptyBorder
+import fr.utbm.info.ia51.labworks.project.environment.Controller
 
 class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	
@@ -40,6 +41,8 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 	val carNb : JTextField
 	val carRate : JSlider
 	val obedienceRate : JTextField
+	
+	val simController = new Controller()
 	
 	new {
 		
@@ -70,6 +73,15 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		carNbPanel.layout = new FlowLayout()
 		val carNbLabel = new JLabel("Nombre de voiture :")
 		this.carNb = new JTextField()
+		this.carNb.addActionListener [
+		  var text = this.carNb.getText()
+
+		  try {
+		    val value = Integer.parseInt(text) 
+		  } catch (err : NumberFormatException) {
+		    this.validateButton.setEnabled(false)
+		  }
+		]
 		this.carNb.setPreferredSize(new Dimension(200, 30))
 		carNbPanel.add(carNbLabel)
 		carNbPanel.add(carNb)
@@ -103,6 +115,7 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		btnSettingsPane.layout = new FlowLayout()
 		this.validateButton = new JButton("Valider et Quitter")
 		this.validateButton.addActionListener [
+			this.simController.getParameters(this)
 			settingsFrame.setVisible(false)
 		]
 		this.validateButton.setMargin(new Insets(10, 10, 10, 10))
@@ -138,9 +151,12 @@ class SimUI extends JFrame implements KeyListener, EnvironmentListener{
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start the simulation"
 		this.startButton.addActionListener [
+			this.startButton.setText("Stop")
+			this.simController.startSimulation()
 			
 		]
 		this.startButton.setMargin(new Insets(20,20,20,20))
+		
 		this.settingsButton = new JButton("Settings")
 		this.settingsButton.addActionListener [
 			settingsFrame.setVisible(true)

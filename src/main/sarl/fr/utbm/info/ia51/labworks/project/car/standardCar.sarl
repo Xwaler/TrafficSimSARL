@@ -9,34 +9,39 @@ import io.sarl.core.Initialize
 import io.sarl.core.Logging
 import io.sarl.core.Behaviors
 import io.sarl.lang.core.Behavior
-
-import org.arakhne.afc.math.geometry.d2.d.Point2d
-import org.arakhne.afc.simulation.framework.base.preferences.PreferenceManager
 import org.arakhne.afc.simulation.framework.framework1d.agents.AbstractSimulatedAgent1d
+import java.util.Collection
+import org.arakhne.afc.simulation.framework.framework1d.agents.obstacle.StandardObstacleDetector
 import org.arakhne.afc.simulation.framework.framework1d.agents.cruisespeed.RoadCruiseSpeedManager
-import org.arakhne.afc.simulation.framework.framework1d.agents.destination.StandardDestinationTester
-import org.arakhne.afc.simulation.framework.framework1d.agents.path.RandomPathSelection
 import org.arakhne.afc.simulation.framework.framework1d.preferences.PreferenceManager1d
-
+import org.arakhne.afc.simulation.framework.base.preferences.PreferenceManager
+import static extension org.arakhne.afc.simulation.framework.base.preferences.PreferenceManagerSingleton.*
 
 /** 
  * @author theau
  * 
  */
-agent standardCar {
+agent standardCar extends AbstractSimulatedAgent1d{
 	uses Logging,Behaviors
 	
-	var carBehavior = Behavior
+	var carBehavior : Behavior
 
-	on Initialize {
-		//this.carBehavior = new driverBehavior(this)
-		info("New standard car has spawned.")
+	override overridableInitializationStage(it : Initialize, differedCode : Collection<Runnable>) : void {
+		super.overridableInitializationStage(it, differedCode)
+		
+		val carFollowingModel = typeof(PreferenceManager1d).singleton.carFollowingModel
+		val carFollowingSkill = carFollowingModel.skillType.newInstance
+		setSkill(carFollowingSkill)
+		
+		val humanEstimationModel = typeof(PreferenceManager).singleton.humanEstimationModel
+		val humanEstimationSkill = humanEstimationModel.skillType.newInstance
+		setSkill(humanEstimationSkill)
+		
+		setSkill(new RoadCruiseSpeedManager)
+		setSkill(new StandardObstacleDetector)
+		this.carBehavior = new driverBehavior(this)
+		this.carBehavior.registerBehavior(it.parameters)
 	}
 
-	on Destroy {
-		// Event trigger when the agent is destroyed from the system.
-		// You should put all the resource releasing statements in this block of code.
-		info("Standard car destroyed.")
-	}
 
 }
