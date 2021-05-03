@@ -1,0 +1,18 @@
+package fr.utbm.info.ia51.labworks.project.ui
+
+import javax.swing.JPanel
+import java.awt.Dimension
+import java.awt.Color
+import javax.swing.BoxLayout
+
+class SimView extends JPanel{
+	
+	val dimension : Dimension
+	
+	new(dimension : Dimension) {
+		this.dimension = dimension
+		this.layout = new BoxLayout(this, BoxLayout::X_AXIS)
+		this.setPreferredSize(dimension)
+		this.setBackground(Color.black)
+	}
+}

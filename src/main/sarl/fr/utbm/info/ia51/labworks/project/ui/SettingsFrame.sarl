@@ -1,0 +1,123 @@
+package fr.utbm.info.ia51.labworks.project.ui
+
+import javax.swing.JPanel
+import java.awt.FlowLayout
+import javax.swing.BoxLayout
+import javax.swing.JLabel
+import java.awt.Dimension
+import java.awt.Font
+import javax.swing.JTextField
+import javax.swing.JSlider
+import javax.swing.JFrame
+import javax.swing.JButton
+import java.awt.BorderLayout
+import javax.swing.border.EmptyBorder
+import java.awt.Insets
+
+class SettingsFrame extends JFrame{
+	
+	var settingsWidth = 700
+	var settingsHeight = 500
+	var defaultRate = 50
+	
+	val validateButton : JButton
+	val leaveButton : JButton
+	
+	val carNb : JTextField
+	val carRate : JSlider
+	val obedienceRate : JTextField
+	
+	new{
+		/* Settings Frame for the popup */
+		
+		/* Initiate Settings Frame */
+		this.contentPane.layout = new BorderLayout
+		this.setPreferredSize(new Dimension(this.settingsWidth, this.settingsHeight))
+		this.setLocation(((this.width - this.settingsWidth) / 2), ((this.height - this.settingsHeight) / 2))
+		
+		/* Settings Frame Title widget */
+		val settingsTitlePane = new JPanel()
+		settingsTitlePane.setLayout(new FlowLayout())
+		val settingsTitle = new JLabel("Modifier les paramètres")
+		settingsTitle.setFont(new Font("", Font.PLAIN, 20))
+		settingsTitle.setPreferredSize(new Dimension(300, 100))
+		settingsTitle.setHorizontalAlignment(JLabel.CENTER)
+		settingsTitlePane.add(settingsTitle)
+		settingsTitlePane.setPreferredSize(new Dimension(400, 100))
+		
+		/* Settings parameters widgets */
+		val settingsPane = new JPanel()
+		settingsPane.layout = new BoxLayout(settingsPane, BoxLayout::Y_AXIS)
+		
+		/* Car Number widget */
+		val carNbPanel = new JPanel()
+		carNbPanel.layout = new FlowLayout()
+		val carNbLabel = new JLabel("Nombre de voiture :")
+		this.carNb = new JTextField()
+		this.carNb.addActionListener [
+		  var text = this.carNb.getText()
+
+		  try {
+		    val value = Integer.parseInt(text) 
+		  } catch (err : NumberFormatException) {
+		    this.validateButton.setEnabled(false)
+		  }
+		]
+		this.carNb.setPreferredSize(new Dimension(200, 30))
+		carNbPanel.add(carNbLabel)
+		carNbPanel.add(carNb)
+		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+		
+		/* Rate of autonomous cars widget */
+		val carRatePanel = new JPanel()
+		carRatePanel.layout = new FlowLayout()
+		val carRateLabel = new JLabel("Taux de voiture autonome :")
+		this.carRate = new JSlider(JSlider.HORIZONTAL, 0, 100, this.defaultRate)
+		this.carRate.setMajorTickSpacing(20);
+		this.carRate.setMinorTickSpacing(20);
+		this.carRate.setPaintTicks(true);
+		this.carRate.setPaintLabels(true);
+		carRatePanel.add(carRateLabel)
+		carRatePanel.add(carRate)
+		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+		
+		/* obedience Rate parameter widget */
+		val obedienceRatePanel = new JPanel()
+		obedienceRatePanel.layout = new FlowLayout()
+		val obedienceRateLabel = new JLabel("Taux d'obéissance :")
+		this.obedienceRate = new JTextField()
+		this.obedienceRate.setPreferredSize(new Dimension(200, 30))
+		obedienceRatePanel.add(obedienceRateLabel)
+		obedienceRatePanel.add(obedienceRate)
+		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+		
+		/* Bouton panel */
+		val btnSettingsPane = new JPanel()
+		btnSettingsPane.layout = new FlowLayout()
+		this.validateButton = new JButton("Valider et Quitter")
+		this.validateButton.addActionListener [
+			this.setVisible(false)
+		]
+		this.validateButton.setMargin(new Insets(10, 10, 10, 10))
+		this.leaveButton = new JButton("Quitter")
+		this.leaveButton.addActionListener [
+			this.setVisible(false)
+		]
+		this.leaveButton.setMargin(new Insets(10, 10, 10, 10))
+		btnSettingsPane.add(this.leaveButton)
+		btnSettingsPane.add(this.validateButton)
+		btnSettingsPane.setBorder(new EmptyBorder(50, 50, 50, 50))
+		
+		/* add widgets and panel to the frame */
+		settingsPane.add(carNbPanel)
+		settingsPane.add(carRatePanel)
+		settingsPane.add(obedienceRatePanel)
+		
+		this.contentPane.add(BorderLayout::NORTH, settingsTitlePane)
+		this.contentPane.add(BorderLayout::CENTER, settingsPane)
+		this.contentPane.add(BorderLayout::SOUTH, btnSettingsPane)
+		this.pack()
+		
+		/* ------------------------ */
+	}
+}

@@ -1,0 +1,114 @@
+package fr.utbm.info.ia51.labworks.project.ui
+
+import javax.swing.JFrame
+import java.awt.^event.KeyListener
+import fr.utbm.info.ia51.framework.environment.EnvironmentListener
+import java.awt.^event.KeyEvent
+import fr.utbm.info.ia51.framework.environment.EnvironmentEvent
+import javax.swing.JButton
+import javax.swing.JPanel
+import java.awt.BorderLayout
+import java.awt.Toolkit
+import java.awt.Insets
+import java.awt.FlowLayout
+import java.awt.Dimension
+import javax.swing.JLabel
+import java.awt.Font
+import javax.swing.border.EmptyBorder
+import fr.utbm.info.ia51.labworks.project.environment.Controller
+
+class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
+	
+	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
+	var width = screenSize.width-100
+	var height = screenSize.height-100
+	
+	val startButton : JButton
+	val settingsButton : JButton
+
+	
+	val simController = new Controller()
+	
+	val settingsFrame = new SettingsFrame()
+	val simView = new SimView(new Dimension(this.width-400, this.height-100))
+	val feedBackView = new FeedBackPanel()
+	
+	new {
+		
+		/* Main UI initiation */
+		this.setSize(this.width, this.height)
+		this.title="Traffic Simulator"
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+		this.setResizable(false)
+		
+		/* Btn initiation with action listeners */
+		this.startButton = new JButton("Start Simulation")
+		this.startButton.toolTipText = "Start the simulation"
+		this.startButton.addActionListener [
+			this.startButton.setText("Stop")
+			this.simController.startSimulation()
+			
+		]
+		this.startButton.setMargin(new Insets(20,20,20,20))
+		
+		this.settingsButton = new JButton("Settings")
+		this.settingsButton.addActionListener [
+			this.settingsFrame.setVisible(true)
+		]
+		this.settingsButton.setMargin(new Insets(20, 20, 20, 20))
+		
+
+		/* Widgets of the left panel*/
+		
+		/* Title of the panel */
+		val titlePanel = new JPanel
+		titlePanel.setLayout(new FlowLayout())
+		val title = new JLabel("Traffic Simulation")
+		title.setFont(new Font("", Font.PLAIN, 30))
+		title.setPreferredSize(new Dimension(300, 200))
+		title.setHorizontalAlignment(JLabel.CENTER)
+		titlePanel.add(title)
+		titlePanel.setPreferredSize(new Dimension(400, 250))
+
+		/* Btn widget */
+		val btnPanel = new JPanel
+		btnPanel.setLayout(new FlowLayout())
+		btnPanel.add(this.startButton)
+		btnPanel.add(this.settingsButton)
+		btnPanel.setBorder(new EmptyBorder(50, 50, 50, 50))
+
+		val leftPane = new JPanel
+		leftPane.layout = new BorderLayout
+		leftPane.setPreferredSize(new Dimension(400, this.height))
+		
+		/* Add widget to the left pane of the main ui */
+		leftPane.add(BorderLayout::NORTH,titlePanel)
+		leftPane.add(BorderLayout::CENTER,this.feedBackView)
+		leftPane.add(BorderLayout::SOUTH, btnPanel)
+		
+		/* Add everything to the main frame */
+		this.contentPane.layout = new BorderLayout
+		this.contentPane.add(BorderLayout::CENTER, this.simView)
+		this.contentPane.add(BorderLayout::EAST, leftPane)
+		this.setLocationRelativeTo(null)
+		this.pack()
+		this.visible = true
+	}
+	
+	def keyPressed(arg0 : KeyEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def keyReleased(arg0 : KeyEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def keyTyped(arg0 : KeyEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def environmentChanged(^event : EnvironmentEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+}
