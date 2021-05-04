@@ -1,47 +1,14 @@
-/** 
- * 
- */
 package fr.utbm.info.ia51.labworks.project.car
 
-import fr.utbm.info.ia51.labworks.project.carBehavior.driverBehavior
-import io.sarl.core.Destroy
-import io.sarl.core.Initialize
 import io.sarl.core.Logging
-import io.sarl.core.Behaviors
-import io.sarl.lang.core.Behavior
-import org.arakhne.afc.simulation.framework.framework1d.agents.AbstractSimulatedAgent1d
-import java.util.Collection
-import org.arakhne.afc.simulation.framework.framework1d.agents.obstacle.StandardObstacleDetector
-import org.arakhne.afc.simulation.framework.framework1d.agents.cruisespeed.RoadCruiseSpeedManager
-import org.arakhne.afc.simulation.framework.framework1d.preferences.PreferenceManager1d
-import org.arakhne.afc.simulation.framework.base.preferences.PreferenceManager
-import static extension org.arakhne.afc.simulation.framework.base.preferences.PreferenceManagerSingleton.*
 
 /** 
  * @author theau
  * 
  */
-agent standardCar extends AbstractSimulatedAgent1d{
-	uses Logging,Behaviors
+agent StandardCar extends Car{
+	uses Logging
 	
-	var carBehavior : Behavior
-
-	override overridableInitializationStage(it : Initialize, differedCode : Collection<Runnable>) : void {
-		super.overridableInitializationStage(it, differedCode)
-		
-		val carFollowingModel = typeof(PreferenceManager1d).singleton.carFollowingModel
-		val carFollowingSkill = carFollowingModel.skillType.newInstance
-		setSkill(carFollowingSkill)
-		
-		val humanEstimationModel = typeof(PreferenceManager).singleton.humanEstimationModel
-		val humanEstimationSkill = humanEstimationModel.skillType.newInstance
-		setSkill(humanEstimationSkill)
-		
-		setSkill(new RoadCruiseSpeedManager)
-		setSkill(new StandardObstacleDetector)
-		this.carBehavior = new driverBehavior(this)
-		this.carBehavior.registerBehavior(it.parameters)
-	}
 
 
 }

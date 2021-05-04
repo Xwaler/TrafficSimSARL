@@ -1,6 +1,6 @@
 package fr.utbm.info.ia51.labworks.project.environment
 
-import fr.utbm.info.ia51.labworks.project.ui.SimUI
+import fr.utbm.info.ia51.labworks.project.ui.MainFrame
 
 class Controller{
 	
@@ -8,7 +8,7 @@ class Controller{
 		System.out.println("sim started")
 	}
 	
-	def getParameters(ui : SimUI){
+	def getParameters(ui : MainFrame){
 		System.out.println("in")
 	}
 

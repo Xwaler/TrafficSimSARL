@@ -21,7 +21,7 @@ import io.sarl.core.SpaceDestroyed
  * @author theau
  * 
  */
-agent autonomousCar {
+agent AutonomousCar extends Car{
 	uses Logging
 
 	on Initialize {

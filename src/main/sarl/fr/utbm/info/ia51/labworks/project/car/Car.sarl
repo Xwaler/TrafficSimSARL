@@ -1,0 +1,25 @@
+package fr.utbm.info.ia51.labworks.project.car
+
+
+import io.sarl.core.Logging
+
+import fr.utbm.info.ia51.labworks.project.road.RoadElement
+
+/** 
+ * @author theau
+ * 
+ */
+agent Car {
+	uses Logging
+
+	var startPoint : RoadElement
+	var endPoint : RoadElement
+	var speed : double
+	var positionInRoad : double
+	var obedienceRate : double
+	var reactionTime : double
+	var perceptionErrorRate : double
+	var viewDistance : double
+	var FOV : double
+
+}
