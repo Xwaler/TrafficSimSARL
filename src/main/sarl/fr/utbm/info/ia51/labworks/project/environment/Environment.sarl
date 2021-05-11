@@ -6,7 +6,7 @@ import fr.utbm.info.ia51.labworks.project.car.Car
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Lifecycle
 import fr.utbm.info.ia51.labworks.project.environment.^agent.RoadManager
-import fr.utbm.info.ia51.labworks.project.environment.^agent.RoadManagerSkill
+import fr.utbm.info.ia51.labworks.project.road.Graph
 
 agent Environment {
 	uses RoadManager, DefaultContextInteractions, Lifecycle
@@ -15,6 +15,8 @@ agent Environment {
 	var mesureFlux : double
 	var tauxAccident : double
 	var tempsTrajet : double
+	var autonomousProportions : double
+	var roads = new Graph
 	
 	on Initialize {
 		var nbCar : int = occurrence.parameters.get(0) as Integer
@@ -23,7 +25,11 @@ agent Environment {
 		}
 		//setSkill(new RoadManagerSkill())
 
-		for (i : 0 ..< nbCar) {
+		addCars(nbCar);
+	}
+	
+	def addCars(nbCars : int) : void{
+		for (i : 0 ..< nbCars) {
 			var carBody = createCar()
 			spawnInContextWithID(typeof(Car), carBody.agentId, defaultContext)
 		}
