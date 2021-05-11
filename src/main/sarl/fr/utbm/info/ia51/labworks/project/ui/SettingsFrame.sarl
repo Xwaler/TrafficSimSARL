@@ -13,8 +13,12 @@ import javax.swing.JButton
 import java.awt.BorderLayout
 import javax.swing.border.EmptyBorder
 import java.awt.Insets
+import java.awt.^event.ActionListener
+import java.awt.^event.ActionEvent
+import java.awt.^event.KeyListener
+import java.awt.^event.KeyEvent
 
-class SettingsFrame extends JFrame{
+class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
 	var settingsWidth = 700
 	var settingsHeight = 500
@@ -22,18 +26,20 @@ class SettingsFrame extends JFrame{
 	
 	val validateButton : JButton
 	val leaveButton : JButton
+	val startButton : JButton
 	
 	public val carNb : JTextField
 	public val carRate : JSlider
 	public val obedienceRate : JTextField
 	
-	new{
+	new(width : int, height : int, startButton : JButton) {
 		/* Settings Frame for the popup */
-		
+
 		/* Initiate Settings Frame */
+		this.startButton = startButton
 		this.contentPane.layout = new BorderLayout
 		this.setPreferredSize(new Dimension(this.settingsWidth, this.settingsHeight))
-		this.setLocation(((this.width - this.settingsWidth) / 2), ((this.height - this.settingsHeight) / 2))
+		this.setLocation(((width - this.settingsWidth) / 2), ((height - this.settingsHeight) / 2))
 		
 		/* Settings Frame Title widget */
 		val settingsTitlePane = new JPanel()
@@ -86,28 +92,16 @@ class SettingsFrame extends JFrame{
 		val btnSettingsPane = new JPanel()
 		btnSettingsPane.layout = new FlowLayout()
 		this.validateButton = new JButton("Valider et Quitter")
-		this.validateButton.addActionListener [
-			this.setVisible(false)
-		]
+		this.validateButton.addActionListener(this)
 		this.validateButton.setMargin(new Insets(10, 10, 10, 10))
 		this.leaveButton = new JButton("Quitter")
-		this.leaveButton.addActionListener [
-			this.setVisible(false)
-		]
+		this.leaveButton.addActionListener(this)
 		this.leaveButton.setMargin(new Insets(10, 10, 10, 10))
 		btnSettingsPane.add(this.leaveButton)
 		btnSettingsPane.add(this.validateButton)
 		btnSettingsPane.setBorder(new EmptyBorder(50, 50, 50, 50))
 		
-		this.carNb.addActionListener [
-			var text = this.carNb.getText()
-
-			try {
-				val value = Integer.parseInt(text)
-			} catch (err : NumberFormatException) {
-				this.validateButton.setEnabled(false)
-			}
-		]
+		this.carNb.addKeyListener(this)
 		
 		/* add widgets and panel to the frame */
 		settingsPane.add(carNbPanel)
@@ -121,4 +115,31 @@ class SettingsFrame extends JFrame{
 		
 		/* ------------------------ */
 	}
+	
+	def actionPerformed(arg0 : ActionEvent) {
+		if(arg0.getSource() == this.validateButton){
+			this.setVisible(false)
+			this.startButton.setEnabled(true)
+		}
+		if (arg0.getSource() == this.leaveButton) {
+			this.setVisible(false)
+			this.startButton.setEnabled(true)
+		}
+	}
+	
+	def keyPressed(arg0 : KeyEvent) {
+		if (arg0.getSource() == this.carNb) {
+			var c = arg0.getKeyChar();
+			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) || (c == KeyEvent.VK_ENTER))) {
+				this.carNb.setEditable(false)
+			}else{
+				this.carNb.setEditable(true)
+			}
+		}
+	}
+	
+	def keyReleased(arg0 : KeyEvent) {}
+	
+	def keyTyped(arg0 : KeyEvent) {}
+	
 }

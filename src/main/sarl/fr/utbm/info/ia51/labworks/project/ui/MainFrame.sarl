@@ -21,23 +21,38 @@ import java.awt.^event.ActionEvent
 class MainFrame extends JFrame implements ActionListener {
 	
 	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
-	var width = 1280
-	var height = 720
+	var width : int
+	var height : int
 	
 	val startButton : JButton
 	val settingsButton : JButton
 	
-	val settingsFrame = new SettingsFrame()
-	val simView = new SimView(new Dimension(this.width-400, this.height-100))
+	var simStartedFlag = false
+	
+	val settingsFrame : SettingsFrame
+	val simView : SimView
 	val feedBackView = new FeedBackPanel()
 	
 	var context : AgentContext
 	var UIUUID = UUID::randomUUID
 	
 	new (context : AgentContext) {
+		
+		if(this.screenSize.getWidth() > 1920){
+			this.width = 1920-400
+		}
+		else{
+			this.width = (this.screenSize.getWidth() - 400) as int
+		}
+
+		if (this.screenSize.getHeight() > 1080) {
+			this.height = 1080 - 200
+		} else {
+			this.height = (this.screenSize.getHeight() - 200) as int
+		}
+		
 		this.context = context
 		
-		System.out.println("test")
 		/* Main UI initiation */
 		this.setSize(this.width, this.height)
 		this.title="Traffic Simulator"
@@ -47,20 +62,11 @@ class MainFrame extends JFrame implements ActionListener {
 		/* Btn initiation with action listeners */
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start the simulation"
-		this.startButton.addActionListener [
-			this.startButton.setText("Stop")
-			this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
-				Integer.parseInt(this.settingsFrame.carNb.getText()),
-				this.settingsFrame.carRate.getValue() / 100.0 as double
-			))
-		]
 		this.startButton.addActionListener(this)
 		this.startButton.setMargin(new Insets(20,20,20,20))
 		
 		this.settingsButton = new JButton("Settings")
-		this.settingsButton.addActionListener [
-			this.settingsFrame.setVisible(true)
-		]
+		this.settingsButton.addActionListener(this)
 		this.settingsButton.setMargin(new Insets(20, 20, 20, 20))
 		
 
@@ -86,6 +92,9 @@ class MainFrame extends JFrame implements ActionListener {
 		val leftPane = new JPanel
 		leftPane.layout = new BorderLayout
 		leftPane.setPreferredSize(new Dimension(400, this.height))
+
+		this.settingsFrame = new SettingsFrame(this.width + 400, this.height + 200, this.startButton)
+		this.simView = new SimView(new Dimension(this.width - 400, this.height - 100))
 		
 		/* Add widget to the left pane of the main ui */
 		leftPane.add(BorderLayout::NORTH,titlePanel)
@@ -104,7 +113,24 @@ class MainFrame extends JFrame implements ActionListener {
 	def actionPerformed(arg0 : ActionEvent) {
 
 		if(arg0.getSource() == this.startButton){
-			System.out.println("done")
+			if (simStartedFlag) {
+				this.startButton.setText("Start Simulation")
+				this.simStartedFlag = false
+				this.settingsButton.setEnabled(true)
+			} else {
+				this.startButton.setText("Stop")
+				this.simStartedFlag = true
+				this.settingsButton.setEnabled(false)
+				this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
+					Integer.parseInt(this.settingsFrame.carNb.getText()),
+					this.settingsFrame.carRate.getValue() / 100.0 as double
+				))
+			}
+		}
+		
+		if (arg0.getSource() == this.settingsButton) {
+			this.startButton.setEnabled(false)
+			this.settingsFrame.setVisible(true)
 		}
 	}
 	
