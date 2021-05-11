@@ -6,7 +6,6 @@ import io.sarl.core.Logging
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import io.sarl.lang.core.Behavior
 import io.sarl.core.Behaviors
-import io.sarl.core.Initialize
 
 /** 
  * @author theau
