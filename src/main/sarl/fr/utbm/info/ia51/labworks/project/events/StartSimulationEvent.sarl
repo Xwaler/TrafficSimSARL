@@ -1,0 +1,14 @@
+/** 
+ * 
+ */
+package fr.utbm.info.ia51.labworks.project.events
+
+import io.sarl.lang.core.Event
+
+/** 
+ * @author xwaler
+ * 
+ */
+event StartSimulationEvent extends Event {
+	
+}

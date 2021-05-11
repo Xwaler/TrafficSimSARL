@@ -54,15 +54,6 @@ class SettingsFrame extends JFrame{
 		carNbPanel.layout = new FlowLayout()
 		val carNbLabel = new JLabel("Nombre de voiture :")
 		this.carNb = new JTextField()
-		this.carNb.addActionListener [
-		  var text = this.carNb.getText()
-
-		  try {
-		    val value = Integer.parseInt(text) 
-		  } catch (err : NumberFormatException) {
-		    this.validateButton.setEnabled(false)
-		  }
-		]
 		this.carNb.setPreferredSize(new Dimension(200, 30))
 		carNbPanel.add(carNbLabel)
 		carNbPanel.add(carNb)
@@ -107,6 +98,16 @@ class SettingsFrame extends JFrame{
 		btnSettingsPane.add(this.leaveButton)
 		btnSettingsPane.add(this.validateButton)
 		btnSettingsPane.setBorder(new EmptyBorder(50, 50, 50, 50))
+		
+		this.carNb.addActionListener [
+			var text = this.carNb.getText()
+
+			try {
+				val value = Integer.parseInt(text)
+			} catch (err : NumberFormatException) {
+				this.validateButton.setEnabled(false)
+			}
+		]
 		
 		/* add widgets and panel to the frame */
 		settingsPane.add(carNbPanel)
