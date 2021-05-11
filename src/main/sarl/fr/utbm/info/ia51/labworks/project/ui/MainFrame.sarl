@@ -15,7 +15,7 @@ import java.awt.Dimension
 import javax.swing.JLabel
 import java.awt.Font
 import javax.swing.border.EmptyBorder
-import fr.utbm.info.ia51.labworks.project.environment.Controller
+import fr.utbm.info.ia51.labworks.project.controller.Controller
 
 class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
 	
@@ -46,7 +46,7 @@ class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
 		this.startButton.toolTipText = "Start the simulation"
 		this.startButton.addActionListener [
 			this.startButton.setText("Stop")
-			this.simController.startSimulation()
+			/*this.simController.startSimulation()*/
 			
 		]
 		this.startButton.setMargin(new Insets(20,20,20,20))
