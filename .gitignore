@@ -1,3 +1,5 @@
 target/
 generated-sources/
 .metadata/
+.classpath
+.settings/
