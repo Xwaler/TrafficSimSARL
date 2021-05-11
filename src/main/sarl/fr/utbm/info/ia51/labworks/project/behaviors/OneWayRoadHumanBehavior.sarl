@@ -1,0 +1,25 @@
+/** 
+ * 
+ */
+package fr.utbm.info.ia51.labworks.project.behaviors
+
+
+import io.sarl.core.Initialize
+import io.sarl.core.Logging
+
+
+/** 
+ * @author theau
+ * 
+ */
+behavior OneWayRoadHumanBehavior extends RoadBehavior{
+	uses Logging
+
+	on Initialize {
+		// Event trigger before the behavior begin to live or to be used.
+		// You should put all the initialization statements in this block of code.
+		info("The behavior was started.")
+	}
+
+	
+}
