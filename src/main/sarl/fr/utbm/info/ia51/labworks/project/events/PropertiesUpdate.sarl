@@ -1,1 +1,10 @@
 package fr.utbm.info.ia51.labworks.project.events
+
+abstract class PropertiesUpdate{
+	
+	var reactionTime : double
+	var perceptionErrorRate : double
+	var viewDistance : double
+	var FOV : double
+	
+}

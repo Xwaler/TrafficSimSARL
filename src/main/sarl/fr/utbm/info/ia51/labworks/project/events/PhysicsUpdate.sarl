@@ -1,1 +1,9 @@
 package fr.utbm.info.ia51.labworks.project.events
+
+class PhysicsUpdate{
+	
+	var newPosition : double
+	var newSpeed : double
+	var newAcceleration : double
+	
+}

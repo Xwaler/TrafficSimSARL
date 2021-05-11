@@ -1,1 +1,8 @@
 package fr.utbm.info.ia51.labworks.project.events
+
+import java.util.UUID
+
+abstract class Update{
+	
+	var agentId : UUID
+}
