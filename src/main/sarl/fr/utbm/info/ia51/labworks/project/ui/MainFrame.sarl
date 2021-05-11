@@ -49,7 +49,10 @@ class MainFrame extends JFrame implements ActionListener {
 		this.startButton.toolTipText = "Start the simulation"
 		this.startButton.addActionListener [
 			this.startButton.setText("Stop")
-			this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent)
+			this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
+				Integer.parseInt(this.settingsFrame.carNb.getText()),
+				this.settingsFrame.carRate.getValue() / 100.0 as double
+			))
 		]
 		this.startButton.addActionListener(this)
 		this.startButton.setMargin(new Insets(20,20,20,20))

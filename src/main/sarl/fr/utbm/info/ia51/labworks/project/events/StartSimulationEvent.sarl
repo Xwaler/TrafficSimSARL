@@ -10,5 +10,11 @@ import io.sarl.lang.core.Event
  * 
  */
 event StartSimulationEvent extends Event {
+	var nbCars : int
+	var autonomousProportions : double
 	
+	new (nbCars : int, autonomousProportions : double) {
+		this.nbCars = nbCars
+		this.autonomousProportions = autonomousProportions
+	}
 }

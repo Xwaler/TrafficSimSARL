@@ -9,11 +9,9 @@ import fr.utbm.info.ia51.labworks.project.environment.Environment
 
 agent TrafficSimBoot{
 	uses Lifecycle, DefaultContextInteractions
-
-	var nbCar : int = 10
 	
 	on Initialize {
 		var ui = new MainFrame(defaultContext);
-		spawn(typeof(Environment), nbCar, ui)
+		spawn(typeof(Environment), ui)
 	}
 }

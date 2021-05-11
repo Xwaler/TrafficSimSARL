@@ -23,9 +23,9 @@ class SettingsFrame extends JFrame{
 	val validateButton : JButton
 	val leaveButton : JButton
 	
-	val carNb : JTextField
-	val carRate : JSlider
-	val obedienceRate : JTextField
+	public val carNb : JTextField
+	public val carRate : JSlider
+	public val obedienceRate : JTextField
 	
 	new{
 		/* Settings Frame for the popup */
@@ -53,7 +53,7 @@ class SettingsFrame extends JFrame{
 		val carNbPanel = new JPanel()
 		carNbPanel.layout = new FlowLayout()
 		val carNbLabel = new JLabel("Nombre de voiture :")
-		this.carNb = new JTextField()
+		this.carNb = new JTextField("10")
 		this.carNb.setPreferredSize(new Dimension(200, 30))
 		carNbPanel.add(carNbLabel)
 		carNbPanel.add(carNb)

@@ -18,40 +18,38 @@ agent Environment {
 	var mesureFlux : double
 	var tauxAccident : double
 	var tempsTrajet : double
-	var autonomousProportions : double
 	var roads = new Graph
 	var cars = new ArrayList<UUID>;
 	
 	on Initialize {
-		var nbCar : int = occurrence.parameters.get(0) as Integer
 		synchronized (this) {
-			this.UI = occurrence.parameters.get(1) as MainFrame
+			this.UI = occurrence.parameters.get(0) as MainFrame
 		}
-		//setSkill(new RoadManagerSkill())
-
-		addCars(nbCar);
+		// setSkill(new RoadManagerSkill())
 	}
 	
 	on StartSimulationEvent {
 		System.out.println("START LA SIMULATION")
+		this.addCars(occurrence.nbCars, occurrence.autonomousProportions);
+		this.startCars()
 	}
 	
-	def addCars(nbCars : int) : void{
+	def addCars(nbCars : int, autonomousProportions : double) : void {
 		var nbAutonomous : int = (nbCars * autonomousProportions) as int
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext)
-			cars.add(UUID)
+			this.cars.add(UUID)
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			spawnInContextWithID(typeof(StandardCar), UUID, defaultContext)
-			cars.add(UUID)
+			this.cars.add(UUID)
 		}
 	}
 	
 	def startCars() {
-		for (i : 0 ..< cars.size) {
+		for (i : 0 ..< this.cars.size) {
 			
 		}
 	}
