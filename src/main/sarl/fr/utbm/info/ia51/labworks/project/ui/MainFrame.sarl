@@ -1,10 +1,6 @@
 package fr.utbm.info.ia51.labworks.project.ui
 
 import javax.swing.JFrame
-import java.awt.^event.KeyListener
-import fr.utbm.info.ia51.framework.environment.EnvironmentListener
-import java.awt.^event.KeyEvent
-import fr.utbm.info.ia51.framework.environment.EnvironmentEvent
 import javax.swing.JButton
 import javax.swing.JPanel
 import java.awt.BorderLayout
@@ -15,9 +11,10 @@ import java.awt.Dimension
 import javax.swing.JLabel
 import java.awt.Font
 import javax.swing.border.EmptyBorder
-import fr.utbm.info.ia51.labworks.project.controller.Controller
+import java.awt.^event.ActionListener
+import java.awt.^event.ActionEvent
 
-class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
+class MainFrame extends JFrame implements ActionListener{
 	
 	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
 	var width = screenSize.width-100
@@ -25,16 +22,14 @@ class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
 	
 	val startButton : JButton
 	val settingsButton : JButton
-
-	
-	val simController = new Controller()
 	
 	val settingsFrame = new SettingsFrame()
 	val simView = new SimView(new Dimension(this.width-400, this.height-100))
 	val feedBackView = new FeedBackPanel()
 	
+	@SuppressWarnings("discouraged_reference")
 	new {
-		
+		System.out.println("test")
 		/* Main UI initiation */
 		this.setSize(this.width, this.height)
 		this.title="Traffic Simulator"
@@ -44,11 +39,7 @@ class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
 		/* Btn initiation with action listeners */
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.toolTipText = "Start the simulation"
-		this.startButton.addActionListener [
-			this.startButton.setText("Stop")
-			/*this.simController.startSimulation()*/
-			
-		]
+		this.startButton.addActionListener(this)
 		this.startButton.setMargin(new Insets(20,20,20,20))
 		
 		this.settingsButton = new JButton("Settings")
@@ -95,20 +86,11 @@ class MainFrame extends JFrame implements KeyListener, EnvironmentListener{
 		this.visible = true
 	}
 	
-	def keyPressed(arg0 : KeyEvent) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
-	}
-	
-	def keyReleased(arg0 : KeyEvent) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
-	}
-	
-	def keyTyped(arg0 : KeyEvent) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
-	}
-	
-	def environmentChanged(^event : EnvironmentEvent) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	def actionPerformed(arg0 : ActionEvent) {
+
+		if(arg0.getSource() == this.startButton){
+			System.out.println("done")
+		}
 	}
 	
 }
