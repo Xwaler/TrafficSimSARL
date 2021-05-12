@@ -1,10 +1,10 @@
+
 package fr.utbm.info.ia51.labworks.project.behaviors
 
 import io.sarl.core.Logging
-
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
-behavior OneWayRoadHumanBehavior extends RoadBehavior{
+behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
 	uses Logging
 
 	on BehaviorInitialize {
@@ -13,5 +13,4 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior{
 		info("The behavior was started.")
 	}
 
-	
 }
