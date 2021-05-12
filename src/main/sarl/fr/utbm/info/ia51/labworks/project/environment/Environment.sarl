@@ -20,7 +20,7 @@ agent Environment {
 	var tempsTrajet : double
 	var roads = new Graph
 	var cars = new ArrayList<UUID>;
-	
+		
 	on Initialize {
 		synchronized (this) {
 			this.UI = occurrence.parameters.get(0) as MainFrame
@@ -49,8 +49,8 @@ agent Environment {
 	}
 	
 	def startCars() {
-		for (i : 0 ..< this.cars.size) {
-			
+		for (car : this.cars) {
+			roads.enter(car)
 		}
 	}
 }

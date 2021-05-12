@@ -1,15 +1,15 @@
 package fr.utbm.info.ia51.labworks.project.road
 
-import fr.utbm.info.ia51.labworks.project.car.Car
+import java.util.UUID
+import java.util.List
+import java.util.ArrayList
 
 abstract class RoadElement extends GraphElement {
 	var speedLimit : int
+	var cars : List<UUID> = new ArrayList<UUID>()
 	
-	def enter(car : Car) : void{
-		
-	}
-	
-	def speedLimit() : int{
-		return 1
+	def enter(car : UUID) : void {
+		cars.add(car)
+		System.out.println("Car " + car + " entered " + this.toString())
 	}
 }
