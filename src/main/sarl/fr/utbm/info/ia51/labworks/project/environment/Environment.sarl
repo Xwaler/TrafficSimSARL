@@ -27,20 +27,22 @@ agent Environment {
 	on Initialize {
 		synchronized (this) {
 			this.UI = occurrence.parameters.get(0) as MainFrame
+			this.roads = new Graph(defaultContext)
+			roads.generateRandom()
 		}
-		this.roads = new Graph(defaultContext)
-		roads.generateRandom()
 	}
 	
 	on StartSimulationEvent {
-		info("START LA SIMULATION")
+		info("SIMULATION STARTED")
 		this.addCars(occurrence.nbCars, occurrence.autonomousProportions, occurrence.obedienceRate);
 	}
 	
 	on AgentSpawned {
-		var car : UUID = occurrence.agentID
-		if (cars.contains(car)) {
-			this.roads.enter(car)
+		synchronized (this) {
+			var agentID : UUID = occurrence.agentID
+			if (cars.contains(agentID)) {
+				this.roads.enter(agentID)
+			}
 		}
 	}
 	

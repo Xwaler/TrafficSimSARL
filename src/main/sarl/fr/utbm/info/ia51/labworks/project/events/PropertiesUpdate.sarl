@@ -1,10 +1,6 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-import java.util.List
-import fr.utbm.info.ia51.labworks.project.car.Car
-import io.sarl.lang.core.Event
-
-event PropertiesUpdate extends Event {
+event PropertiesUpdate extends Update {
 	var reactionTime : double
 	var perceptionErrorRate : double
 	var viewDistance : double
@@ -30,25 +26,5 @@ event HumanCarPropertiesUpdate extends PropertiesUpdate {
 	new (obedienceRate : double, reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
 		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
 		this.obedienceRate = obedienceRate
-	}
-}
-
-event PerceptionUpdate extends Event{
-	var surroundingCars : List<Car>
-
-	new (surroundingCars : List<Car>) {
-		this.surroundingCars = surroundingCars
-	}
-}
-
-event PhysicsUpdate extends Event{
-	var newPosition : double
-	var newSpeed : double
-	var newAcceleration : double
-
-	new (newPosition : double, newSpeed : double, newAcceleration : double) {
-		this.newPosition = newPosition
-		this.newSpeed = newSpeed
-		this.newAcceleration = newAcceleration
 	}
 }

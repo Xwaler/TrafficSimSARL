@@ -5,8 +5,8 @@ import java.util.UUID
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 
 class EntryPoint extends Intersection {
-	def enter(car : UUID) {
+	def enter(car : UUID, destination : Intersection) {
 		super.enter(car)
-		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterEntryPoint(this))[it.UUID == car]
+		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterEntryPoint(this, destination))[it.UUID == car]
 	}
 }

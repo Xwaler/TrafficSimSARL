@@ -1,7 +1,28 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-import java.util.UUID
+import java.util.List
+import fr.utbm.info.ia51.labworks.project.car.Car
 
 event Update {
-	var agentId : UUID
+	
+}
+
+event PerceptionUpdate extends Update {
+	var surroundingCars : List<Car>
+
+	new (surroundingCars : List<Car>) {
+		this.surroundingCars = surroundingCars
+	}
+}
+
+event PhysicsUpdate extends Update {
+	var newPosition : double
+	var newSpeed : double
+	var newAcceleration : double
+
+	new (newPosition : double, newSpeed : double, newAcceleration : double) {
+		this.newPosition = newPosition
+		this.newSpeed = newSpeed
+		this.newAcceleration = newAcceleration
+	}
 }

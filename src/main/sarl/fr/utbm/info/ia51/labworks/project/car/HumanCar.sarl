@@ -40,6 +40,8 @@ agent HumanCar extends Car {
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
 		this.enter(occurrence.road)
+		this.startPoint = occurrence.road
+		this.endPoint = occurrence.destination
 		this.registerNewBehavior(new EntryPointHumanBehavior(this))
 	}
 

@@ -7,35 +7,37 @@ import java.util.Random
 import io.sarl.lang.core.AgentContext
 
 class Graph {
-	var nbEntryNode : int = 5
-	var minNbNodes : int = 10
-	var maxNbNodes : int = 20
+	var minEntryNode : int = 2
+	var maxEntryNode : int = 5
+	var minOtherNodes : int = 10
+	var maxOtherNodes : int = 20
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
-	
+
 	var context : AgentContext
-	
 	var generator : Random = new Random()
 	var entryPoints : List<EntryPoint> = new ArrayList<EntryPoint>()
+	var intersections : List<Intersection> = new ArrayList<Intersection>()
 
 	new (context : AgentContext) {
 		this.context = context
 	}
 
 	def enter(car : UUID) {
-		this.entryPoints.get(this.generator.nextInt(this.entryPoints.size())).enter(car)
+		var destination : Intersection = this.intersections.get(this.generator.nextInt(this.intersections.size()))
+		this.entryPoints.get(this.generator.nextInt(this.entryPoints.size())).enter(car, destination)
 	}
 	
 	def generateRandom() {
 		var index : List<Integer> = new ArrayList<Integer>()
 		var edges : List<List<Integer>> = new ArrayList<List<Integer>>()
 		/* Initialize entry nodes */
-		for (i : 0 ..< this.nbEntryNode) {
+		for (i : 0 ..< this.generator.nextInt(this.maxEntryNode - this.minEntryNode) + this.minEntryNode) {
 			index.add(1)
 			edges.add(new ArrayList<Integer>())	
 		}
 		/* Initialize random link number for each intersection */
-		for (i : 0 ..< this.generator.nextInt(this.maxNbNodes - this.minNbNodes) + this.minNbNodes) {
+		for (i : 0 ..< this.generator.nextInt(this.maxOtherNodes - this.minOtherNodes) + this.minOtherNodes) {
 			index.add(minNodeLinks)
 			edges.add(new ArrayList<Integer>())	
 		}
@@ -95,12 +97,11 @@ class Graph {
 		 * Corresponding road links are given to the newly created object
 		 * The intersections will tell the roads who they're linked to
 		 * */
-		var intersections : List<Intersection> = new ArrayList<Intersection>()
+		this.intersections = new ArrayList<Intersection>()
 		for (i : 0 ..< index.size()) {
 			var nbLinks : Integer = index.get(i)
 			if (nbLinks == 1) {
-				var entryPoint : EntryPoint = new EntryPoint(this.context, roads.get(i))
-				this.entryPoints.add(entryPoint)
+				this.entryPoints.add(new EntryPoint(this.context, roads.get(i)))
 			} else if (nbLinks == 3) {
 				switch (generator.nextInt(2)) {
 					case 0: {

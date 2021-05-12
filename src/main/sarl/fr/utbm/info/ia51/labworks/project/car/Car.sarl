@@ -20,6 +20,9 @@ import io.sarl.core.Initialize
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
+import fr.utbm.info.ia51.labworks.project.events.ExitRoad
+import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
+import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors
@@ -41,8 +44,8 @@ agent Car {
 	}
 	
 	on StopSimulationEvent {
-		if (this.carBehavior !== null) {
-			synchronized (this) {
+		synchronized (this) {
+			if (this.carBehavior !== null) {
 				unregisterBehavior(this.carBehavior);
 			}
 		}
@@ -52,18 +55,32 @@ agent Car {
 	def enter(road : RoadElement) : void {
 		synchronized (this) {
 			this.currentElement = road
+			this.positionInRoad = 0.0
 			info("Entered " + this.currentElement)
 		}
 	}
 	
 	def registerNewBehavior(carBehavior : Behavior) : void {
 		synchronized (this) {
-			if (this.carBehavior !== null) {
-				unregisterBehavior(this.carBehavior);
-			}
 			this.carBehavior = carBehavior
 			registerBehavior(this.carBehavior);
 			wake(new BehaviorInitialize)
+		}
+	}
+	
+	on PhysicsUpdate {
+		
+	}
+	
+	on PerceptionUpdate {
+		
+	}
+
+	on ExitRoad {
+		synchronized (this) {
+			if (this.carBehavior !== null) {
+				unregisterBehavior(this.carBehavior);
+			}
 		}
 	}
 
