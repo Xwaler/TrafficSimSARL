@@ -4,26 +4,51 @@ import java.util.List
 import fr.utbm.info.ia51.labworks.project.car.Car
 import io.sarl.lang.core.Event
 
-event PropertiesUpdate extends Event{
+event PropertiesUpdate extends Event {
 	var reactionTime : double
 	var perceptionErrorRate : double
 	var viewDistance : double
 	var FOV : double
+
+	new (reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
+		this.reactionTime = reactionTime
+		this.perceptionErrorRate = perceptionErrorRate
+		this.viewDistance = viewDistance
+		this.FOV = FOV
+	}
 }
 
-event AutonomousCarUpdate extends PropertiesUpdate {
+event AutonomousCarPropertiesUpdate extends PropertiesUpdate {
+	new (reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
+		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
+	}
 }
 
-event HumanPropertiesUpdate extends PropertiesUpdate {
+event HumanCarPropertiesUpdate extends PropertiesUpdate {
 	var obedienceRate : double
+	
+	new (obedienceRate : double, reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
+		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
+		this.obedienceRate = obedienceRate
+	}
 }
 
 event PerceptionUpdate extends Event{
 	var surroundingCars : List<Car>
+
+	new (surroundingCars : List<Car>) {
+		this.surroundingCars = surroundingCars
+	}
 }
 
 event PhysicsUpdate extends Event{
 	var newPosition : double
 	var newSpeed : double
 	var newAcceleration : double
+
+	new (newPosition : double, newSpeed : double, newAcceleration : double) {
+		this.newPosition = newPosition
+		this.newSpeed = newSpeed
+		this.newAcceleration = newAcceleration
+	}
 }

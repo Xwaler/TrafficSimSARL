@@ -5,7 +5,7 @@ import io.sarl.core.Logging
 import io.sarl.core.Initialize
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
-behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
+behavior EntryPointAutonomousBehavior extends IntersectionBehavior {
 	uses Logging
 
 	on Initialize {

@@ -1,0 +1,9 @@
+package fr.utbm.info.ia51.labworks.project.skills
+
+skill AccelerateSkill implements AccelerateCapacity {
+	
+}
+
+skill PerceptSkill implements PerceptCapacity {
+	
+}

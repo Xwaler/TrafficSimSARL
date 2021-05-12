@@ -1,19 +1,18 @@
-
 package fr.utbm.info.ia51.labworks.project.behaviors
 
 import io.sarl.core.Logging
-import io.sarl.core.Initialize
+import io.sarl.lang.core.Behavior
+
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
-behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
+behavior IntersectionBehavior extends Behavior {
 	uses Logging
 
-	on Initialize {
+	on BehaviorInitialize {
 		// Event trigger before the behavior begin to live or to be used.
 		// You should put all the initialization statements in this block of code.
-	}
-
-	on BehaviorInitialize {
-		
+		info(this.class.simpleName + " was started.")
 	}
 }
+
+

@@ -15,10 +15,10 @@ import io.sarl.core.ParticipantJoined
 import io.sarl.core.ParticipantLeft
 import io.sarl.core.SpaceCreated
 import io.sarl.core.SpaceDestroyed
+import io.sarl.core.Initialize
 
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
-import fr.utbm.info.ia51.labworks.project.behaviors.RoadBehavior
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
 agent Car {
@@ -36,7 +36,16 @@ agent Car {
 	protected var FOV : double
 	protected var carBehavior : Behavior
 	
+	on Initialize {
+		
+	}
+	
 	on StopSimulationEvent {
+		if (this.carBehavior !== null) {
+			synchronized (this) {
+				unregisterBehavior(this.carBehavior);
+			}
+		}
 		killMe
 	}
 	
@@ -47,7 +56,7 @@ agent Car {
 		}
 	}
 	
-	def registerNewBehavior(carBehavior : RoadBehavior) : void {
+	def registerNewBehavior(carBehavior : Behavior) : void {
 		synchronized (this) {
 			if (this.carBehavior !== null) {
 				unregisterBehavior(this.carBehavior);

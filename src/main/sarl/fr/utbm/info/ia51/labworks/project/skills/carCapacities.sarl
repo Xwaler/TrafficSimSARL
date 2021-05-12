@@ -1,0 +1,9 @@
+package fr.utbm.info.ia51.labworks.project.skills
+
+capacity AccelerateCapacity {
+	
+}
+
+capacity PerceptCapacity {
+	
+}

@@ -17,6 +17,10 @@ import java.awt.^event.ActionListener
 import java.awt.^event.ActionEvent
 import java.awt.^event.KeyListener
 import java.awt.^event.KeyEvent
+import io.sarl.lang.core.AgentContext
+import java.util.UUID
+import fr.utbm.info.ia51.labworks.project.events.HumanCarPropertiesUpdate
+import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
 
 class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
@@ -32,8 +36,15 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	public val carNb : JTextField
 	public val carRate : JSlider
 	public val obedienceRate : JSlider
+
+	var context : AgentContext
+	var UIUUID : UUID
 	
-	new(width : int, height : int, startButton : JButton) {
+	new(width : int, height : int, startButton : JButton, context : AgentContext,  UIUUID : UUID) {
+		/* Context for events */
+		this.context = context
+		this.UIUUID = UIUUID
+		
 		/* Settings Frame for the popup */
 
 		/* Initiate Settings Frame */
@@ -124,6 +135,13 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		if(arg0.getSource() == this.validateButton){
 			this.setVisible(false)
 			this.startButton.setEnabled(true)
+			this.context.getDefaultSpace().emit(UIUUID, new HumanCarPropertiesUpdate(
+				this.obedienceRate.getValue() / 100.0 as double,
+				0, 0, 0, 0
+			))
+			this.context.getDefaultSpace().emit(UIUUID, new AutonomousCarPropertiesUpdate(
+				0, 0, 0, 0
+			))
 		}
 		if (arg0.getSource() == this.leaveButton) {
 			this.setVisible(false)

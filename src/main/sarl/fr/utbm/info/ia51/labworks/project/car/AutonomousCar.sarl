@@ -4,9 +4,11 @@ import io.sarl.core.Initialize
 import io.sarl.core.Destroy
 import io.sarl.core.Logging
 
-import fr.utbm.info.ia51.labworks.project.events.HumanPropertiesUpdate
+import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
+import fr.utbm.info.ia51.labworks.project.behaviors.OneWayRoadAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.behaviors.EntryPointAutonomousBehavior
 
 agent AutonomousCar extends Car {
 	uses Logging
@@ -17,20 +19,24 @@ agent AutonomousCar extends Car {
 		info("New autonomous car spawned.")
 	}
 	
-	on HumanPropertiesUpdate {
-		
+	on AutonomousCarPropertiesUpdate {
+		this.reactionTime = occurrence.reactionTime
+		this.perceptionErrorRate = occurrence.perceptionErrorRate
+		this.viewDistance = occurrence.viewDistance
+		this.FOV = occurrence.FOV
+		info("Properties updated")
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterOneWayRoad {
 		this.enter(occurrence.road)
-		// this.registerNewBehavior(new OneWayRoadAutonomousBehavior(this))
+		this.registerNewBehavior(new OneWayRoadAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
 		this.enter(occurrence.road)
-		// this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
+		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
 	}
 
 	on Destroy {

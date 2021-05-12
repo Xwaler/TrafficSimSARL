@@ -4,12 +4,13 @@ import io.sarl.core.Initialize
 import io.sarl.core.Destroy
 import io.sarl.core.Logging
 
-import fr.utbm.info.ia51.labworks.project.events.HumanPropertiesUpdate
+import fr.utbm.info.ia51.labworks.project.events.HumanCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 import fr.utbm.info.ia51.labworks.project.behaviors.OneWayRoadHumanBehavior
+import fr.utbm.info.ia51.labworks.project.behaviors.EntryPointHumanBehavior
 
-agent StandardCar extends Car {
+agent HumanCar extends Car {
 	uses Logging
 
 	on Initialize {
@@ -18,11 +19,16 @@ agent StandardCar extends Car {
 		synchronized (this) {
 			this.obedienceRate = occurrence.parameters.get(0) as Double
 		}
-		info("New standard car spawned.")
+		info("New human car spawned.")
 	}
 
-	on HumanPropertiesUpdate {
+	on HumanCarPropertiesUpdate {
 		this.obedienceRate = occurrence.obedienceRate
+		this.reactionTime = occurrence.reactionTime
+		this.perceptionErrorRate = occurrence.perceptionErrorRate
+		this.viewDistance = occurrence.viewDistance
+		this.FOV = occurrence.FOV
+		info("Properties updated")
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
@@ -34,12 +40,12 @@ agent StandardCar extends Car {
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
 		this.enter(occurrence.road)
-		// this.registerNewBehavior(new EntryPointHumanBehavior(this))
+		this.registerNewBehavior(new EntryPointHumanBehavior(this))
 	}
 
 	on Destroy {
 		// Event trigger when the agent is destroyed from the system.
 		// You should put all the resource releasing statements in this block of code.
-		info("Standard car destroyed.")
+		info("Human car destroyed.")
 	}
 }

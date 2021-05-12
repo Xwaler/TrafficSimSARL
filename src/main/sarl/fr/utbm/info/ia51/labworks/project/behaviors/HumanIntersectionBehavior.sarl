@@ -3,9 +3,10 @@ package fr.utbm.info.ia51.labworks.project.behaviors
 
 import io.sarl.core.Logging
 import io.sarl.core.Initialize
+
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
-behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
+behavior EntryPointHumanBehavior extends IntersectionBehavior {
 	uses Logging
 
 	on Initialize {
