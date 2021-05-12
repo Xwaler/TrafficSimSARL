@@ -1,7 +1,0 @@
-package fr.utbm.info.ia51.labworks.project.events
-
-event PhysicsUpdate {
-	var newPosition : double
-	var newSpeed : double
-	var newAcceleration : double
-}
