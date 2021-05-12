@@ -4,6 +4,7 @@ import java.util.UUID
 import java.util.List
 import java.util.ArrayList
 import java.util.Random
+import io.sarl.lang.core.AgentContext
 
 class Graph {
 	var nbEntryNode : int = 5
@@ -12,8 +13,14 @@ class Graph {
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 	
+	var context : AgentContext
+	
 	var generator : Random = new Random()
 	var entryPoints : List<EntryPoint> = new ArrayList<EntryPoint>()
+
+	new (context : AgentContext) {
+		this.context = context
+	}
 
 	def enter(car : UUID) {
 		this.entryPoints.get(this.generator.nextInt(this.entryPoints.size())).enter(car)
@@ -75,7 +82,7 @@ class Graph {
 				if (e > i) {
 					switch (generator.nextInt(1)) {
 						case 0: {
-							roads.get(i).add(new OneWayRoad)	
+							roads.get(i).add(new OneWayRoad(this.context))	
 						}
 					}
 				} else {
@@ -92,28 +99,28 @@ class Graph {
 		for (i : 0 ..< index.size()) {
 			var nbLinks : Integer = index.get(i)
 			if (nbLinks == 1) {
-				var entryPoint : EntryPoint = new EntryPoint(roads.get(i))
+				var entryPoint : EntryPoint = new EntryPoint(this.context, roads.get(i))
 				this.entryPoints.add(entryPoint)
 			} else if (nbLinks == 3) {
 				switch (generator.nextInt(2)) {
 					case 0: {
-						intersections.add(new IntersectionT(roads.get(i)))
+						intersections.add(new IntersectionT(this.context, roads.get(i)))
 					}
 					case 1: {
-						intersections.add(new IntersectionY(roads.get(i)))
+						intersections.add(new IntersectionY(this.context, roads.get(i)))
 					}
 				}
 			} else if (nbLinks == 4) {
 				switch (generator.nextInt(2)) {
 					case 0: {
-						intersections.add(new CrossIntersection(roads.get(i)))
+						intersections.add(new CrossIntersection(this.context, roads.get(i)))
 					}
 					case 1: {
-						intersections.add(new Roundabout(roads.get(i)))
+						intersections.add(new Roundabout(this.context, roads.get(i)))
 					}
 				}
 			} else {
-				intersections.add(new Roundabout(roads.get(i)))
+				intersections.add(new Roundabout(this.context, roads.get(i)))
 			}
 		}
 		

@@ -1,15 +1,14 @@
 package fr.utbm.info.ia51.labworks.project.behaviors
 
-import io.sarl.core.Initialize
 import io.sarl.core.Logging
+import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
 behavior RoadBehavior {
 	uses Logging
 
-	on Initialize {
+	on BehaviorInitialize {
 		// Event trigger before the behavior begin to live or to be used.
 		// You should put all the initialization statements in this block of code.
 		info("The behavior was started.")
 	}
-
 }

@@ -18,12 +18,15 @@ import io.sarl.core.SpaceDestroyed
 
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
+import fr.utbm.info.ia51.labworks.project.behaviors.RoadBehavior
+import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors
 
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
+	protected var currentElement : RoadElement
 	protected var speed : double
 	protected var positionInRoad : double
 	protected var obedienceRate : double
@@ -35,6 +38,24 @@ agent Car {
 	
 	on StopSimulationEvent {
 		killMe
+	}
+	
+	def enter(road : RoadElement) : void {
+		synchronized (this) {
+			this.currentElement = road
+			info("Entered " + this.currentElement)
+		}
+	}
+	
+	def registerNewBehavior(carBehavior : RoadBehavior) : void {
+		synchronized (this) {
+			if (this.carBehavior !== null) {
+				unregisterBehavior(this.carBehavior);
+			}
+			this.carBehavior = carBehavior
+			registerBehavior(this.carBehavior);
+			wake(new BehaviorInitialize)
+		}
 	}
 
 	on AgentSpawned {

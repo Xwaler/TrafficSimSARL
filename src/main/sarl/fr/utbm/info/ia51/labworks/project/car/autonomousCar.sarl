@@ -5,6 +5,8 @@ import io.sarl.core.Destroy
 import io.sarl.core.Logging
 
 import fr.utbm.info.ia51.labworks.project.events.HumanPropertiesUpdate
+import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
+import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 
 agent AutonomousCar extends Car {
 	uses Logging
@@ -17,6 +19,18 @@ agent AutonomousCar extends Car {
 	
 	on HumanPropertiesUpdate {
 		
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterOneWayRoad {
+		this.enter(occurrence.road)
+		// this.registerNewBehavior(new OneWayRoadAutonomousBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterEntryPoint {
+		this.enter(occurrence.road)
+		// this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
 	}
 
 	on Destroy {

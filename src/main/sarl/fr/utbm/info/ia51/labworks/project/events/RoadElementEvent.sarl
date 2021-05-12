@@ -1,5 +1,20 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-event RoadElementEvent {
+import io.sarl.lang.core.Event
+import fr.utbm.info.ia51.labworks.project.road.RoadElement
+
+event RoadElementEvent extends Event {
+	var road : RoadElement
+	
+	new (road : RoadElement) {
+		this.road = road
+	}
+}
+
+event EnterOneWayRoad extends RoadElementEvent {
+	
+}
+
+event EnterEntryPoint extends RoadElementEvent {
 	
 }
