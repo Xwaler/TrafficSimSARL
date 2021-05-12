@@ -1,16 +1,8 @@
-/** 
- * 
- */
 package fr.utbm.info.ia51.labworks.project.behaviors
 
 import io.sarl.core.Initialize
 import io.sarl.core.Logging
 
-
-/** 
- * @author theau
- * 
- */
 behavior RoadBehavior {
 	uses Logging
 

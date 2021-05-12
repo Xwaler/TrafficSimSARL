@@ -2,15 +2,14 @@ package fr.utbm.info.ia51.labworks.project.road
 
 import fr.utbm.info.ia51.labworks.project.car.Car
 
-class RoadElement extends GraphElement{
-	
+abstract class RoadElement extends GraphElement {
 	var speedLimit : int
 	
-	def enter(car : Car):void{
+	def enter(car : Car) : void{
 		
 	}
 	
 	def speedLimit() : int{
-		return 1;
+		return 1
 	}
 }

@@ -13,6 +13,7 @@ import java.awt.Font
 import javax.swing.border.EmptyBorder
 
 import fr.utbm.info.ia51.labworks.project.events.StartSimulationEvent
+import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import java.util.UUID
 import io.sarl.lang.core.AgentContext
 import java.awt.^event.ActionListener
@@ -111,19 +112,20 @@ class MainFrame extends JFrame implements ActionListener {
 	}
 	
 	def actionPerformed(arg0 : ActionEvent) {
-
-		if(arg0.getSource() == this.startButton){
+		if (arg0.getSource() == this.startButton){
 			if (simStartedFlag) {
 				this.startButton.setText("Start Simulation")
 				this.simStartedFlag = false
 				this.settingsButton.setEnabled(true)
+				this.context.getDefaultSpace().emit(UIUUID, new StopSimulationEvent())
 			} else {
 				this.startButton.setText("Stop")
 				this.simStartedFlag = true
 				this.settingsButton.setEnabled(false)
 				this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
 					Integer.parseInt(this.settingsFrame.carNb.getText()),
-					this.settingsFrame.carRate.getValue() / 100.0 as double
+					this.settingsFrame.carRate.getValue() / 100.0 as double,
+					this.settingsFrame.obedienceRate.getValue() / 100.0 as double
 				))
 			}
 		}

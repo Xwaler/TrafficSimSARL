@@ -1,6 +1,109 @@
 package fr.utbm.info.ia51.labworks.project.road
 
-class Graph{
+import java.util.List
+import java.util.ArrayList
+import java.util.Random
+
+class Graph {
+	var nbEntryNode : int = 2
+	var minNbNodes : int = 15
+	var maxNbNodes : int = 30
+	var minNodeLinks : int = 3
+	var maxNodeLinks : int = 5
 	
+	var generator : Random = new Random()
+	var entryPoints : List<EntryPoint> = new ArrayList<EntryPoint>()
 	
+	new {
+		
+	}
+	
+	def generateRandom() {
+		var index : List<Integer> = new ArrayList<Integer>()
+		var edges : List<List<Integer>> = new ArrayList<List<Integer>>()
+		for (i : 0 ..< this.nbEntryNode) {
+			index.add(1)
+			edges.add(new ArrayList<Integer>())	
+		}
+		for (i : 0 ..< this.generator.nextInt(this.maxNbNodes - this.minNbNodes) + this.minNbNodes) {
+			index.add(this.generator.nextInt(this.maxNodeLinks - this.minNodeLinks) + this.minNodeLinks)
+			edges.add(new ArrayList<Integer>())	
+		}
+		System.out.println("Initial intersection links number  : " + index.toString())
+		
+		for (i : 0 ..< index.size()) {
+			while (edges.get(i).size() < index.get(i)) {
+				var newEdge : int
+				do {
+					newEdge = this.generator.nextInt(index.size())
+				} while (newEdge == i || edges.get(i).contains(newEdge) || index.get(newEdge) == 1)
+				edges.get(i).add(newEdge)
+			}
+			
+			for (j : 0 ..< index.size()) {
+				if (j != i) {
+					if (edges.get(j).contains(i) && !edges.get(i).contains(j)) {
+						edges.get(i).add(j)
+					}
+					if (edges.get(i).contains(j) && !edges.get(j).contains(i)) {
+						edges.get(j).add(i)
+					}
+				}	
+			}
+		}
+		for (i : 0 ..< index.size()) {
+			index.set(i, edges.get(i).size())	
+			edges.get(i).sortInplace()
+		}
+		System.out.println("Resolved intersection links number : " + index.toString())
+		System.out.println("Intersection links : " + edges.toString())
+		
+		var roads : List<List<Road>> = new ArrayList<List<Road>>(index.size())
+		for (i : 0 ..< index.size()) {
+			roads.add(new ArrayList<Road>())
+			for (e : edges.get(i)) {
+				if (e > i) {
+					switch (generator.nextInt(1)) {
+						case 0: {
+							roads.get(i).add(new OneWayRoad)	
+						}
+					}
+				} else {
+					var existingRoadIndexInOtherIntersection : int = edges.get(e).indexOf(i)
+					roads.get(i).add(roads.get(e).get(existingRoadIndexInOtherIntersection))
+				}
+			}
+		}
+		var intersections : List<Intersection> = new ArrayList<Intersection>(index.size())
+		for (i : 0 ..< index.size()) {
+			var nbLinks : Integer = index.get(i)
+			if (nbLinks == 1) {
+				intersections.add(new EntryPoint(roads.get(i)))
+			} else if (nbLinks == 3) {
+				switch (generator.nextInt(2)) {
+					case 0: {
+						intersections.add(new IntersectionT(roads.get(i)))
+					}
+					case 1: {
+						intersections.add(new IntersectionY(roads.get(i)))
+					}
+				}
+			} else if (nbLinks == 4) {
+				switch (generator.nextInt(2)) {
+					case 0: {
+						intersections.add(new CrossIntersection(roads.get(i)))
+					}
+					case 1: {
+						intersections.add(new Roundabout(roads.get(i)))
+					}
+				}
+			} else {
+				intersections.add(new Roundabout(roads.get(i)))
+			}
+		}
+		
+		for (i : 0 ..< intersections.size()) {
+			System.out.println("Intersection " + i + " : " + intersections.get(i))
+		}
+	}
 }

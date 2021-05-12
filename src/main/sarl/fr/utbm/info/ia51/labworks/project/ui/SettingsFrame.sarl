@@ -22,7 +22,8 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
 	var settingsWidth = 700
 	var settingsHeight = 500
-	var defaultRate = 50
+	var defaultAutonomousProportion = 50
+	var defaultObedienceRate = 90
 	
 	val validateButton : JButton
 	val leaveButton : JButton
@@ -30,7 +31,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
 	public val carNb : JTextField
 	public val carRate : JSlider
-	public val obedienceRate : JTextField
+	public val obedienceRate : JSlider
 	
 	new(width : int, height : int, startButton : JButton) {
 		/* Settings Frame for the popup */
@@ -69,7 +70,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		val carRatePanel = new JPanel()
 		carRatePanel.layout = new FlowLayout()
 		val carRateLabel = new JLabel("Taux de voiture autonome :")
-		this.carRate = new JSlider(JSlider.HORIZONTAL, 0, 100, this.defaultRate)
+		this.carRate = new JSlider(JSlider.HORIZONTAL, 0, 100, this.defaultAutonomousProportion)
 		this.carRate.setMajorTickSpacing(20);
 		this.carRate.setMinorTickSpacing(20);
 		this.carRate.setPaintTicks(true);
@@ -82,8 +83,11 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		val obedienceRatePanel = new JPanel()
 		obedienceRatePanel.layout = new FlowLayout()
 		val obedienceRateLabel = new JLabel("Taux d'obéissance :")
-		this.obedienceRate = new JTextField()
-		this.obedienceRate.setPreferredSize(new Dimension(200, 30))
+		this.obedienceRate = new JSlider(JSlider.HORIZONTAL, 0, 100, this.defaultObedienceRate)
+		this.obedienceRate.setMajorTickSpacing(20);
+		this.obedienceRate.setMinorTickSpacing(20);
+		this.obedienceRate.setPaintTicks(true);
+		this.obedienceRate.setPaintLabels(true);
 		obedienceRatePanel.add(obedienceRateLabel)
 		obedienceRatePanel.add(obedienceRate)
 		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))

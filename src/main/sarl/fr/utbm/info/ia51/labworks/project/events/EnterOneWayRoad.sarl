@@ -1,5 +1,5 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-class EnterOneWayRoad extends RoadElementEvent{
+event EnterOneWayRoad extends RoadElementEvent{
 	
 }

@@ -1,5 +1,5 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-class AutonomousCarUpdate extends PropertiesUpdate{
+event AutonomousCarUpdate extends PropertiesUpdate {
 	
 }

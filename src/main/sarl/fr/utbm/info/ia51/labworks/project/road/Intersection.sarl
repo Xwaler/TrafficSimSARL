@@ -1,0 +1,19 @@
+package fr.utbm.info.ia51.labworks.project.road
+
+import java.util.List
+import java.util.ArrayList
+
+abstract class Intersection extends RoadElement {
+	var links : List<Road>
+	
+	new (links : List<Road>) {
+		this.links = links
+		for (l : links) {
+			l.addNode(this)
+		}
+	}
+
+	def toString() : String {
+		return this.class.simpleName + links.toString()
+	}
+}

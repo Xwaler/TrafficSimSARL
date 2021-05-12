@@ -1,7 +1,5 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-class HumanPropertiesUpdate extends PropertiesUpdate{
-	
-	var obedienceRate : double
-	
+class HumanPropertiesUpdate extends PropertiesUpdate {
+	public var obedienceRate : double
 }

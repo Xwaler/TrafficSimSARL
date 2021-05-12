@@ -1,7 +1,5 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-import io.sarl.lang.core.Event
-
-class RoadElementEvent extends Event {
+event RoadElementEvent {
 	
 }

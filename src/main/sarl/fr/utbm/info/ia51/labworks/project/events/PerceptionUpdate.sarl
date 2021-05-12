@@ -3,7 +3,6 @@ package fr.utbm.info.ia51.labworks.project.events
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.car.Car
 
-class PerceptionUpdate{
-	
+event PerceptionUpdate {
 	var surroundingCars : List<Car>
 }

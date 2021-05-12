@@ -25,16 +25,16 @@ agent Environment {
 		synchronized (this) {
 			this.UI = occurrence.parameters.get(0) as MainFrame
 		}
-		// setSkill(new RoadManagerSkill())
+		roads.generateRandom()
 	}
 	
 	on StartSimulationEvent {
 		System.out.println("START LA SIMULATION")
-		this.addCars(occurrence.nbCars, occurrence.autonomousProportions);
+		this.addCars(occurrence.nbCars, occurrence.autonomousProportions, occurrence.obedienceRate);
 		this.startCars()
 	}
 	
-	def addCars(nbCars : int, autonomousProportions : double) : void {
+	def addCars(nbCars : int, autonomousProportions : double, obedienceRate : double) : void {
 		var nbAutonomous : int = (nbCars * autonomousProportions) as int
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
@@ -43,7 +43,7 @@ agent Environment {
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
-			spawnInContextWithID(typeof(StandardCar), UUID, defaultContext)
+			spawnInContextWithID(typeof(StandardCar), UUID, defaultContext, obedienceRate)
 			this.cars.add(UUID)
 		}
 	}
