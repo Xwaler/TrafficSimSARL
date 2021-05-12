@@ -21,13 +21,17 @@ import io.sarl.lang.core.AgentContext
 import java.util.UUID
 import fr.utbm.info.ia51.labworks.project.events.HumanCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
+import java.util.Dictionary
+import java.util.Hashtable
 
 class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
 	var settingsWidth = 700
-	var settingsHeight = 500
+	var settingsHeight = 800
 	var defaultAutonomousProportion = 50
 	var defaultObedienceRate = 90
+	var defaultReaction = 10
+	var defaultPerception = 10	
 	
 	val validateButton : JButton
 	val leaveButton : JButton
@@ -36,6 +40,10 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	public val carNb : JTextField
 	public val carRate : JSlider
 	public val obedienceRate : JSlider
+	public val reactionTime : JSlider
+	public val perceptionErrorRate : JSlider
+	public val viewDistance : JTextField
+	public val FOV : JTextField
 
 	var context : AgentContext
 	var UIUUID : UUID
@@ -102,6 +110,53 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		obedienceRatePanel.add(obedienceRateLabel)
 		obedienceRatePanel.add(obedienceRate)
 		carNbPanel.setBorder(new EmptyBorder(20, 20, 20, 20))
+
+		/* Reaction time widget
+		 */
+		val reactionTimePanel = new JPanel()
+		reactionTimePanel.layout = new FlowLayout()
+		val reactionTimeLabel = new JLabel("Temps de réaction :")
+		this.reactionTime = new JSlider(JSlider.HORIZONTAL, 5, 20, this.defaultReaction)
+		this.reactionTime.setMajorTickSpacing(2);
+		this.reactionTime.setMinorTickSpacing(2);
+		var dict = new Hashtable();
+		for (var i = 0; i < 20; i += 2) {
+			dict.put(i, new JLabel(Double.toString(i / 10.0 as double)));
+		}
+		this.reactionTime.setLabelTable(dict)
+		this.reactionTime.setPaintTicks(true);
+		this.reactionTime.setPaintLabels(true);
+		reactionTimePanel.add(reactionTimeLabel)
+		reactionTimePanel.add(reactionTime)
+
+		/* Perception error rate widget
+		 */
+		val perceptionErrorRatePanel = new JPanel()
+		perceptionErrorRatePanel.layout = new FlowLayout()
+		val perceptionErrorRateLabel = new JLabel("Taux d'erreur :")
+		this.perceptionErrorRate = new JSlider(JSlider.HORIZONTAL, 0, 30, this.defaultPerception)
+		this.perceptionErrorRate.setMajorTickSpacing(5);
+		this.perceptionErrorRate.setMinorTickSpacing(5);
+		this.perceptionErrorRate.setPaintTicks(true);
+		this.perceptionErrorRate.setPaintLabels(true);
+		perceptionErrorRatePanel.add(perceptionErrorRateLabel)
+		perceptionErrorRatePanel.add(perceptionErrorRate)
+
+		val viewDistancePanel = new JPanel()
+		viewDistancePanel.layout = new FlowLayout()
+		val viewDistanceLabel = new JLabel("Portée de vue max:")
+		this.viewDistance = new JTextField("10")
+		this.viewDistance.setPreferredSize(new Dimension(200, 30))
+		viewDistancePanel.add(viewDistanceLabel)
+		viewDistancePanel.add(viewDistance)
+
+		val FOVPanel = new JPanel()
+		FOVPanel.layout = new FlowLayout()
+		val FOVLabel = new JLabel("Champs de vue max:")
+		this.FOV = new JTextField("10")
+		this.FOV.setPreferredSize(new Dimension(200, 30))
+		FOVPanel.add(FOVLabel)
+		FOVPanel.add(FOV)
 		
 		/* Bouton panel */
 		val btnSettingsPane = new JPanel()
@@ -122,6 +177,10 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		settingsPane.add(carNbPanel)
 		settingsPane.add(carRatePanel)
 		settingsPane.add(obedienceRatePanel)
+		settingsPane.add(reactionTimePanel)
+		settingsPane.add(perceptionErrorRatePanel)
+		settingsPane.add(viewDistancePanel)
+		settingsPane.add(FOVPanel)
 		
 		this.contentPane.add(BorderLayout::NORTH, settingsTitlePane)
 		this.contentPane.add(BorderLayout::CENTER, settingsPane)
@@ -162,11 +221,11 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
 	def keyReleased(arg0 : KeyEvent) {}
 	
-	def keyTyped(arg0 : KeyEvent) {}
-	
+	def keyTyped(arg0 : KeyEvent) {
+	}
+
 	def lockSettings(bool : boolean) {
 		this.carNb.setEditable(!bool)
 		this.carRate.setEnabled(!bool)
 	}
-	
 }
