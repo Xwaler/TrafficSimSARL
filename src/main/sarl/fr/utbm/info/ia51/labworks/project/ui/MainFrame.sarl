@@ -116,12 +116,12 @@ class MainFrame extends JFrame implements ActionListener {
 			if (simStartedFlag) {
 				this.startButton.setText("Start Simulation")
 				this.simStartedFlag = false
-				this.settingsButton.setEnabled(true)
+				this.settingsFrame.lockSettings(false)
 				this.context.getDefaultSpace().emit(UIUUID, new StopSimulationEvent())
 			} else {
 				this.startButton.setText("Stop")
 				this.simStartedFlag = true
-				this.settingsButton.setEnabled(false)
+				this.settingsFrame.lockSettings(true)
 				this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
 					Integer.parseInt(this.settingsFrame.carNb.getText()),
 					this.settingsFrame.carRate.getValue() / 100.0 as double,

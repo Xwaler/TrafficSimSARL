@@ -146,4 +146,9 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 	
 	def keyTyped(arg0 : KeyEvent) {}
 	
+	def lockSettings(bool : boolean) {
+		this.carNb.setEditable(!bool)
+		this.carRate.setEnabled(!bool)
+	}
+	
 }
