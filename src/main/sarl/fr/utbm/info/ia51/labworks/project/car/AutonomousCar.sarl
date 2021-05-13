@@ -20,10 +20,6 @@ agent AutonomousCar extends Car {
 	}
 	
 	on AutonomousCarPropertiesUpdate {
-		this.reactionTime = occurrence.reactionTime
-		this.perceptionErrorRate = occurrence.perceptionErrorRate
-		this.viewDistance = occurrence.viewDistance
-		this.FOV = occurrence.FOV
 		info("Properties updated")
 	}
 

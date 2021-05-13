@@ -125,7 +125,11 @@ class MainFrame extends JFrame implements ActionListener {
 				this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
 					Integer.parseInt(this.settingsFrame.carNb.getText()),
 					this.settingsFrame.carRate.getValue() / 100.0 as double,
-					this.settingsFrame.obedienceRate.getValue() / 100.0 as double
+					this.settingsFrame.obedienceRate.getValue() / 100.0 as double,
+					this.settingsFrame.reactionTime.getValue() as double,
+					this.settingsFrame.perceptionErrorRate.getValue() / 100.0 as double,
+					Integer.parseInt(this.settingsFrame.viewDistance.getText()) / 100.0 as double,
+					Integer.parseInt(this.settingsFrame.FOV.getText()) / 3.1415 as double
 				))
 			}
 		}

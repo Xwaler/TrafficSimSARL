@@ -34,7 +34,15 @@ agent Environment {
 	
 	on StartSimulationEvent {
 		info("SIMULATION STARTED")
-		this.addCars(occurrence.nbCars, occurrence.autonomousProportions, occurrence.obedienceRate);
+		this.addCars(
+			occurrence.nbCars, 
+			occurrence.autonomousProportions, 
+			occurrence.obedienceRate,
+			occurrence.reactionTime,
+			occurrence.perceptionErrorRate,
+			occurrence.viewDistance,
+			occurrence.FOV
+		);
 	}
 	
 	on AgentSpawned {
@@ -46,16 +54,26 @@ agent Environment {
 		}
 	}
 	
-	def addCars(nbCars : int, autonomousProportions : double, obedienceRate : double) : void {
+	def addCars(
+		nbCars : int, 
+		autonomousProportions : double, 
+		obedienceRate : double,
+		reactionTime : double,
+		perceptionErrorRate : double,
+		viewDistance : double,
+		FOV : double
+	) : void {
 		var nbAutonomous : int = (nbCars * autonomousProportions) as int
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
-			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext)
+			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
+				reactionTime, perceptionErrorRate, viewDistance, FOV)
 			this.cars.add(UUID)
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
-			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, obedienceRate)
+			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
+				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
 			this.cars.add(UUID)
 		}
 	}

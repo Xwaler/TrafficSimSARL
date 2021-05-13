@@ -2,18 +2,27 @@ package fr.utbm.info.ia51.labworks.project.events
 
 import io.sarl.lang.core.Event
 
-event StartSimulationEvent {
+event StartSimulationEvent extends PropertiesUpdate {
 	var nbCars : int
 	var autonomousProportions : double
 	var obedienceRate : double
 
-	new (nbCars : int, autonomousProportions : double, obedienceRate : double) {
+	new (
+		nbCars : int,
+		autonomousProportions : double,
+		obedienceRate : double,
+		reactionTime : double,
+		perceptionErrorRate : double,
+		viewDistance : double,
+		FOV : double
+	) {
+		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
 		this.nbCars = nbCars
 		this.autonomousProportions = autonomousProportions
 		this.obedienceRate = obedienceRate
 	}
 }
 
-event StopSimulationEvent extends Event{
+event StopSimulationEvent extends Event {
 	
 }

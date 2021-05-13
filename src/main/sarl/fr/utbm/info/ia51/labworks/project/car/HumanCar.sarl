@@ -17,17 +17,13 @@ agent HumanCar extends Car {
 		// Event trigger before the agent begin to live or to be used.
 		// You should put all the initialization statements in this block of code.
 		synchronized (this) {
-			this.obedienceRate = occurrence.parameters.get(0) as Double
+			this.obedienceRate = occurrence.parameters.get(4) as Double
 		}
 		info("New human car spawned.")
 	}
 
 	on HumanCarPropertiesUpdate {
 		this.obedienceRate = occurrence.obedienceRate
-		this.reactionTime = occurrence.reactionTime
-		this.perceptionErrorRate = occurrence.perceptionErrorRate
-		this.viewDistance = occurrence.viewDistance
-		this.FOV = occurrence.FOV
 		info("Properties updated")
 	}
 

@@ -21,7 +21,6 @@ import io.sarl.lang.core.AgentContext
 import java.util.UUID
 import fr.utbm.info.ia51.labworks.project.events.HumanCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
-import java.util.Dictionary
 import java.util.Hashtable
 
 class SettingsFrame extends JFrame implements ActionListener, KeyListener{
@@ -78,7 +77,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		/* Car Number widget */
 		val carNbPanel = new JPanel()
 		carNbPanel.layout = new FlowLayout()
-		val carNbLabel = new JLabel("Nombre de voiture :")
+		val carNbLabel = new JLabel("Nombre de voitures :")
 		this.carNb = new JTextField("10")
 		this.carNb.setPreferredSize(new Dimension(200, 30))
 		carNbPanel.add(carNbLabel)
@@ -144,7 +143,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 
 		val viewDistancePanel = new JPanel()
 		viewDistancePanel.layout = new FlowLayout()
-		val viewDistanceLabel = new JLabel("Portée de vue max:")
+		val viewDistanceLabel = new JLabel("Portée de vue max (m) :")
 		this.viewDistance = new JTextField("10")
 		this.viewDistance.setPreferredSize(new Dimension(200, 30))
 		viewDistancePanel.add(viewDistanceLabel)
@@ -152,8 +151,8 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 
 		val FOVPanel = new JPanel()
 		FOVPanel.layout = new FlowLayout()
-		val FOVLabel = new JLabel("Champs de vue max:")
-		this.FOV = new JTextField("10")
+		val FOVLabel = new JLabel("Champs de vue max (deg) :")
+		this.FOV = new JTextField("60")
 		this.FOV.setPreferredSize(new Dimension(200, 30))
 		FOVPanel.add(FOVLabel)
 		FOVPanel.add(FOV)
@@ -196,10 +195,16 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 			this.startButton.setEnabled(true)
 			this.context.getDefaultSpace().emit(UIUUID, new HumanCarPropertiesUpdate(
 				this.obedienceRate.getValue() / 100.0 as double,
-				0, 0, 0, 0
+				this.reactionTime.getValue() as double,
+				this.perceptionErrorRate.getValue() / 100.0 as double,
+				Integer.parseInt(this.viewDistance.getText()) / 100.0 as double,
+				Integer.parseInt(this.FOV.getText()) / 3.1415 as double
 			))
 			this.context.getDefaultSpace().emit(UIUUID, new AutonomousCarPropertiesUpdate(
-				0, 0, 0, 0
+				this.reactionTime.getValue() as double,
+				this.perceptionErrorRate.getValue() / 100.0 as double,
+				Integer.parseInt(this.viewDistance.getText()) / 100.0 as double,
+				Integer.parseInt(this.FOV.getText()) / 3.1415 as double
 			))
 		}
 		if (arg0.getSource() == this.leaveButton) {
