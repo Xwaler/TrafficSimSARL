@@ -16,6 +16,7 @@ import io.sarl.core.ParticipantLeft
 import io.sarl.core.SpaceCreated
 import io.sarl.core.SpaceDestroyed
 import io.sarl.core.Initialize
+import io.sarl.core.DefaultContextInteractions
 
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
@@ -24,15 +25,18 @@ import fr.utbm.info.ia51.labworks.project.events.ExitRoad
 import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
 import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
 import fr.utbm.info.ia51.labworks.project.events.PropertiesUpdate
+import fr.utbm.info.ia51.labworks.project.events.Intent
 
 agent Car {
-	uses Lifecycle, Logging, Behaviors
+	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
 
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
 	protected var currentElement : RoadElement
 	protected var speed : double
+	protected var acceleration : double
 	protected var positionInRoad : double
+	protected var lane : double
 	protected var obedienceRate : double
 	protected var reactionTime : double
 	protected var perceptionErrorRate : double
@@ -84,11 +88,29 @@ agent Car {
 	}
 	
 	on PhysicsUpdate {
-		
+		info("Physics update received")
+		synchronized (this) {
+			this.positionInRoad = occurrence.newPosition
+			this.speed = occurrence.newSpeed
+			this.acceleration = occurrence.newAcceleration
+			this.lane = occurrence.newLane
+			this.currentElement = occurrence.newElement
+		}
 	}
 	
 	on PerceptionUpdate {
-		
+		info("Perception update received")
+		/* TODO: Process perception */
+		synchronized (this) {
+			/* TODO: Send intent with updated values */
+			emit(new Intent(
+				this.positionInRoad,
+				this.lane,
+				this.positionInRoad,
+				this.speed,
+				this.currentElement
+			))
+		}
 	}
 
 	on ExitRoad {

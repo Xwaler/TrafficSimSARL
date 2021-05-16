@@ -4,15 +4,20 @@ import io.sarl.core.Initialize
 import io.sarl.core.AgentSpawned
 import io.sarl.core.Logging
 import io.sarl.core.Lifecycle
+import io.sarl.core.DefaultContextInteractions
 import java.util.UUID
 import java.util.ArrayList
 
 import fr.utbm.info.ia51.labworks.project.ui.MainFrame
 import fr.utbm.info.ia51.labworks.project.car.AutonomousCar
 import fr.utbm.info.ia51.labworks.project.car.HumanCar
-import io.sarl.core.DefaultContextInteractions
 import fr.utbm.info.ia51.labworks.project.road.Graph
 import fr.utbm.info.ia51.labworks.project.events.StartSimulationEvent
+import fr.utbm.info.ia51.labworks.project.events.Intent
+import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
+import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
+import fr.utbm.info.ia51.labworks.project.car.Car
+import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle
@@ -22,7 +27,11 @@ agent Environment {
 	var tauxAccident : double
 	var tempsTrajet : double
 	var roads : Graph
-	var cars = new ArrayList<UUID>;
+
+	var nbCars : int
+	var nbInitializedCars : int = 0
+	var cars : ArrayList<UUID> = new ArrayList<UUID>;
+	var intents : ArrayList<Intent> = new ArrayList<Intent>;
 	
 	on Initialize {
 		synchronized (this) {
@@ -34,15 +43,26 @@ agent Environment {
 	
 	on StartSimulationEvent {
 		info("SIMULATION STARTED")
-		this.addCars(
-			occurrence.nbCars, 
-			occurrence.autonomousProportions, 
-			occurrence.obedienceRate,
-			occurrence.reactionTime,
-			occurrence.perceptionErrorRate,
-			occurrence.viewDistance,
-			occurrence.FOV
-		);
+		synchronized (this) {
+			this.nbInitializedCars = 0
+			this.nbCars = occurrence.nbCars
+			this.addCars(
+				occurrence.nbCars,
+				occurrence.autonomousProportions,
+				occurrence.obedienceRate,
+				occurrence.reactionTime,
+				occurrence.perceptionErrorRate,
+				occurrence.viewDistance,
+				occurrence.FOV
+			);
+		}
+	}
+
+	on StopSimulationEvent {
+		synchronized (this) {
+			this.cars.clear()
+			this.intents.clear()
+		}
 	}
 	
 	on AgentSpawned {
@@ -50,6 +70,10 @@ agent Environment {
 			var agentID : UUID = occurrence.agentID
 			if (cars.contains(agentID)) {
 				this.roads.enter(agentID)
+			}
+			this.nbInitializedCars++
+			if (this.nbInitializedCars == this.nbCars) {
+				computePerceptions()
 			}
 		}
 	}
@@ -66,15 +90,51 @@ agent Environment {
 		var nbAutonomous : int = (nbCars * autonomousProportions) as int
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
+			this.cars.add(UUID)
 			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
 				reactionTime, perceptionErrorRate, viewDistance, FOV)
-			this.cars.add(UUID)
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
+			this.cars.add(UUID)
 			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
 				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
-			this.cars.add(UUID)
+		}
+	}
+
+	on Intent {
+		synchronized (this) {
+			this.intents.add(occurrence);
+			if (this.intents.size() == this.nbCars) {
+				info("All intents received")
+				resolveConflicts()
+				computePerceptions()
+			}
+		}
+	}
+
+	def resolveConflicts() : void {
+		// TODO: resolve conflicts
+		/* Send physics update to cars */
+		info("Sending physics updates")
+		for (intent: this.intents) {
+			emit(new PhysicsUpdate(
+				intent.currentPosition,
+				intent.currentSpeed,
+				intent.intendedAcceleration,
+				intent.intentedLaneChange,
+				intent.currentElement
+			)) [it.UUID == intent.source.UUID]
+		}
+		this.intents.clear()
+	}
+	
+	def computePerceptions() : void {
+		info("Sending perception updates")
+		for (car : cars) {
+			emit(new PerceptionUpdate(
+				new ArrayList<Car>()
+			)) [it.UUID == car]
 		}
 	}
 }

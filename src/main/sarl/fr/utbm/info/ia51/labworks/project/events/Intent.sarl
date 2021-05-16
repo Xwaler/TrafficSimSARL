@@ -1,7 +1,26 @@
 package fr.utbm.info.ia51.labworks.project.events
 
-event Intent {
-	var intendedPosition : double
-	var intendedSpeed : double
+import io.sarl.lang.core.Event
+import fr.utbm.info.ia51.labworks.project.road.RoadElement
+
+event Intent extends Event {
 	var intendedAcceleration : double
+	var intentedLaneChange : double
+	var currentPosition : double
+	var currentSpeed : double
+	var currentElement : RoadElement
+
+	new (
+		intendedAcceleration : double,
+		intentedLaneChange : double,
+		currentPosition : double,
+		currentSpeed : double,
+		currentElement : RoadElement
+	) {
+		this.intendedAcceleration = intendedAcceleration
+		this.intentedLaneChange = intentedLaneChange
+		this.currentPosition = currentPosition
+		this.currentSpeed = currentSpeed
+		this.currentElement = currentElement
+	}
 }
