@@ -5,6 +5,8 @@ import io.sarl.core.AgentSpawned
 import io.sarl.core.Logging
 import io.sarl.core.Lifecycle
 import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Schedules
+import io.sarl.core.AgentTask
 import java.util.UUID
 import java.util.ArrayList
 
@@ -20,7 +22,7 @@ import fr.utbm.info.ia51.labworks.project.car.Car
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 
 agent Environment {
-	uses Logging, DefaultContextInteractions, Lifecycle
+	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
 	
 	var UI : MainFrame
 	var mesureFlux : double
@@ -108,7 +110,8 @@ agent Environment {
 			if (this.intents.size() == this.nbCars) {
 				info("All intents received")
 				resolveConflicts()
-				computePerceptions()
+				val task : AgentTask = task("frame_delay")
+				task.in(1000) [ computePerceptions() ]
 			}
 		}
 	}
