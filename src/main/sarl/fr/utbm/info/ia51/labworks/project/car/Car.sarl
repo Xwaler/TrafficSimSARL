@@ -37,6 +37,7 @@ agent Car {
 	protected var acceleration : double
 	protected var positionInRoad : double
 	protected var lane : double
+	protected var direction : boolean
 	protected var obedienceRate : double
 	protected var reactionTime : double
 	protected var perceptionErrorRate : double
