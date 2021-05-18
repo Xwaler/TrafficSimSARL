@@ -9,6 +9,8 @@ import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 import fr.utbm.info.ia51.labworks.project.behaviors.OneWayRoadAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.EntryPointAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.behaviors.TwoWayRoadAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.events.EnterTwoWayRoad
 
 agent AutonomousCar extends Car {
 	uses Logging
@@ -25,13 +27,20 @@ agent AutonomousCar extends Car {
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterOneWayRoad {
-		this.enter(occurrence.road)
+		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new OneWayRoadAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterTwoWayRoad {
+		info("Entered " + occurrence.road)
+		this.registerNewBehavior(new TwoWayRoadAutonomousBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
-		this.enter(occurrence.road)
+		info("Entered " + occurrence.road)
+		this.currentElement = occurrence.road
 		this.startPoint = occurrence.road
 		this.endPoint = occurrence.destination
 		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))

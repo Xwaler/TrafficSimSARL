@@ -9,6 +9,8 @@ import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 import fr.utbm.info.ia51.labworks.project.behaviors.OneWayRoadHumanBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.EntryPointHumanBehavior
+import fr.utbm.info.ia51.labworks.project.events.EnterTwoWayRoad
+import fr.utbm.info.ia51.labworks.project.behaviors.TwoWayRoadHumanBehavior
 
 agent HumanCar extends Car {
 	uses Logging
@@ -29,13 +31,20 @@ agent HumanCar extends Car {
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterOneWayRoad {
-		this.enter(occurrence.road)
+		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new OneWayRoadHumanBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterTwoWayRoad {
+		info("Entered " + occurrence.road)
+		this.registerNewBehavior(new TwoWayRoadHumanBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
-		this.enter(occurrence.road)
+		info("Entered " + occurrence.road)
+		this.currentElement = occurrence.road
 		this.startPoint = occurrence.road
 		this.endPoint = occurrence.destination
 		this.registerNewBehavior(new EntryPointHumanBehavior(this))

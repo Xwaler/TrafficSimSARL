@@ -63,14 +63,6 @@ agent Car {
 		killMe
 	}
 	
-	def enter(road : RoadElement) : void {
-		synchronized (this) {
-			this.currentElement = road
-			this.positionInRoad = 0.0
-			info("Entered " + this.currentElement)
-		}
-	}
-	
 	def registerNewBehavior(carBehavior : Behavior) : void {
 		synchronized (this) {
 			this.carBehavior = carBehavior
@@ -89,7 +81,7 @@ agent Car {
 	}
 	
 	on PhysicsUpdate {
-		info("Physics update received")
+		info("Physics update received: " + occurrence.newPosition)
 		synchronized (this) {
 			this.positionInRoad = occurrence.newPosition
 			this.speed = occurrence.newSpeed
@@ -103,9 +95,9 @@ agent Car {
 		info("Perception update received")
 		/* TODO: Process perception */
 		synchronized (this) {
-			/* TODO: Send intent with updated values */
+			/* TODO: Send intent with perception related values */
 			emit(new Intent(
-				this.acceleration + 1,
+				this.speed < 20 ? 1: 0,
 				this.lane,
 				this.positionInRoad,
 				this.speed,
@@ -116,6 +108,7 @@ agent Car {
 	}
 
 	on ExitRoad {
+		info("Exited road")
 		synchronized (this) {
 			if (this.carBehavior !== null) {
 				unregisterBehavior(this.carBehavior);

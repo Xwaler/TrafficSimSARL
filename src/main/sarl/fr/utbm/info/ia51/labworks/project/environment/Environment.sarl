@@ -6,7 +6,6 @@ import io.sarl.core.Logging
 import io.sarl.core.Lifecycle
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Schedules
-import io.sarl.core.AgentTask
 import java.util.UUID
 import java.util.ArrayList
 
@@ -127,10 +126,11 @@ agent Environment {
 			var intent : Intent = this.intents.get(i)
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
-			update.newPosition = intent.currentPosition + update.newSpeed
+			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
 			update.newLane = intent.intendedLaneChange
 			if (update.newPosition >= 1.0) {
-				intent.currentElement.exit(this.cars.get(i))
+				info(intent.source.UUID + " reached end of road element " + intent.currentElement)
+				intent.currentElement.exit(intent.source.UUID)
 				if (intent.currentElement instanceof Road) {
 					update.newElement = intent.direction == 0 ? 
 						(intent.currentElement as Road).getPrimaryNode() : 
@@ -140,7 +140,10 @@ agent Environment {
 					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 				}
 				update.newPosition = 0
-				update.newElement.enter(this.cars.get(i))
+				update.newElement.enter(intent.source.UUID)
+			}
+			else {
+				update.newElement = intent.currentElement
 			}
 			this.physicsUpdates.add(update)
 		}
@@ -148,7 +151,8 @@ agent Environment {
 		info("Sending physics updates")
 		for (i : 0 ..< this.nbCars) {
 			var update : PhysicsUpdate = this.physicsUpdates.get(i)
-			emit(update) [ it.UUID == this.cars.get(i) ]
+			var intent : Intent = this.intents.get(i)
+			emit(update) [it.UUID == intent.source.UUID]
 		}
 		this.intents.clear()
 	}

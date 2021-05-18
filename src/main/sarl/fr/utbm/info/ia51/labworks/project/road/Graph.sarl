@@ -82,9 +82,12 @@ class Graph {
 			roads.add(new ArrayList<Road>())
 			for (e : edges.get(i)) {
 				if (e > i) {
-					switch (generator.nextInt(1)) {
+					switch (generator.nextInt(2)) {
 						case 0: {
-							roads.get(i).add(new OneWayRoad(this.context))	
+							roads.get(i).add(new OneWayRoad(this.context, 100)) 		// TODO: change road length to be other than 1
+						}
+						case 1: {
+							roads.get(i).add(new TwoWayRoad(this.context, 100)) 		// TODO: change road length to be other than 1
 						}
 					}
 				} else {

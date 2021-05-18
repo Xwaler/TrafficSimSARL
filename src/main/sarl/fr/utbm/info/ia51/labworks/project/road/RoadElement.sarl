@@ -4,16 +4,23 @@ import java.util.UUID
 import java.util.List
 import java.util.ArrayList
 import io.sarl.lang.core.AgentContext
+import fr.utbm.info.ia51.labworks.project.events.ExitRoad
 
 abstract class RoadElement extends GraphElement {
 	var speedLimit : int
 	var cars : List<UUID> = new ArrayList<UUID>()
+	var length : double
 	
 	protected var roadElementUUID : UUID = UUID::randomUUID()
 	protected var context : AgentContext
 	
-	new (context : AgentContext) {
+	new (context : AgentContext, length : double) {
 		this.context = context
+		this.length = length
+	}
+	
+	def getLength : double {
+		return this.length
 	}
 	
 	def enter(car : UUID) : void {
@@ -22,5 +29,6 @@ abstract class RoadElement extends GraphElement {
 	
 	def exit(car : UUID) : void {
 		cars.remove(car)
+		this.context.getDefaultSpace().emit(this.roadElementUUID, new ExitRoad(this)) [it.UUID == car]
 	}
 }

@@ -7,7 +7,7 @@ abstract class Intersection extends RoadElement {
 	var links : List<Road>
 	
 	new (context : AgentContext, links : List<Road>) {
-		super(context)
+		super(context, 20) // TODO: different intersection size than 20
 		this.links = links
 		for (l : links) {
 			l.addNode(this)
