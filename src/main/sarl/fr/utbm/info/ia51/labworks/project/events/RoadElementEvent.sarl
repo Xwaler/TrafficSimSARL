@@ -38,6 +38,3 @@ event EnterOneWayRoad extends RoadElementEvent {
 
 event EnterTwoWayRoad extends RoadElementEvent {
 }
-
-event ExitRoad extends RoadElementEvent {
-}

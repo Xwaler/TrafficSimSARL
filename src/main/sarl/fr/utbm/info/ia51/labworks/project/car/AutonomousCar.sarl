@@ -11,9 +11,18 @@ import fr.utbm.info.ia51.labworks.project.behaviors.OneWayRoadAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.EntryPointAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.TwoWayRoadAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.events.EnterTwoWayRoad
+import io.sarl.core.Behaviors
+import fr.utbm.info.ia51.labworks.project.events.EnterCrossIntersection
+import fr.utbm.info.ia51.labworks.project.behaviors.CrossIntersectionAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.events.EnterIntersectionY
+import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionYAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.events.EnterIntersectionT
+import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionTAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
+import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutAutonomousBehavior
 
 agent AutonomousCar extends Car {
-	uses Logging
+	uses Logging, Behaviors
 
 	on Initialize {
 		// Event trigger before the agent begin to live or to be used.
@@ -27,23 +36,75 @@ agent AutonomousCar extends Car {
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterOneWayRoad {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new OneWayRoadAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterTwoWayRoad {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new TwoWayRoadAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
 		info("Entered " + occurrence.road)
 		this.currentElement = occurrence.road
 		this.startPoint = occurrence.road
 		this.endPoint = occurrence.destination
 		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterCrossIntersection {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
+		info("Entered " + occurrence.road)
+		this.registerNewBehavior(new CrossIntersectionAutonomousBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterIntersectionY {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
+		info("Entered " + occurrence.road)
+		this.registerNewBehavior(new IntersectionYAutonomousBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterIntersectionT {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
+		info("Entered " + occurrence.road)
+		this.registerNewBehavior(new IntersectionTAutonomousBehavior(this))
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on EnterRoundabout {
+		if (this.carBehavior !== null) {
+			info("Exited road")
+			unregisterBehavior(this.carBehavior)
+		}
+		info("Entered " + occurrence.road)
+		this.registerNewBehavior(new RoundaboutAutonomousBehavior(this))
 	}
 
 	on Destroy {

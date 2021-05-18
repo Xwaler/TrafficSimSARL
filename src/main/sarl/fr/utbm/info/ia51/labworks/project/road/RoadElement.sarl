@@ -4,7 +4,6 @@ import java.util.UUID
 import java.util.List
 import java.util.ArrayList
 import io.sarl.lang.core.AgentContext
-import fr.utbm.info.ia51.labworks.project.events.ExitRoad
 
 abstract class RoadElement extends GraphElement {
 	var speedLimit : int
@@ -29,6 +28,5 @@ abstract class RoadElement extends GraphElement {
 	
 	def exit(car : UUID) : void {
 		cars.remove(car)
-		this.context.getDefaultSpace().emit(this.roadElementUUID, new ExitRoad(this)) [it.UUID == car]
 	}
 }
