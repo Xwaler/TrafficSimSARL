@@ -19,4 +19,8 @@ abstract class RoadElement extends GraphElement {
 	def enter(car : UUID) : void {
 		cars.add(car)
 	}
+	
+	def exit(car : UUID) : void {
+		cars.remove(car)
+	}
 }

@@ -1,7 +1,6 @@
 package fr.utbm.info.ia51.labworks.project.road
 
 import java.util.List
-import java.util.ArrayList
 import io.sarl.lang.core.AgentContext
 
 abstract class Intersection extends RoadElement {
@@ -13,6 +12,10 @@ abstract class Intersection extends RoadElement {
 		for (l : links) {
 			l.addNode(this)
 		}
+	}
+	
+	def getLinks : List<Road> {
+		return this.links
 	}
 
 	def toString() : String {

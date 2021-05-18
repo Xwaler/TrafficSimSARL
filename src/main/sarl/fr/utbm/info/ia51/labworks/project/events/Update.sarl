@@ -23,6 +23,8 @@ event PhysicsUpdate extends Update {
 	var newLane : double
 	var newElement : RoadElement
 
+	new {}
+
 	new (
 		newPosition : double,
 		newSpeed : double,
