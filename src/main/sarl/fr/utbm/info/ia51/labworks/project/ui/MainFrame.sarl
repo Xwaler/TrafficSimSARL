@@ -62,7 +62,6 @@ class MainFrame extends JFrame implements ActionListener {
 		
 		/* Btn initiation with action listeners */
 		this.startButton = new JButton("Start Simulation")
-		this.startButton.toolTipText = "Start the simulation"
 		this.startButton.addActionListener(this)
 		this.startButton.setMargin(new Insets(20,20,20,20))
 		
