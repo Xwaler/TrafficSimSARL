@@ -48,4 +48,10 @@ class FeedBackPanel extends JPanel{
 		this.add(trajetPanel)
 	}
 	
+	def updateFields(mesureFlux : double, tauxAccident : double, tempsTrajet : double){
+		this.mesureFlux.setText("" + mesureFlux)
+		this.tauxAccident.setText("" + tauxAccident)
+		this.vitesseTrajet.setText("" + tempsTrajet)
+	}
+	
 }

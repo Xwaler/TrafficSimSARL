@@ -140,4 +140,8 @@ class MainFrame extends JFrame implements ActionListener {
 		}
 	}
 	
+	def sendData(mesureFlux : double, tauxAccident : double, tempsTrajet : double){
+		this.feedBackView.updateFields(mesureFlux, tauxAccident, tempsTrajet)
+	}
+	
 }
