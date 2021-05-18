@@ -139,7 +139,7 @@ agent Environment {
 				else if (intent.currentElement instanceof Intersection) {
 					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 				}
-				update.newElement = intent.currentElement
+				update.newPosition = 0
 				update.newElement.enter(this.cars.get(i))
 			}
 			this.physicsUpdates.add(update)
