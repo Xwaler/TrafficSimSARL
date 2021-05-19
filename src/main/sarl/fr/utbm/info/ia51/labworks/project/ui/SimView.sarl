@@ -4,15 +4,85 @@ import javax.swing.JPanel
 import java.awt.Dimension
 import java.awt.Color
 import javax.swing.BoxLayout
+import java.awt.Graphics
+import fr.utbm.info.ia51.labworks.project.road.Graph
+import java.util.Map
+import java.util.UUID
+import fr.utbm.info.ia51.labworks.project.road.Road
+import fr.utbm.info.ia51.labworks.project.road.Intersection
+import fr.utbm.info.ia51.labworks.project.events.CarProperties
 
-class SimView extends JPanel{
-	
+class SimView extends JPanel {
 	val dimension : Dimension
-	
-	new(dimension : Dimension) {
+	var graph : Graph
+	var carProperties : Map<UUID, CarProperties>
+
+	new (dimension : Dimension) {
 		this.dimension = dimension
 		this.layout = new BoxLayout(this, BoxLayout::X_AXIS)
 		this.setPreferredSize(dimension)
-		this.setBackground(Color.black)
+		this.setBackground(Color.gray)
+	}
+	
+	def setGraph(graph : Graph) : void {
+		this.graph = graph
+	}
+	
+	def setCarProperties(carProperties : Map<UUID, CarProperties>) {
+		this.carProperties = carProperties
+	}
+
+	def paintComponent(g : Graphics) {
+        super.paintComponent(g)
+
+		g.setColor(Color.black)
+		for (entryPoint : this.graph.getEntryPoints()) {
+			g.fillRect(
+				((entryPoint.x - entryPoint.getLength() / 2) * this.dimension.width) as int,
+				((entryPoint.y - entryPoint.getLength() / 2) * this.dimension.height) as int,
+				(entryPoint.getLength() * this.dimension.width) as int,
+				(entryPoint.getLength() * this.dimension.height) as int
+			)
+		}
+        for (intersection : this.graph.getIntersections()) {
+			g.setColor(Color.black)
+			g.fillRect(
+				((intersection.x - intersection.getLength() / 2) * this.dimension.width) as int,
+				((intersection.y - intersection.getLength() / 2) * this.dimension.height) as int,
+				(intersection.getLength() * this.dimension.width) as int,
+				(intersection.getLength() * this.dimension.height) as int
+			)
+			
+			g.setColor(Color.white)
+			for (road : intersection.getLinks()) {
+				g.drawLine(
+					(road.getPrimaryNode().x * this.dimension.width) as int,
+					(road.getPrimaryNode().y * this.dimension.height) as int,
+					(road.getSecondaryNode().x * this.dimension.width) as int,
+					(road.getSecondaryNode().y * this.dimension.height) as int
+				)
+			}
+        }
+		g.setColor(Color.red)
+        if (this.carProperties !== null) {
+			for (car : this.carProperties.values()) {
+				if (car.element instanceof Road) {
+					var road : Road = car.element as Road
+					var from : Intersection = car.direction == 0 ? road.getSecondaryNode() : road.getPrimaryNode()
+					var to : Intersection = car.direction == 0 ? road.getPrimaryNode() : road.getSecondaryNode()
+					var size : int = 10
+					g.fillOval(
+						((car.position * to.x + (1 - car.position) * from.x) * 
+							this.dimension.width - size / 2
+						) as int,
+						((car.position * to.y + (1 - car.position) * from.y) * 
+							this.dimension.height - size / 2
+						) as int,
+						size,
+						size
+					)
+				}
+			}
+        }
 	}
 }

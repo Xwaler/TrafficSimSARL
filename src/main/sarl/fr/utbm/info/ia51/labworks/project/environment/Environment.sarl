@@ -22,6 +22,10 @@ import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
+import java.util.Map
+import java.util.WeakHashMap
+import io.sarl.core.AgentTask
+import fr.utbm.info.ia51.labworks.project.events.CarProperties
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -31,24 +35,28 @@ agent Environment {
 	var tauxAccident : double
 	var tempsTrajet : double
 	var roads : Graph
+	var frameDelayTask : AgentTask
 
 	var nbCars : int
 	var nbInitializedCars : int = 0
-	var cars : ArrayList<UUID> = new ArrayList<UUID>
-	var intents : ArrayList<Intent> = new ArrayList<Intent>
-	var physicsUpdates : List<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
+	var cars : List<UUID> = new ArrayList<UUID>
+	var intents : Map<UUID, Intent> = new WeakHashMap<UUID, Intent>
+	var physicsUpdates : Map<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
+	var carsProperties : Map<UUID, CarProperties> = new WeakHashMap<UUID, CarProperties>
 	
 	on Initialize {
 		synchronized (this) {
 			this.UI = occurrence.parameters.get(0) as MainFrame
 			this.roads = new Graph(defaultContext)
-			roads.generateRandom()
+			this.roads.generateRandom()
+			this.UI.passGraph(this.roads)
 		}
 	}
 	
 	on StartSimulationEvent {
 		info("SIMULATION STARTED")
 		synchronized (this) {
+			this.frameDelayTask = task("frame_delay")
 			this.nbInitializedCars = 0
 			this.nbCars = occurrence.nbCars
 			this.addCars(
@@ -66,14 +74,17 @@ agent Environment {
 	on StopSimulationEvent {
 		synchronized (this) {
 			this.cars.clear()
+			this.roads.clearCars()
 			this.intents.clear()
+			this.physicsUpdates.clear()
+			frameDelayTask.cancel()
 		}
 	}
 	
 	on AgentSpawned {
 		synchronized (this) {
 			var agentID : UUID = occurrence.agentID
-			if (cars.contains(agentID)) {
+			if (this.cars.contains(agentID)) {
 				this.roads.enter(agentID)
 				this.nbInitializedCars++
 				if (this.nbInitializedCars == this.nbCars) {
@@ -107,30 +118,34 @@ agent Environment {
 		}
 	}
 
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on Intent {
 		synchronized (this) {
-			this.intents.add(occurrence);
-			if (this.intents.size() == this.nbCars) {
-				info("All intents received")
-				resolveConflicts()
-				task("frame_delay").in(500) [ computePerceptions() ]
+			if (this.cars.contains(occurrence.source.UUID)) {
+				this.intents.put(occurrence.source.UUID, occurrence);
+				if (this.intents.size() == this.nbCars) {
+					resolveConflicts()
+					this.UI.passCarProperties(this.carsProperties)
+					this.UI.repaint()
+					frameDelayTask.in(50) [ computePerceptions() ]
+				}	
 			}
 		}
 	}
 
 	def resolveConflicts() : void {
-		// TODO: resolve conflicts
+		// TODO: actually resolve conflicts
 		this.physicsUpdates.clear()
-		for (i : 0 ..< this.nbCars) {
+		for (pair : this.intents.entrySet()) {
 			var update : PhysicsUpdate = new PhysicsUpdate()
-			var intent : Intent = this.intents.get(i)
+			var carUUID : UUID = pair.getKey()
+			var intent : Intent = pair.getValue()
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
 			update.newLane = intent.intendedLaneChange
 			if (update.newPosition >= 1.0) {
-				info(intent.source.UUID + " reached end of road element " + intent.currentElement)
-				intent.currentElement.exit(intent.source.UUID)
+				intent.currentElement.exit(carUUID)
 				if (intent.currentElement instanceof Road) {
 					update.newElement = intent.direction == 0 ? 
 						(intent.currentElement as Road).getPrimaryNode() : 
@@ -140,25 +155,28 @@ agent Environment {
 					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 				}
 				update.newPosition = 0
-				update.newElement.enter(intent.source.UUID)
+				update.newElement.enter(carUUID)
 			}
 			else {
 				update.newElement = intent.currentElement
 			}
-			this.physicsUpdates.add(update)
+			this.physicsUpdates.put(carUUID, update)
+		}
+		this.carsProperties.clear()
+		for (car: this.cars) {
+			this.carsProperties.put(car, new CarProperties(
+				this.intents.get(car),
+				this.physicsUpdates.get(car)
+			))
 		}
 		/* Send physics update to cars */
-		info("Sending physics updates")
-		for (i : 0 ..< this.nbCars) {
-			var update : PhysicsUpdate = this.physicsUpdates.get(i)
-			var intent : Intent = this.intents.get(i)
-			emit(update) [it.UUID == intent.source.UUID]
+		for (pair : this.physicsUpdates.entrySet()) {
+			emit(pair.getValue())[ it.UUID == pair.getKey() ]
 		}
-		this.intents.clear()
 	}
 	
 	def computePerceptions() : void {
-		info("Sending perception updates")
+		this.intents.clear()
 		for (car : cars) {
 			emit(new PerceptionUpdate(
 				new ArrayList<Car>()

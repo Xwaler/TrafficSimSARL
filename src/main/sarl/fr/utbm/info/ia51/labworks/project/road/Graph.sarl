@@ -7,10 +7,10 @@ import java.util.Random
 import io.sarl.lang.core.AgentContext
 
 class Graph {
-	var minEntryNode : int = 2
-	var maxEntryNode : int = 5
-	var minOtherNodes : int = 10
-	var maxOtherNodes : int = 20
+	var minEntryNode : int = 1
+	var maxEntryNode : int = 2
+	var minOtherNodes : int = 7
+	var maxOtherNodes : int = 10
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 
@@ -26,6 +26,14 @@ class Graph {
 	def enter(car : UUID) {
 		var destination : Intersection = this.intersections.get(this.generator.nextInt(this.intersections.size()))
 		this.entryPoints.get(this.generator.nextInt(this.entryPoints.size())).enter(car, destination)
+	}
+
+	def getEntryPoints() : List<EntryPoint> {
+		return this.entryPoints
+	}
+
+	def getIntersections() : List<Intersection> {
+		return this.intersections
 	}
 	
 	def generateRandom() {
@@ -80,20 +88,24 @@ class Graph {
 		var roads : List<List<Road>> = new ArrayList<List<Road>>(index.size())
 		for (i : 0 ..< index.size()) {
 			roads.add(new ArrayList<Road>())
-			for (e : edges.get(i)) {
-				if (e > i) {
-					var roadLength = 20.0 + generator.nextDouble * 100.0
-					switch (generator.nextInt(2)) {
-						case 0: {
-							roads.get(i).add(new OneWayRoad(this.context, roadLength))
+			
+			if (edges.get(i).size() == 1) {
+				roads.get(i).add(new OneWayRoad(this.context))
+			} else {
+				for (e : edges.get(i)) {
+					if (e > i) {
+						switch (generator.nextInt(2)) {
+							case 0: {
+								roads.get(i).add(new OneWayRoad(this.context))
+							}
+							case 1: {
+								roads.get(i).add(new TwoWayRoad(this.context))
+							}
 						}
-						case 1: {
-							roads.get(i).add(new TwoWayRoad(this.context, roadLength))
-						}
+					} else {
+						var existingRoadIndexInOtherIntersection : int = edges.get(e).indexOf(i)
+						roads.get(i).add(roads.get(e).get(existingRoadIndexInOtherIntersection))
 					}
-				} else {
-					var existingRoadIndexInOtherIntersection : int = edges.get(e).indexOf(i)
-					roads.get(i).add(roads.get(e).get(existingRoadIndexInOtherIntersection))
 				}
 			}
 		}
@@ -104,28 +116,55 @@ class Graph {
 		this.intersections = new ArrayList<Intersection>()
 		for (i : 0 ..< index.size()) {
 			var nbLinks : Integer = index.get(i)
+			
 			if (nbLinks == 1) {
-				this.entryPoints.add(new EntryPoint(this.context, roads.get(i)))
-			} else if (nbLinks == 3) {
-				switch (generator.nextInt(2)) {
-					case 0: {
-						intersections.add(new IntersectionT(this.context, roads.get(i)))
+				var x : double = generator.nextDouble * 0.1 + 0.1
+				var y : double = generator.nextDouble * 0.1 + 0.1
+				
+				this.entryPoints.add(new EntryPoint(this.context, roads.get(i), x, y))
+			}
+			else {
+				var x : double = generator.nextDouble * 0.7 + 0.2
+				var y : double = generator.nextDouble * 0.7 + 0.2
+				
+				if (nbLinks == 3) {
+					switch (generator.nextInt(2)) {
+						case 0: {
+							intersections.add(new IntersectionT(this.context, roads.get(i), x, y))
+						}
+						case 1: {
+							intersections.add(new IntersectionY(this.context, roads.get(i), x, y))
+						}
 					}
-					case 1: {
-						intersections.add(new IntersectionY(this.context, roads.get(i)))
+				} else if (nbLinks == 4) {
+					switch (generator.nextInt(2)) {
+						case 0: {
+							intersections.add(new CrossIntersection(this.context, roads.get(i), x, y))
+						}
+						case 1: {
+							intersections.add(new Roundabout(this.context, roads.get(i), x, y))
+						}
 					}
+				} else {
+					intersections.add(new Roundabout(this.context, roads.get(i), x, y))
+				}	
+			}
+		}
+		
+		for (entryPoint: this.entryPoints) {
+			entryPoint.setLength(0.03)
+		}
+		for (intersection: this.intersections) {
+			intersection.setLength(0.03)
+			for (road : intersection.getLinks()) {
+				if (road.getLength() == -1) {
+					road.setLength(
+						Math.sqrt(
+							Math.pow(road.getPrimaryNode().x - road.getSecondaryNode().x, 2) +
+							Math.pow(road.getPrimaryNode().y - road.getSecondaryNode().y, 2)
+						)
+					)
 				}
-			} else if (nbLinks == 4) {
-				switch (generator.nextInt(2)) {
-					case 0: {
-						intersections.add(new CrossIntersection(this.context, roads.get(i)))
-					}
-					case 1: {
-						intersections.add(new Roundabout(this.context, roads.get(i)))
-					}
-				}
-			} else {
-				intersections.add(new Roundabout(this.context, roads.get(i)))
 			}
 		}
 		
@@ -135,6 +174,18 @@ class Graph {
 		}
 		for (i : 0 ..< intersections.size()) {
 			System.out.println("Intersection " + (i + this.entryPoints.size()) + " : " + intersections.get(i))
+		}
+	}
+	
+	def clearCars() : void {
+		for (entryPoint: this.entryPoints) {
+			entryPoint.getCars().clear()
+		}
+		for (intersection: this.intersections) {
+			intersection.getCars().clear()
+			for (link: intersection.getLinks()) {
+				link.getCars().clear()
+			}
 		}
 	}
 }

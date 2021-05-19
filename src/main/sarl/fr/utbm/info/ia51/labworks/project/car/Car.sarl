@@ -25,6 +25,9 @@ import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
 import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
 import fr.utbm.info.ia51.labworks.project.events.PropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.Intent
+import java.util.Random
+import fr.utbm.info.ia51.labworks.project.road.Road
+import fr.utbm.info.ia51.labworks.project.road.Intersection
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -79,8 +82,8 @@ agent Car {
 		}
 	}
 	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on PhysicsUpdate {
-		info("Physics update received (progression: " + occurrence.newPosition + "%)")
 		synchronized (this) {
 			this.positionInRoad = occurrence.newPosition
 			this.speed = occurrence.newSpeed
@@ -88,6 +91,15 @@ agent Car {
 			this.lane = occurrence.newLane
 			if (this.currentElement !== occurrence.newElement) {
 				// TODO: the car changed road => need to change direction
+				if (occurrence.newElement instanceof Road && this.currentElement instanceof Intersection) {
+					if ((occurrence.newElement as Road).primaryNodeIs(this.currentElement as Intersection)) {
+						this.direction = 1
+					} else {
+						this.direction = 0
+					}
+				} else if (occurrence.newElement instanceof Intersection) {
+					this.direction = new Random().nextInt((occurrence.newElement as Intersection).getLinks().size())
+				}
 			}
 			this.currentElement = occurrence.newElement
 		}
@@ -96,15 +108,20 @@ agent Car {
 	on PerceptionUpdate {
 		/* TODO: Process perception */
 		synchronized (this) {
-			/* TODO: Send intent with perception related values */
-			emit(new Intent(
-				this.speed < 20 ? 0.1: 0,
-				this.lane,
-				this.positionInRoad,
-				this.speed,
-				this.currentElement,
-				this.direction
+			if (this.currentElement === null) { // hasn't yet received the enter road event
+				emit(occurrence) [ it.UUID == this.ID ] // delaying handling
+			}
+			else {
+				/* TODO: Send intent with perception related values */
+				emit(new Intent(
+					this.speed < 0.01 && new Random().nextBoolean ? 0.001 : 0,
+					this.lane,
+					this.positionInRoad,
+					this.speed,
+					this.currentElement,
+					this.direction
 			))
+			}
 		}
 	}
 

@@ -5,13 +5,17 @@ import io.sarl.lang.core.AgentContext
 
 abstract class Intersection extends RoadElement {
 	var links : List<Road>
+	public var x : double
+	public var y : double
 	
-	new (context : AgentContext, links : List<Road>) {
-		super(context, 20) // TODO: different intersection size than 20
+	new (context : AgentContext, links : List<Road>, x : double, y : double) {
+		super(context)
 		this.links = links
 		for (l : links) {
 			l.addNode(this)
 		}
+		this.x = x
+		this.y = y
 	}
 	
 	def getLinks : List<Road> {

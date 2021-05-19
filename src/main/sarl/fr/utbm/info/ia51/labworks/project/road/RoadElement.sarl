@@ -13,13 +13,21 @@ abstract class RoadElement extends GraphElement {
 	protected var roadElementUUID : UUID = UUID::randomUUID()
 	protected var context : AgentContext
 	
-	new (context : AgentContext, length : double) {
+	new (context : AgentContext) {
 		this.context = context
+		this.length = -1
+	}
+	
+	def setLength(length : double) : void {
 		this.length = length
 	}
 	
-	def getLength : double {
+	def getLength() : double {
 		return this.length
+	}
+	
+	def getCars() : List<UUID> {
+		return this.cars
 	}
 	
 	def enter(car : UUID) : void {
