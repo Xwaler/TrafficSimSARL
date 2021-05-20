@@ -7,9 +7,9 @@ import java.util.Random
 import io.sarl.lang.core.AgentContext
 
 class Graph {
-	var minEntryNode : int = 1
-	var maxEntryNode : int = 2
-	var minOtherNodes : int = 7
+	var minEntryNode : int = 2
+	var maxEntryNode : int = 4
+	var minOtherNodes : int = 5
 	var maxOtherNodes : int = 10
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
@@ -119,13 +119,13 @@ class Graph {
 			
 			if (nbLinks == 1) {
 				var x : double = generator.nextDouble * 0.1 + 0.1
-				var y : double = generator.nextDouble * 0.1 + 0.1
+				var y : double = generator.nextDouble * 0.8 + 0.1
 				
 				this.entryPoints.add(new EntryPoint(this.context, roads.get(i), x, y))
 			}
 			else {
 				var x : double = generator.nextDouble * 0.7 + 0.2
-				var y : double = generator.nextDouble * 0.7 + 0.2
+				var y : double = generator.nextDouble * 0.8 + 0.1
 				
 				if (nbLinks == 3) {
 					switch (generator.nextInt(2)) {

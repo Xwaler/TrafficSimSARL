@@ -26,6 +26,7 @@ import java.util.Map
 import java.util.WeakHashMap
 import io.sarl.core.AgentTask
 import fr.utbm.info.ia51.labworks.project.events.CarProperties
+import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -81,6 +82,14 @@ agent Environment {
 		}
 	}
 	
+	on GenerateRoadsEvent {
+		synchronized (this) {
+			this.roads = new Graph(defaultContext)
+			this.roads.generateRandom()
+			this.UI.passGraph(this.roads)	
+		}
+	}
+	
 	on AgentSpawned {
 		synchronized (this) {
 			var agentID : UUID = occurrence.agentID
@@ -125,9 +134,9 @@ agent Environment {
 				this.intents.put(occurrence.source.UUID, occurrence);
 				if (this.intents.size() == this.nbCars) {
 					resolveConflicts()
+					frameDelayTask.in(1000 / 60)[computePerceptions()]
 					this.UI.passCarProperties(this.carsProperties)
 					this.UI.repaint()
-					frameDelayTask.in(50) [ computePerceptions() ]
 				}	
 			}
 		}
@@ -176,11 +185,13 @@ agent Environment {
 	}
 	
 	def computePerceptions() : void {
-		this.intents.clear()
-		for (car : cars) {
-			emit(new PerceptionUpdate(
-				new ArrayList<Car>()
-			)) [it.UUID == car]
+		synchronized (this) {
+			this.intents.clear()
+			for (car : cars) {
+				emit(new PerceptionUpdate(
+					new ArrayList<Car>()
+				)) [it.UUID == car]
+			}	
 		}
 	}
 }

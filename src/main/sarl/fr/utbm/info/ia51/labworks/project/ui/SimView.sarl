@@ -25,11 +25,14 @@ class SimView extends JPanel {
 	}
 	
 	def setGraph(graph : Graph) : void {
+		this.carProperties = null
 		this.graph = graph
+		this.repaint()
 	}
 	
 	def setCarProperties(carProperties : Map<UUID, CarProperties>) {
 		this.carProperties = carProperties
+		this.repaint()
 	}
 
 	def paintComponent(g : Graphics) {
