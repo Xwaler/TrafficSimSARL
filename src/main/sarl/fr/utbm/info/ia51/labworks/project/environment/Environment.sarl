@@ -42,7 +42,6 @@ agent Environment {
 	var frameDelayTask : AgentTask
 
 	var nbCars : int
-	var nbInitializedCars : int = 0
 	var cars : List<UUID> = new ArrayList<UUID>
 	var intents : Map<UUID, Intent> = new WeakHashMap<UUID, Intent>
 	var physicsUpdates : Map<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
@@ -61,10 +60,8 @@ agent Environment {
 		info("SIMULATION STARTED")
 		synchronized (this) {
 			this.frameDelayTask = task("frame_delay")
-			this.nbInitializedCars = 0
 			this.nbCars = occurrence.nbCars
 			this.addCars(
-				occurrence.nbCars,
 				occurrence.autonomousProportions,
 				occurrence.obedienceRate,
 				occurrence.reactionTime,
@@ -98,16 +95,11 @@ agent Environment {
 			var agentID : UUID = occurrence.agentID
 			if (this.cars.contains(agentID)) {
 				this.roads.enter(agentID)
-				this.nbInitializedCars++
-				if (this.nbInitializedCars == this.nbCars) {
-					computePerceptions()
-				}
 			}
 		}
 	}
 	
 	def addCars(
-		nbCars : int, 
 		autonomousProportions : double, 
 		obedienceRate : double,
 		reactionTime : double,
@@ -115,18 +107,20 @@ agent Environment {
 		viewDistance : double,
 		FOV : double
 	) : void {
-		var nbAutonomous : int = (nbCars * autonomousProportions) as int
-		for (i : 0 ..< nbAutonomous) {
-			var UUID = UUID::randomUUID()
-			this.cars.add(UUID)
-			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
-				reactionTime, perceptionErrorRate, viewDistance, FOV)
-		}
-		for (i : 0 ..< nbCars - nbAutonomous) {
-			var UUID = UUID::randomUUID()
-			this.cars.add(UUID)
-			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
-				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
+		synchronized (this) {
+			var nbAutonomous : int = (nbCars * autonomousProportions) as int
+			for (i : 0 ..< nbAutonomous) {
+				var UUID = UUID::randomUUID()
+				this.cars.add(UUID)
+				spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
+					reactionTime, perceptionErrorRate, viewDistance, FOV)
+			}
+			for (i : 0 ..< nbCars - nbAutonomous) {
+				var UUID = UUID::randomUUID()
+				this.cars.add(UUID)
+				spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
+					reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
+			}	
 		}
 	}
 
@@ -136,11 +130,11 @@ agent Environment {
 			if (this.cars.contains(occurrence.source.UUID)) {
 				this.intents.put(occurrence.source.UUID, occurrence);
 				if (this.intents.size() == this.nbCars) {
-					resolveConflicts()
-					frameDelayTask.in(1000 / 60)[computePerceptions()]
+					this.resolveConflicts()
+					frameDelayTask.in(1000 / 60)[this.computePerceptions()]
 					this.UI.passCarProperties(this.carsProperties)
 					this.UI.repaint()
-				}	
+				}
 			}
 		}
 	}
@@ -189,7 +183,7 @@ agent Environment {
 	
 	def recursiveAdd(
 		maxViewDistance : double, observerIntent : Intent,
-		observerPositionData : PhysicsUpdate, result : ArrayList<PhysicsUpdate>, distanceToObserver : double,
+		observerPositionData : PhysicsUpdate, result : List<PhysicsUpdate>, distanceToObserver : double,
 		previousElement : RoadElement, currentElement : RoadElement
 	) : void {
 		/* Check if the current element hasn't already been processed */
@@ -222,7 +216,7 @@ agent Environment {
 						
 						var distanceNeighbourObserver : double = distanceToObserver;
 						/* If the car hasn't changed element last frame */
-						if(neighbourPositionData.newElement == neighbourIntent.currentElement){
+						if (neighbourPositionData.newElement == neighbourIntent.currentElement){
 							/* If both car are going in the same direction (direction of the first is different than the origin of the last) */
 							if (neighbourIntent.direction != currentElementAsRoad.nodes.indexOf(previousElement)) {
 								distanceNeighbourObserver += neighbourPositionData.newPosition * currentElement.length
@@ -257,19 +251,24 @@ agent Environment {
 	}
 	
 	def computePerceptions() : void {
-
 		synchronized (this) {
-			// TODO store in map instead of arraylist so it doesn't need to be rebuild
-			// TODO change PU to CP
-	
-			for (physicsUpdate : physicsUpdates.values()){
-					var result : ArrayList<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
-					recursiveAdd(Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
-					intents.get(physicsUpdate.source.UUID), physicsUpdate, result, 0, null, physicsUpdate.newElement)
-	
-					emit(new PerceptionUpdate(
-						result
-					))[it.UUID == physicsUpdate.source.UUID]
+			// TODO: migrate PU and INT to CarProperties
+			for (pair : this.physicsUpdates.entrySet()) {
+				var carUUID : UUID = pair.getKey()
+				var physicsUpdate : PhysicsUpdate = pair.getValue()
+				var result : List<PhysicsUpdate> = new ArrayList<PhysicsUpdate>()
+				recursiveAdd(
+					Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
+					intents.get(carUUID),
+					physicsUpdate,
+					result,
+					0, 
+					null, 
+					physicsUpdate.newElement
+				)
+				emit(new PerceptionUpdate(
+					result
+				)) [it.UUID == carUUID]
 			}
 			this.intents.clear()
 		}

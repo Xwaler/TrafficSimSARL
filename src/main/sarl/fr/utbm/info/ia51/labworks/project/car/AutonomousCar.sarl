@@ -61,9 +61,6 @@ agent AutonomousCar extends Car {
 			unregisterBehavior(this.carBehavior)
 		}
 		info("Entered " + occurrence.road)
-		this.currentElement = occurrence.road
-		this.startPoint = occurrence.road
-		this.endPoint = occurrence.destination
 		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
 	}
 
