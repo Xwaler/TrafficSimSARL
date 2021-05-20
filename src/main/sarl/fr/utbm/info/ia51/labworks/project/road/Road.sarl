@@ -11,6 +11,14 @@ abstract class Road extends RoadElement {
 			this.nodes.add(node)
 		}
 	}
+
+	def primaryNodeIs(node : Intersection) {
+		return node === this.nodes.get(0)
+	}
+
+	def secondaryNodeIs(node : Intersection) {
+		return node === this.nodes.get(1)
+	}
 	
 	def getPrimaryNode() : Intersection {
 		return this.nodes.get(0)

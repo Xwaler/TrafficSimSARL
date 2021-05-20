@@ -1,31 +1,22 @@
 package fr.utbm.info.ia51.labworks.project.car
 
-
 import io.sarl.core.Logging
 import io.sarl.lang.core.Behavior
 import io.sarl.core.Behaviors
 import io.sarl.core.Lifecycle
-import io.sarl.core.AgentKilled
-import io.sarl.core.AgentSpawned
-import io.sarl.core.ContextJoined
-import io.sarl.core.ContextLeft
-import io.sarl.core.MemberJoined
-import io.sarl.core.MemberLeft
-import io.sarl.core.ParticipantJoined
-import io.sarl.core.ParticipantLeft
-import io.sarl.core.SpaceCreated
-import io.sarl.core.SpaceDestroyed
 import io.sarl.core.Initialize
 import io.sarl.core.DefaultContextInteractions
 
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
-import fr.utbm.info.ia51.labworks.project.events.ExitRoad
 import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
 import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
 import fr.utbm.info.ia51.labworks.project.events.PropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.Intent
+import java.util.Random
+import fr.utbm.info.ia51.labworks.project.road.Road
+import fr.utbm.info.ia51.labworks.project.road.Intersection
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -63,14 +54,6 @@ agent Car {
 		killMe
 	}
 	
-	def enter(road : RoadElement) : void {
-		synchronized (this) {
-			this.currentElement = road
-			this.positionInRoad = 0.0
-			info("Entered " + this.currentElement)
-		}
-	}
-	
 	def registerNewBehavior(carBehavior : Behavior) : void {
 		synchronized (this) {
 			this.carBehavior = carBehavior
@@ -88,87 +71,46 @@ agent Car {
 		}
 	}
 	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on PhysicsUpdate {
-		info("Physics update received")
 		synchronized (this) {
 			this.positionInRoad = occurrence.newPosition
 			this.speed = occurrence.newSpeed
 			this.acceleration = occurrence.newAcceleration
 			this.lane = occurrence.newLane
+			if (this.currentElement !== occurrence.newElement) {
+				// TODO: the car changed road => need to change direction
+				if (occurrence.newElement instanceof Road && this.currentElement instanceof Intersection) {
+					if ((occurrence.newElement as Road).primaryNodeIs(this.currentElement as Intersection)) {
+						this.direction = 1
+					} else {
+						this.direction = 0
+					}
+				} else if (occurrence.newElement instanceof Intersection) {
+					this.direction = new Random().nextInt((occurrence.newElement as Intersection).getLinks().size())
+				}
+			}
 			this.currentElement = occurrence.newElement
 		}
 	}
 	
 	on PerceptionUpdate {
-		info("Perception update received")
 		/* TODO: Process perception */
 		synchronized (this) {
-			/* TODO: Send intent with updated values */
-			emit(new Intent(
-				this.acceleration + 1,
-				this.lane,
-				this.positionInRoad,
-				this.speed,
-				this.currentElement,
-				this.direction
-			))
-		}
-	}
-
-	on ExitRoad {
-		synchronized (this) {
-			if (this.carBehavior !== null) {
-				unregisterBehavior(this.carBehavior);
+			if (this.currentElement === null) { // hasn't yet received the enter road event
+				emit(occurrence) [ it.UUID == this.ID ] // delaying handling
+			}
+			else {
+				/* TODO: Send intent with perception related values */
+				emit(new Intent(
+					this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+					this.lane,
+					this.positionInRoad,
+					this.speed,
+					this.currentElement,
+					this.direction
+				))
 			}
 		}
-	}
-
-	on AgentSpawned {
-		// A new agent has been spawned in our context.
-	}
-
-	on AgentKilled {
-		// A new agent has been killed in our context.
-	}
-
-	on ContextJoined {
-		// Event trigger when an agent of the level joins a shared context.
-		// Sent to a agent of the same level.
-	}
-
-	on ContextLeft {
-		// Event trigger when an agent of the level jleaves a shared context.
-		// Sent to a agent of the same level.
-	}
-
-	on MemberJoined {
-		// Event trigger when an agent joins one of our shared super-holons.
-		// Sent to all members of the considered super-holon.
-	}
-
-	on MemberLeft {
-		// Event trigger when an agent leaves one of our shared super-holons.
-		// Sent to all members of the considered super-holon.
-	}
-
-	on MemberLeft {
-		// Event trigger when an agent leaves one of our shared super-holons.
-		// Sent to all members of the considered super-holon.
-	}
-
-	on SpaceCreated {
-		// Event trigger when a space is created into one of the contexts where the agent is.
-	}
-
-	on SpaceDestroyed {
-		// Event trigger when a space is destroyed from one of the contexts where the agent is.
-	}
-
-	on ParticipantJoined {
-		// Event trigger when a participant has joined a space.
-	}
-
-	on ParticipantLeft {
-		// Event trigger when a participant has left a space.
 	}
 }

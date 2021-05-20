@@ -1,7 +1,12 @@
 package fr.utbm.info.ia51.labworks.project.road
 
 import fr.utbm.info.ia51.labworks.project.road.Intersection
+import java.util.UUID
+import fr.utbm.info.ia51.labworks.project.events.EnterCrossIntersection
 
 class CrossIntersection extends Intersection {
-
+	def enter(car : UUID) {
+		super.enter(car)
+		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterCrossIntersection(this))[it.UUID == car]
+	}
 }

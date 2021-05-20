@@ -6,7 +6,6 @@ import io.sarl.core.Logging
 import io.sarl.core.Lifecycle
 import io.sarl.core.DefaultContextInteractions
 import io.sarl.core.Schedules
-import io.sarl.core.AgentTask
 import java.util.UUID
 import java.util.ArrayList
 
@@ -23,8 +22,16 @@ import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
+
 import java.util.WeakHashMap
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
+
+import java.util.Map
+import java.util.WeakHashMap
+import io.sarl.core.AgentTask
+import fr.utbm.info.ia51.labworks.project.events.CarProperties
+import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
+
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -34,24 +41,28 @@ agent Environment {
 	var tauxAccident : double
 	var tempsTrajet : double
 	var roads : Graph
+	var frameDelayTask : AgentTask
 
 	var nbCars : int
 	var nbInitializedCars : int = 0
-	var cars : ArrayList<UUID> = new ArrayList<UUID>
-	var intents : ArrayList<Intent> = new ArrayList<Intent>
-	var physicsUpdates : List<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
+	var cars : List<UUID> = new ArrayList<UUID>
+	var intents : Map<UUID, Intent> = new WeakHashMap<UUID, Intent>
+	var physicsUpdates : Map<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
+	var carsProperties : Map<UUID, CarProperties> = new WeakHashMap<UUID, CarProperties>
 	
 	on Initialize {
 		synchronized (this) {
 			this.UI = occurrence.parameters.get(0) as MainFrame
 			this.roads = new Graph(defaultContext)
-			roads.generateRandom()
+			this.roads.generateRandom()
+			this.UI.passGraph(this.roads)
 		}
 	}
 	
 	on StartSimulationEvent {
 		info("SIMULATION STARTED")
 		synchronized (this) {
+			this.frameDelayTask = task("frame_delay")
 			this.nbInitializedCars = 0
 			this.nbCars = occurrence.nbCars
 			this.addCars(
@@ -69,14 +80,25 @@ agent Environment {
 	on StopSimulationEvent {
 		synchronized (this) {
 			this.cars.clear()
+			this.roads.clearCars()
 			this.intents.clear()
+			this.physicsUpdates.clear()
+			frameDelayTask.cancel()
+		}
+	}
+	
+	on GenerateRoadsEvent {
+		synchronized (this) {
+			this.roads = new Graph(defaultContext)
+			this.roads.generateRandom()
+			this.UI.passGraph(this.roads)	
 		}
 	}
 	
 	on AgentSpawned {
 		synchronized (this) {
 			var agentID : UUID = occurrence.agentID
-			if (cars.contains(agentID)) {
+			if (this.cars.contains(agentID)) {
 				this.roads.enter(agentID)
 				this.nbInitializedCars++
 				if (this.nbInitializedCars == this.nbCars) {
@@ -110,29 +132,34 @@ agent Environment {
 		}
 	}
 
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on Intent {
 		synchronized (this) {
-			this.intents.add(occurrence);
-			if (this.intents.size() == this.nbCars) {
-				info("All intents received")
-				resolveConflicts()
-				task("frame_delay").in(500) [ computePerceptions() ]
+			if (this.cars.contains(occurrence.source.UUID)) {
+				this.intents.put(occurrence.source.UUID, occurrence);
+				if (this.intents.size() == this.nbCars) {
+					resolveConflicts()
+					frameDelayTask.in(1000 / 60)[computePerceptions()]
+					this.UI.passCarProperties(this.carsProperties)
+					this.UI.repaint()
+				}	
 			}
 		}
 	}
 
 	def resolveConflicts() : void {
-		// TODO: resolve conflicts
+		// TODO: actually resolve conflicts
 		this.physicsUpdates.clear()
-		for (i : 0 ..< this.nbCars) {
+		for (pair : this.intents.entrySet()) {
 			var update : PhysicsUpdate = new PhysicsUpdate()
-			var intent : Intent = this.intents.get(i)
+			var carUUID : UUID = pair.getKey()
+			var intent : Intent = pair.getValue()
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
-			update.newPosition = intent.currentPosition + update.newSpeed
+			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
 			update.newLane = intent.intendedLaneChange
 			if (update.newPosition >= 1.0) {
-				intent.currentElement.exit(this.cars.get(i))
+				intent.currentElement.exit(carUUID)
 				if (intent.currentElement instanceof Road) {
 					update.newElement = intent.direction == 0 ? 
 						(intent.currentElement as Road).getPrimaryNode() : 
@@ -142,18 +169,24 @@ agent Environment {
 					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 				}
 				update.newPosition = 0
-				update.newElement.enter(this.cars.get(i))
+				update.newElement.enter(carUUID)
 			}
-			this.physicsUpdates.add(update)
+			else {
+				update.newElement = intent.currentElement
+			}
+			this.physicsUpdates.put(carUUID, update)
+		}
+		this.carsProperties.clear()
+		for (car: this.cars) {
+			this.carsProperties.put(car, new CarProperties(
+				this.intents.get(car),
+				this.physicsUpdates.get(car)
+			))
 		}
 		/* Send physics update to cars */
-		info("Sending physics updates")
-		for (i : 0 ..< this.nbCars) {
-			var update : PhysicsUpdate = this.physicsUpdates.get(i)
-			emit(update) [ it.UUID == this.cars.get(i) ]
+		for (pair : this.physicsUpdates.entrySet()) {
+			emit(pair.getValue())[ it.UUID == pair.getKey() ]
 		}
-		//TODO move this
-		this.intents.clear()
 	}
 	
 	def recursiveAdd(
@@ -227,31 +260,33 @@ agent Environment {
 	}
 	
 	def computePerceptions() : void {
-		//TODO store in map instead of arraylist so it doesn't need to be rebuild
-		var physicsUpdateMap : WeakHashMap<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
-		for (physicsUpdate : physicsUpdates) {
-			physicsUpdateMap.put(physicsUpdate.source.UUID, physicsUpdate);
+
+		synchronized (this) {
+			// TODO store in map instead of arraylist so it doesn't need to be rebuild
+			// TODO change PU to CP
+			var physicsUpdateMap : WeakHashMap<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
+			for (physicsUpdate : physicsUpdates) {
+				physicsUpdateMap.put(physicsUpdate.source.UUID, physicsUpdate);
+			}
+	
+			var intentMap : WeakHashMap<UUID, Intent> = new WeakHashMap<UUID, Intent>
+			for (intent : intents) {
+				intentMap.put(intent.source.UUID, intent);
+			}
+	
+			for (physicsUpdate : physicsUpdates){
+					var result : ArrayList<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
+					recursiveAdd(physicsUpdateMap, intentMap,
+						Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
+						intentMap.get(physicsUpdate.source.UUID), physicsUpdate, result, 0, null, physicsUpdate.newElement)
+	
+					emit(new PerceptionUpdate(
+						result
+					))[it.UUID == physicsUpdate.source.UUID]
+			}
+			this.intents.clear()
 		}
-
-		var intentMap : WeakHashMap<UUID, Intent> = new WeakHashMap<UUID, Intent>
-		for (intent : intents) {
-			intentMap.put(intent.source.UUID, intent);
-		}
-		
-		for (physicsUpdate : physicsUpdates) {
-			var result : ArrayList<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
-			recursiveAdd(physicsUpdateMap, intentMap, Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
-				intentMap.get(physicsUpdate.source.UUID), physicsUpdate, result,
-							0, null, physicsUpdate.newElement)
-
-			emit(new PerceptionUpdate(
-				result
-			))[it.UUID == physicsUpdate.source.UUID]
-		}
-		
-
-		// for each element in physic update
-
-		info("Sending perception updates")
 	}
-}
+
+}	
+

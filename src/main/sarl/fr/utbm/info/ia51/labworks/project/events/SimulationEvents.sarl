@@ -26,3 +26,7 @@ event StartSimulationEvent extends PropertiesUpdate {
 event StopSimulationEvent extends Event {
 	
 }
+
+event GenerateRoadsEvent extends Event {
+	
+}

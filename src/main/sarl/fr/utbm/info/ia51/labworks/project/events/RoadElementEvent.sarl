@@ -12,9 +12,6 @@ event RoadElementEvent extends Event {
 	}
 }
 
-event EnterOneWayRoad extends RoadElementEvent {
-}
-
 event EnterEntryPoint extends RoadElementEvent {
 	var destination : Intersection
 	
@@ -24,5 +21,20 @@ event EnterEntryPoint extends RoadElementEvent {
 	}
 }
 
-event ExitRoad extends RoadElementEvent {
+event EnterCrossIntersection extends RoadElementEvent {
+}
+
+event EnterIntersectionT extends RoadElementEvent {
+}
+
+event EnterIntersectionY extends RoadElementEvent {
+}
+
+event EnterRoundabout extends RoadElementEvent {
+}
+
+event EnterOneWayRoad extends RoadElementEvent {
+}
+
+event EnterTwoWayRoad extends RoadElementEvent {
 }

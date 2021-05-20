@@ -22,15 +22,22 @@ import java.util.UUID
 import fr.utbm.info.ia51.labworks.project.events.HumanCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
 import java.util.Hashtable
+import java.awt.^event.WindowListener
+import java.awt.^event.WindowEvent
 
-class SettingsFrame extends JFrame implements ActionListener, KeyListener{
+class SettingsFrame extends JFrame implements ActionListener, KeyListener, WindowListener{
 	
 	var settingsWidth = 700
 	var settingsHeight = 800
+	var defaultCarNb = 10
 	var defaultAutonomousProportion = 50
 	var defaultObedienceRate = 90
 	var defaultReaction = 10
-	var defaultPerception = 10	
+	var defaultPerception = 10
+	var defaultViewDistance = 10
+	var defaultFOV = 60	
+	
+	var simRunning = false
 	
 	val validateButton : JButton
 	val leaveButton : JButton
@@ -78,7 +85,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		val carNbPanel = new JPanel()
 		carNbPanel.layout = new FlowLayout()
 		val carNbLabel = new JLabel("Nombre de voitures :")
-		this.carNb = new JTextField("10")
+		this.carNb = new JTextField("" + defaultCarNb)
 		this.carNb.setPreferredSize(new Dimension(200, 30))
 		carNbPanel.add(carNbLabel)
 		carNbPanel.add(carNb)
@@ -144,7 +151,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		val viewDistancePanel = new JPanel()
 		viewDistancePanel.layout = new FlowLayout()
 		val viewDistanceLabel = new JLabel("Portée de vue max (m) :")
-		this.viewDistance = new JTextField("10")
+		this.viewDistance = new JTextField(""+defaultViewDistance)
 		this.viewDistance.setPreferredSize(new Dimension(200, 30))
 		viewDistancePanel.add(viewDistanceLabel)
 		viewDistancePanel.add(viewDistance)
@@ -152,7 +159,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		val FOVPanel = new JPanel()
 		FOVPanel.layout = new FlowLayout()
 		val FOVLabel = new JLabel("Champs de vue max (deg) :")
-		this.FOV = new JTextField("60")
+		this.FOV = new JTextField(""+defaultFOV)
 		this.FOV.setPreferredSize(new Dimension(200, 30))
 		FOVPanel.add(FOVLabel)
 		FOVPanel.add(FOV)
@@ -171,6 +178,9 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		btnSettingsPane.setBorder(new EmptyBorder(50, 50, 50, 50))
 		
 		this.carNb.addKeyListener(this)
+		this.viewDistance.addKeyListener(this)
+		this.FOV.addKeyListener(this)
+		this.addWindowListener(this)
 		
 		/* add widgets and panel to the frame */
 		settingsPane.add(carNbPanel)
@@ -193,6 +203,14 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		if(arg0.getSource() == this.validateButton){
 			this.setVisible(false)
 			this.startButton.setEnabled(true)
+			this.defaultCarNb = Integer.parseInt(this.carNb.getText())
+			this.defaultAutonomousProportion = this.carRate.getValue()
+			this.defaultObedienceRate = this.obedienceRate.getValue()
+			this.defaultReaction = this.reactionTime.getValue()
+			this.defaultPerception = this.perceptionErrorRate.getValue()
+			this.defaultViewDistance = Integer.parseInt(this.viewDistance.getText())
+			this.defaultFOV = Integer.parseInt(this.FOV.getText())	
+			
 			this.context.getDefaultSpace().emit(UIUUID, new HumanCarPropertiesUpdate(
 				this.obedienceRate.getValue() / 100.0 as double,
 				this.reactionTime.getValue() as double,
@@ -209,7 +227,20 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 		}
 		if (arg0.getSource() == this.leaveButton) {
 			this.setVisible(false)
+			this.validateButton.setEnabled(true)
+			if (!this.simRunning) {
+				this.carNb.setEditable(true)
+			}			
+			this.viewDistance.setEditable(true)
+			this.FOV.setEditable(true)
 			this.startButton.setEnabled(true)
+			this.carNb.setText("" + defaultCarNb)
+			this.carRate.setValue(defaultAutonomousProportion)
+			this.obedienceRate.setValue(defaultObedienceRate)
+			this.reactionTime.setValue(defaultReaction)
+			this.perceptionErrorRate.setValue(defaultPerception)
+			this.viewDistance.setText(""+defaultViewDistance)
+			this.FOV.setText("" + defaultFOV)
 		}
 	}
 	
@@ -218,19 +249,59 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener{
 			var c = arg0.getKeyChar();
 			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) || (c == KeyEvent.VK_ENTER))) {
 				this.carNb.setEditable(false)
+				this.validateButton.setEnabled(false)
 			}else{
 				this.carNb.setEditable(true)
+			}
+		}
+		if (arg0.getSource() == this.viewDistance) {
+			var c = arg0.getKeyChar();
+			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) ||
+				(c == KeyEvent.VK_ENTER))) {
+				this.viewDistance.setEditable(false)
+				this.validateButton.setEnabled(false)
+			} else {
+				this.viewDistance.setEditable(true)
+			}
+		}
+		if (arg0.getSource() == this.FOV) {
+			var c = arg0.getKeyChar();
+			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) ||
+				(c == KeyEvent.VK_ENTER))) {
+				this.FOV.setEditable(false)
+				this.validateButton.setEnabled(false)
+			} else {
+				this.FOV.setEditable(true)
 			}
 		}
 	}
 	
 	def keyReleased(arg0 : KeyEvent) {}
 	
-	def keyTyped(arg0 : KeyEvent) {
-	}
+	def keyTyped(arg0 : KeyEvent) {}
 
 	def lockSettings(bool : boolean) {
+		this.simRunning = true
 		this.carNb.setEditable(!bool)
 		this.carRate.setEnabled(!bool)
 	}
+	
+	def windowActivated(arg0 : WindowEvent) {}
+	
+	def windowClosed(arg0 : WindowEvent) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
+	def windowClosing(arg0 : WindowEvent) {
+		this.startButton.setEnabled(true)
+	}
+	
+	def windowDeactivated(arg0 : WindowEvent) {}
+	
+	def windowDeiconified(arg0 : WindowEvent) {}
+	
+	def windowIconified(arg0 : WindowEvent) {}
+	
+	def windowOpened(arg0 : WindowEvent) {}
+	
 }

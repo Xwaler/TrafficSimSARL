@@ -7,14 +7,30 @@ import io.sarl.lang.core.AgentContext
 
 abstract class RoadElement extends GraphElement {
 	var speedLimit : int
-	public var cars : List<UUID> = new ArrayList<UUID>() //TODO public to get surrounding of car getter might be better
-	public var length : double; //TODO getter instead of public
+
+	var cars : List<UUID> = new ArrayList<UUID>()
+	var length : double
+
 	
 	protected var roadElementUUID : UUID = UUID::randomUUID()
 	protected var context : AgentContext
 	
 	new (context : AgentContext) {
 		this.context = context
+		this.length = -1
+	}
+	
+	def setLength(length : double) : void {
+		this.length = length
+	}
+	
+	def getLength() : double {
+		return this.length
+	}
+	
+	def getCars() : List<UUID> {
+		//TODO remove and make public
+		return this.cars
 	}
 	
 	def enter(car : UUID) : void {
