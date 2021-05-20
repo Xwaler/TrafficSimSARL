@@ -21,7 +21,7 @@ import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionTAutonomousBehav
 import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
 import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutAutonomousBehavior
 
-agent AutonomousCar extends Car {
+agent AutonomousCar extends Car{
 	uses Logging, Behaviors
 
 	on Initialize {
@@ -65,6 +65,7 @@ agent AutonomousCar extends Car {
 		this.startPoint = occurrence.road
 		this.endPoint = occurrence.destination
 		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
+		
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")

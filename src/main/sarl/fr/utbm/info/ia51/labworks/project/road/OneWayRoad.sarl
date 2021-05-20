@@ -10,4 +10,13 @@ class OneWayRoad extends Road {
 		super.enter(car)
 		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterOneWayRoad(this))[it.UUID == car]
 	}
+	
+	def entryAllowed(intersection : Intersection) : boolean {
+		if (intersection == this.getPrimaryNode()) {
+			return true
+		} else {
+			return false
+		}
+	}
+		
 }

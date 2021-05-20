@@ -18,7 +18,7 @@ abstract class Intersection extends RoadElement {
 		this.y = y
 	}
 	
-	def getLinks : List<Road> {
+	def getLinks() : List<Road> {
 		return this.links
 	}
 

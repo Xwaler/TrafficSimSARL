@@ -31,4 +31,5 @@ abstract class Road extends RoadElement {
 	def toString() : String {
 		return this.class.simpleName + "@" + this.hashCode
 	}
+	
 }

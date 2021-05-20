@@ -68,6 +68,7 @@ agent HumanCar extends Car {
 		this.currentElement = occurrence.road
 		this.startPoint = occurrence.road
 		this.endPoint = occurrence.destination
+		this.pathFinding()
 		this.registerNewBehavior(new EntryPointHumanBehavior(this))
 	}
 
