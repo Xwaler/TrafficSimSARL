@@ -3,6 +3,7 @@ package fr.utbm.info.ia51.labworks.project.car
 import io.sarl.core.Initialize
 import io.sarl.core.Destroy
 import io.sarl.core.Logging
+import io.sarl.core.Behaviors
 
 import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
@@ -11,7 +12,6 @@ import fr.utbm.info.ia51.labworks.project.behaviors.OneWayRoadAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.EntryPointAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.TwoWayRoadAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.events.EnterTwoWayRoad
-import io.sarl.core.Behaviors
 import fr.utbm.info.ia51.labworks.project.events.EnterCrossIntersection
 import fr.utbm.info.ia51.labworks.project.behaviors.CrossIntersectionAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.events.EnterIntersectionY

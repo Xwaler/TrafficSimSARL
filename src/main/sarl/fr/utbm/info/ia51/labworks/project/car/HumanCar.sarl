@@ -20,10 +20,6 @@ import fr.utbm.info.ia51.labworks.project.events.EnterIntersectionT
 import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionTHumanBehavior
 import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
 import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutHumanBehavior
-import fr.utbm.info.ia51.labworks.project.road.EntryPoint
-import fr.utbm.info.ia51.labworks.project.road.Intersection
-import fr.utbm.info.ia51.labworks.project.events.Intent
-
 
 agent HumanCar extends Car {
 	uses Logging, Behaviors
@@ -69,10 +65,6 @@ agent HumanCar extends Car {
 			unregisterBehavior(this.carBehavior)
 		}
 		info("Entered " + occurrence.road)
-		this.currentElement = occurrence.road
-		this.startPoint = occurrence.road
-		this.endPoint = occurrence.destination
-		this.pathFinding()
 		this.registerNewBehavior(new EntryPointHumanBehavior(this))
 	}
 

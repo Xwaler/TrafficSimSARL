@@ -22,11 +22,6 @@ abstract class RoadElement extends GraphElement {
 	def setLength(length : double) : void {
 		this.length = length
 	}
-
-	// Compilation fix for Intersection.getLinks()
-    def getLinks() : List<Road> {
-	}
-	
 	// Compilation fix for Intersection.getLinks()
 	def getLinks() : List<Road> {}
 	

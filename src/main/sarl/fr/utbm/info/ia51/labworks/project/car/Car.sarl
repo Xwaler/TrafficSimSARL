@@ -17,15 +17,11 @@ import fr.utbm.info.ia51.labworks.project.events.Intent
 import java.util.Random
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
-import java.util.HashMap
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
-import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
-import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 import java.util.WeakHashMap
 import java.util.Map
 import java.util.ArrayList
 import java.util.Map.Entry
-import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 
 agent Car {
@@ -63,8 +59,9 @@ agent Car {
 				this.startPoint = occurrence.road
 				this.endPoint = occurrence.destination
 				this.direction = 0
+				// this.pathFinding() TODO: re-enable when not looping indefinitely
 				emit(new Intent(
-					this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+					0,
 					this.lane,
 					this.positionInRoad,
 					this.speed,
@@ -141,9 +138,9 @@ agent Car {
 		var tempNode = (this.startPoint as Intersection)
 		var pathFind = false
 		nodesToVisit.put(tempNode, 0.0)
-		var nodesToVisitByLength : ArrayList<Entry<Intersection, Double>>
+		var nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>
 		nodesToVisitByLength.sort(Entry.comparingByValue())
-		if (tempNode != null) {
+		if (tempNode !== null) {
 			while(!pathFind){
 				nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(nodesToVisit.entrySet())
 				nodesToVisit.clear()
@@ -168,7 +165,7 @@ agent Car {
 					visited.put(node.getKey(), node.getValue())
 				}
 			}
-			info("Visited :"+visited + "/"+visited.size())
+			info("Visited :" + visited + "/" + visited.size())
 			return visited
 		}
 	}
