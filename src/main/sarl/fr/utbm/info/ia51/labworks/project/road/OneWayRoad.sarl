@@ -18,5 +18,4 @@ class OneWayRoad extends Road {
 			return false
 		}
 	}
-		
 }

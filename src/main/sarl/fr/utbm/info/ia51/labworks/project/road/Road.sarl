@@ -32,4 +32,5 @@ abstract class Road extends RoadElement {
 		return this.class.simpleName + "@" + this.hashCode
 	}
 	
+	def entryAllowed(intersection : Intersection):boolean;
 }

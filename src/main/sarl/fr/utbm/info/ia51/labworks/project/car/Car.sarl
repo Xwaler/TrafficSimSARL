@@ -18,12 +18,14 @@ import java.util.Random
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
 import java.util.HashMap
-import fr.utbm.info.ia51.labworks.project.road.EntryPoint
-import fr.utbm.info.ia51.labworks.project.road.Intersection
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
->>>>>>> Stashed changes
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
+import java.util.WeakHashMap
+import java.util.Map
+import java.util.ArrayList
+import java.util.Map.Entry
+import java.util.List
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -31,6 +33,7 @@ agent Car {
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
 	protected var currentElement : RoadElement
+	protected var path : Map<Intersection,Double>
 	protected var speed : double
 	protected var acceleration : double
 	protected var positionInRoad : double
@@ -122,25 +125,40 @@ agent Car {
 	}
 	
 	def pathFinding(){
-		var visited = new HashMap<Intersection, Integer>
+		var visited = new WeakHashMap<Intersection,Double>
+		var nodesToVisit = new WeakHashMap<Intersection, Double>
+		var tempNode = (this.startPoint as Intersection)
 		var pathFind = false
-		var tempNode : Intersection
-		if (this.startPoint != null) {
-			tempNode = (this.startPoint as EntryPoint)
-			visited.put(tempNode, 0)
+		nodesToVisit.put(tempNode, 0.0)
+		var nodesToVisitByLength : ArrayList<Entry<Intersection, Double>>
+		nodesToVisitByLength.sort(Entry.comparingByValue())
+		if (tempNode != null) {
 			while(!pathFind){
-				for (road : tempNode.getLinks()) {
-					if(road instanceof OneWayRoad){
-						if ((road as OneWayRoad).entryAllowed(tempNode)) {
-							info("Next node :"+road.getSecondaryNode())
+				nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(nodesToVisit.entrySet())
+				nodesToVisit.clear()
+				for(node : nodesToVisitByLength){
+					for (road : node.getKey().getLinks()) {
+						if (road instanceof OneWayRoad) {
+							if ((road as OneWayRoad).entryAllowed(tempNode)) {
+								if (road.getSecondaryNode() != this.endPoint) {
+									if(nodesToVisit.containsKey(road.getSecondaryNode())){
+										if(nodesToVisit.get(road.getSecondaryNode()) > node.getValue()+road.getLength()){
+											nodesToVisit.put(road.getSecondaryNode(),node.getValue() + road.getLength())
+										}
+									} else {
+										nodesToVisit.put(road.getSecondaryNode(), road.getLength())
+									}					
+								}else{
+									pathFind = true;
+								}
+							}
 						}
-					}else if(road instanceof TwoWayRoad){
-						//if((road as TwoWayRoad)){}
 					}
+					visited.put(node.getKey(), node.getValue())
 				}
 			}
-		}else{
-			info("error")
+			info("Visited :"+visited + "/"+visited.size())
+			return visited
 		}
 	}
 

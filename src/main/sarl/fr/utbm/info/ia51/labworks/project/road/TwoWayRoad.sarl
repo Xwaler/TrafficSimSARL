@@ -3,4 +3,8 @@ package fr.utbm.info.ia51.labworks.project.road
 class TwoWayRoad extends Road{
 	var nbOfLinePrimary : int
 	var nbOfLineSecondary : int
+	
+	def entryAllowed(intersection:Intersection):boolean{
+		return true
+	}
 }
