@@ -23,6 +23,8 @@ import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
+import java.util.WeakHashMap
+import fr.utbm.info.ia51.labworks.project.road.RoadElement
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -150,15 +152,106 @@ agent Environment {
 			var update : PhysicsUpdate = this.physicsUpdates.get(i)
 			emit(update) [ it.UUID == this.cars.get(i) ]
 		}
+		//TODO move this
 		this.intents.clear()
 	}
 	
-	def computePerceptions() : void {
-		info("Sending perception updates")
-		for (car : cars) {
-			emit(new PerceptionUpdate(
-				new ArrayList<Car>()
-			)) [it.UUID == car]
+	def recursiveAdd(
+		positionDataMap : WeakHashMap<UUID, PhysicsUpdate>,
+		intentMap : WeakHashMap<UUID, Intent>, maxViewDistance : double, observerIntent : Intent,
+		observerPositionData : PhysicsUpdate, result : ArrayList<PhysicsUpdate>, distanceToObserver : double,
+		previousElement : RoadElement, currentElement : RoadElement
+	) : void {
+		/* Check if the current element hasn't already been processed */
+		if (currentElement != previousElement) {
+			if (currentElement instanceof Intersection) {
+
+				/* add all cars in the intersection */
+				for (neighbour : currentElement.cars){
+					/* if neighbour isn't observer */
+					if(neighbour != observerPositionData.source.UUID){
+						result.add(positionDataMap.get(neighbour));
+					}
+				}
+				
+				/* If the view distance is greater that the already processed distance */
+				if (distanceToObserver + currentElement.length <= maxViewDistance) {
+					/* Keep going through next roads */
+					for (road : (currentElement as Intersection).links) {
+						recursiveAdd(positionDataMap, intentMap, maxViewDistance, observerIntent, observerPositionData, result,
+							distanceToObserver + currentElement.length, currentElement, road)
+					}
+				}
+			} else {
+				// TODO for the first element , length isn't the right metric
+				var currentElementAsRoad : Road = (currentElement as Road);
+				for (neighbour : currentElement.cars) {
+					if (neighbour != observerPositionData.source.UUID) {
+						var neighbourPositionData : PhysicsUpdate = positionDataMap.get(neighbour)
+						var neighbourIntent : Intent = intentMap.get(neighbour)
+						
+						var distanceNeighbourObserver : double = distanceToObserver;
+						/* If the car hasn't changed element last frame */
+						if(neighbourPositionData.newElement == neighbourIntent.currentElement){
+							/* If both car are going in the same direction (direction of the first is different than the origin of the last) */
+							if (neighbourIntent.direction != currentElementAsRoad.nodes.indexOf(previousElement)) {
+								distanceNeighbourObserver += neighbourPositionData.newPosition * currentElement.length
+							} else {
+								distanceNeighbourObserver +=  (1 - neighbourPositionData.newPosition) * currentElement.length
+							}
+						} else {
+							/* If both car are going in the same direction (origin are the same) */
+							if (currentElementAsRoad.nodes.indexOf(neighbourIntent.currentElement) ==
+								currentElementAsRoad.nodes.indexOf(previousElement)) {
+								distanceNeighbourObserver += neighbourPositionData.newPosition * currentElement.length
+							} else {
+								distanceNeighbourObserver += (1 - neighbourPositionData.newPosition) * currentElement.length
+							}
+						}
+						if (distanceToObserver + distanceNeighbourObserver <= maxViewDistance){
+							result.add(positionDataMap.get(neighbour));
+						}
+					}
+				}
+				
+
+				if (distanceToObserver + currentElement.length <= maxViewDistance) {
+					/* Keep going through next roads */
+					for (intersection : currentElementAsRoad.nodes) {
+						recursiveAdd(positionDataMap, intentMap, maxViewDistance, observerIntent, observerPositionData, result,
+							distanceToObserver + currentElement.length, currentElement, intersection)
+					}
+				}
+			}
 		}
+	}
+	
+	def computePerceptions() : void {
+		//TODO store in map instead of arraylist so it doesn't need to be rebuild
+		var physicsUpdateMap : WeakHashMap<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
+		for (physicsUpdate : physicsUpdates) {
+			physicsUpdateMap.put(physicsUpdate.source.UUID, physicsUpdate);
+		}
+
+		var intentMap : WeakHashMap<UUID, Intent> = new WeakHashMap<UUID, Intent>
+		for (intent : intents) {
+			intentMap.put(intent.source.UUID, intent);
+		}
+		
+		for (physicsUpdate : physicsUpdates) {
+			var result : ArrayList<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
+			recursiveAdd(physicsUpdateMap, intentMap, Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
+				intentMap.get(physicsUpdate.source.UUID), physicsUpdate, result,
+							0, null, physicsUpdate.newElement)
+
+			emit(new PerceptionUpdate(
+				result
+			))[it.UUID == physicsUpdate.source.UUID]
+		}
+		
+
+		// for each element in physic update
+
+		info("Sending perception updates")
 	}
 }

@@ -4,7 +4,7 @@ import java.util.List
 import java.util.ArrayList
 
 abstract class Road extends RoadElement {
-	var nodes : List<Intersection> = new ArrayList<Intersection>(2)
+	public var nodes : List<Intersection> = new ArrayList<Intersection>(2) //TODO public for surrounding computation, getter might be better
 	
 	def addNode(node : Intersection) {
 		if (!this.nodes.contains(node)) {

@@ -9,9 +9,9 @@ event Update {
 }
 
 event PerceptionUpdate extends Update {
-	var surroundingCars : List<Car>
+	var surroundingCars : List<PhysicsUpdate>
 
-	new (surroundingCars : List<Car>) {
+	new (surroundingCars : List<PhysicsUpdate>) {
 		this.surroundingCars = surroundingCars
 	}
 }

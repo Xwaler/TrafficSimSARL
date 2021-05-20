@@ -30,7 +30,7 @@ class MainFrame extends JFrame implements ActionListener {
 	
 	var simStartedFlag = false
 	
-	val settingsFrame : SettingsFrame
+	public val settingsFrame : SettingsFrame //TODO public to get the max view distance, getter should be better
 	val simView : SimView
 	val feedBackView = new FeedBackPanel()
 	
