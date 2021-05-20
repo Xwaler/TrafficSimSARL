@@ -22,6 +22,8 @@ import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
 import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutHumanBehavior
 import fr.utbm.info.ia51.labworks.project.road.EntryPoint
 import fr.utbm.info.ia51.labworks.project.road.Intersection
+import fr.utbm.info.ia51.labworks.project.events.Intent
+
 
 agent HumanCar extends Car {
 	uses Logging, Behaviors

@@ -2,7 +2,6 @@ package fr.utbm.info.ia51.labworks.project.events
 
 import java.util.List
 import io.sarl.lang.core.Event
-import fr.utbm.info.ia51.labworks.project.car.Car
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 
 event Update extends Event {
@@ -43,14 +42,20 @@ event PhysicsUpdate extends Update {
 
 class CarProperties {
 	public var position : double
+	public var futurePosition : double
 	public var speed : double
-	public var element : RoadElement
+	public var futureSpeed : double
 	public var direction : int
+	public var element : RoadElement
+	public var futureElement : RoadElement
 	
 	new (intent : Intent, physicsUpdate: PhysicsUpdate) {
-		this.position = physicsUpdate.newPosition
-		this.speed = physicsUpdate.newSpeed
-		this.element = physicsUpdate.newElement
+		this.position = intent.currentPosition
+		this.futurePosition = physicsUpdate.newPosition
+		this.speed = intent.currentSpeed
+		this.futureSpeed = physicsUpdate.newSpeed
 		this.direction = intent.direction
+		this.element = intent.currentElement
+		this.futureElement = physicsUpdate.newElement
 	}
 }

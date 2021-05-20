@@ -26,6 +26,7 @@ import java.util.Map
 import java.util.ArrayList
 import java.util.Map.Entry
 import java.util.List
+import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -55,12 +56,26 @@ agent Car {
 		}
 	}
 	
-	on StopSimulationEvent {
+	on EnterEntryPoint {
 		synchronized (this) {
-			if (this.carBehavior !== null) {
-				unregisterBehavior(this.carBehavior);
+			if (this.currentElement === null) { // TODO: remove this once the cars are disallowed to return to an entrypoint
+				this.currentElement = occurrence.road
+				this.startPoint = occurrence.road
+				this.endPoint = occurrence.destination
+				this.direction = 0
+				emit(new Intent(
+					this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+					this.lane,
+					this.positionInRoad,
+					this.speed,
+					this.currentElement,
+					this.direction
+				))
 			}
 		}
+	}
+	
+	on StopSimulationEvent {
 		killMe
 	}
 	
@@ -105,22 +120,18 @@ agent Car {
 	}
 	
 	on PerceptionUpdate {
-		/* TODO: Process perception */
 		synchronized (this) {
-			if (this.currentElement === null) { // hasn't yet received the enter road event
-				emit(occurrence) [ it.UUID == this.ID ] // delaying handling
-			}
-			else {
-				/* TODO: Send intent with perception related values */
-				emit(new Intent(
-					this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
-					this.lane,
-					this.positionInRoad,
-					this.speed,
-					this.currentElement,
-					this.direction
-				))
-			}
+			/* TODO: Process perception */
+			info(occurrence)
+			/* TODO: Send intent with perception related values */
+			emit(new Intent(
+				this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+				this.lane,
+				this.positionInRoad,
+				this.speed,
+				this.currentElement,
+				this.direction
+			))
 		}
 	}
 	
