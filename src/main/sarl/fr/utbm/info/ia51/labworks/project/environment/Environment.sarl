@@ -17,7 +17,6 @@ import fr.utbm.info.ia51.labworks.project.events.StartSimulationEvent
 import fr.utbm.info.ia51.labworks.project.events.Intent
 import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
 import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
-import fr.utbm.info.ia51.labworks.project.car.Car
 import fr.utbm.info.ia51.labworks.project.events.StopSimulationEvent
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.road.Road
@@ -27,7 +26,6 @@ import java.util.WeakHashMap
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 
 import java.util.Map
-import java.util.WeakHashMap
 import io.sarl.core.AgentTask
 import fr.utbm.info.ia51.labworks.project.events.CarProperties
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
@@ -190,8 +188,7 @@ agent Environment {
 	}
 	
 	def recursiveAdd(
-		positionDataMap : WeakHashMap<UUID, PhysicsUpdate>,
-		intentMap : WeakHashMap<UUID, Intent>, maxViewDistance : double, observerIntent : Intent,
+		maxViewDistance : double, observerIntent : Intent,
 		observerPositionData : PhysicsUpdate, result : ArrayList<PhysicsUpdate>, distanceToObserver : double,
 		previousElement : RoadElement, currentElement : RoadElement
 	) : void {
@@ -203,16 +200,16 @@ agent Environment {
 				for (neighbour : currentElement.cars){
 					/* if neighbour isn't observer */
 					if(neighbour != observerPositionData.source.UUID){
-						result.add(positionDataMap.get(neighbour));
+						result.add(physicsUpdates.get(neighbour));
 					}
 				}
 				
 				/* If the view distance is greater that the already processed distance */
 				if (distanceToObserver + currentElement.length <= maxViewDistance) {
 					/* Keep going through next roads */
-					for (road : (currentElement as Intersection).links) {
-						recursiveAdd(positionDataMap, intentMap, maxViewDistance, observerIntent, observerPositionData, result,
-							distanceToObserver + currentElement.length, currentElement, road)
+					for (road : (currentElement as Intersection).getLinks()) {
+						recursiveAdd(maxViewDistance, observerIntent, observerPositionData,
+							result,	distanceToObserver + currentElement.length, currentElement, road)
 					}
 				}
 			} else {
@@ -220,8 +217,8 @@ agent Environment {
 				var currentElementAsRoad : Road = (currentElement as Road);
 				for (neighbour : currentElement.cars) {
 					if (neighbour != observerPositionData.source.UUID) {
-						var neighbourPositionData : PhysicsUpdate = positionDataMap.get(neighbour)
-						var neighbourIntent : Intent = intentMap.get(neighbour)
+						var neighbourPositionData : PhysicsUpdate = physicsUpdates.get(neighbour)
+						var neighbourIntent : Intent = intents.get(neighbour)
 						
 						var distanceNeighbourObserver : double = distanceToObserver;
 						/* If the car hasn't changed element last frame */
@@ -242,7 +239,7 @@ agent Environment {
 							}
 						}
 						if (distanceToObserver + distanceNeighbourObserver <= maxViewDistance){
-							result.add(positionDataMap.get(neighbour));
+							result.add(physicsUpdates.get(neighbour));
 						}
 					}
 				}
@@ -251,8 +248,8 @@ agent Environment {
 				if (distanceToObserver + currentElement.length <= maxViewDistance) {
 					/* Keep going through next roads */
 					for (intersection : currentElementAsRoad.nodes) {
-						recursiveAdd(positionDataMap, intentMap, maxViewDistance, observerIntent, observerPositionData, result,
-							distanceToObserver + currentElement.length, currentElement, intersection)
+						recursiveAdd(maxViewDistance, observerIntent, observerPositionData,
+							result,	distanceToObserver + currentElement.length, currentElement, intersection)
 					}
 				}
 			}
@@ -264,21 +261,11 @@ agent Environment {
 		synchronized (this) {
 			// TODO store in map instead of arraylist so it doesn't need to be rebuild
 			// TODO change PU to CP
-			var physicsUpdateMap : WeakHashMap<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
-			for (physicsUpdate : physicsUpdates) {
-				physicsUpdateMap.put(physicsUpdate.source.UUID, physicsUpdate);
-			}
 	
-			var intentMap : WeakHashMap<UUID, Intent> = new WeakHashMap<UUID, Intent>
-			for (intent : intents) {
-				intentMap.put(intent.source.UUID, intent);
-			}
-	
-			for (physicsUpdate : physicsUpdates){
+			for (physicsUpdate : physicsUpdates.values()){
 					var result : ArrayList<PhysicsUpdate> = new ArrayList<PhysicsUpdate>
-					recursiveAdd(physicsUpdateMap, intentMap,
-						Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
-						intentMap.get(physicsUpdate.source.UUID), physicsUpdate, result, 0, null, physicsUpdate.newElement)
+					recursiveAdd(Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
+					intents.get(physicsUpdate.source.UUID), physicsUpdate, result, 0, null, physicsUpdate.newElement)
 	
 					emit(new PerceptionUpdate(
 						result
@@ -287,6 +274,5 @@ agent Environment {
 			this.intents.clear()
 		}
 	}
-
 }	
 
