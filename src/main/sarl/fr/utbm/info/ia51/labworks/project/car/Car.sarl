@@ -138,14 +138,14 @@ agent Car {
 		var tempNodesToVisit : WeakHashMap<Intersection, Double>
 		
 		var tempNode = (this.startPoint as Intersection)
-		var pathFind = false
+		var pathFound = false
 		
 		nodesToVisit.put(tempNode, 0.0)
 		var nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>
 		nodesToVisitByLength.sort(Entry.comparingByValue())
 		
 		if (tempNode !== null) {
-			while(!pathFind){
+			while(!pathFound){
 				tempNodesToVisit = new WeakHashMap(nodesToVisit)
 				nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(tempNodesToVisit.entrySet())
 				nodesToVisit.clear()
@@ -166,7 +166,7 @@ agent Car {
 												nodesToVisit.put(road.getSecondaryNode(), road.getLength())
 											}
 										} else {
-											pathFind = true;
+											pathFound = true;
 											nodesToVisitByLength.clear()
 										}
 									}
@@ -187,7 +187,7 @@ agent Car {
 										}
 
 									} else {
-										pathFind = true;
+										pathFound = true;
 										nodesToVisitByLength.clear()
 									}
 								}
