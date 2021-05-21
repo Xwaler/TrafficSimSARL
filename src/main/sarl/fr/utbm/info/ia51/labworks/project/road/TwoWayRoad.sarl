@@ -1,8 +1,16 @@
 package fr.utbm.info.ia51.labworks.project.road
 
+import java.util.UUID
+import fr.utbm.info.ia51.labworks.project.events.EnterTwoWayRoad
+
 class TwoWayRoad extends Road{
 	var nbOfLinePrimary : int
 	var nbOfLineSecondary : int
+
+	def enter(car : UUID) {
+		super.enter(car)
+		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterTwoWayRoad(this))[it.UUID == car]
+	}
 	
 	def entryAllowed(intersection:Intersection):boolean{
 		return true

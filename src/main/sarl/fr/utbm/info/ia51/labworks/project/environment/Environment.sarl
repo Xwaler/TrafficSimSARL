@@ -99,7 +99,7 @@ agent Environment {
 		}
 	}
 	
-	def addCars(
+	synchronized def addCars(
 		autonomousProportions : double, 
 		obedienceRate : double,
 		reactionTime : double,
@@ -107,20 +107,18 @@ agent Environment {
 		viewDistance : double,
 		FOV : double
 	) : void {
-		synchronized (this) {
-			var nbAutonomous : int = (nbCars * autonomousProportions) as int
-			for (i : 0 ..< nbAutonomous) {
-				var UUID = UUID::randomUUID()
-				this.cars.add(UUID)
-				spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
-					reactionTime, perceptionErrorRate, viewDistance, FOV)
-			}
-			for (i : 0 ..< nbCars - nbAutonomous) {
-				var UUID = UUID::randomUUID()
-				this.cars.add(UUID)
-				spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
-					reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
-			}	
+		var nbAutonomous : int = (nbCars * autonomousProportions) as int
+		for (i : 0 ..< nbAutonomous) {
+			var UUID = UUID::randomUUID()
+			this.cars.add(UUID)
+			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
+				reactionTime, perceptionErrorRate, viewDistance, FOV)
+		}
+		for (i : 0 ..< nbCars - nbAutonomous) {
+			var UUID = UUID::randomUUID()
+			this.cars.add(UUID)
+			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
+				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
 		}
 	}
 
@@ -130,16 +128,20 @@ agent Environment {
 			if (this.cars.contains(occurrence.source.UUID)) {
 				this.intents.put(occurrence.source.UUID, occurrence);
 				if (this.intents.size() == this.nbCars) {
-					this.resolveConflicts()
-					frameDelayTask.in(1000 / 60)[this.computePerceptions()]
-					this.UI.passCarProperties(this.carsProperties)
+					this.resolveConflictsAndComputeNewProperties()
+					this.UI.passCarsProperties(this.carsProperties)
 					this.UI.repaint()
+					frameDelayTask.cancel()
+					frameDelayTask.in(1000 / 60) [
+						this.computePerceptions()
+						this.updateGraph()
+					]
 				}
 			}
 		}
 	}
 
-	def resolveConflicts() : void {
+	synchronized def resolveConflictsAndComputeNewProperties() : void {
 		// TODO: actually resolve conflicts
 		this.physicsUpdates.clear()
 		for (pair : this.intents.entrySet()) {
@@ -151,7 +153,6 @@ agent Environment {
 			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
 			update.newLane = intent.intendedLaneChange
 			if (update.newPosition >= 1.0) {
-				intent.currentElement.exit(carUUID)
 				if (intent.currentElement instanceof Road) {
 					update.newElement = intent.direction == 0 ? 
 						(intent.currentElement as Road).getPrimaryNode() : 
@@ -161,7 +162,6 @@ agent Environment {
 					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 				}
 				update.newPosition = 0
-				update.newElement.enter(carUUID)
 			}
 			else {
 				update.newElement = intent.currentElement
@@ -181,7 +181,18 @@ agent Environment {
 		}
 	}
 	
-	def recursiveAdd(
+	synchronized def updateGraph() : void {
+		for (pair : this.carsProperties.entrySet()) {
+			var carUUID : UUID = pair.getKey()
+			var carProperties : CarProperties = pair.getValue()
+			if (carProperties.element !== carProperties.futureElement) {
+				carProperties.element.exit(carUUID)
+				carProperties.futureElement.enter(carUUID)
+			}
+		}
+	}
+	
+	synchronized def recursiveAdd(
 		maxViewDistance : double, observerIntent : Intent,
 		observerPositionData : PhysicsUpdate, result : List<PhysicsUpdate>, distanceToObserver : double,
 		previousElement : RoadElement, currentElement : RoadElement
@@ -250,28 +261,25 @@ agent Environment {
 		}
 	}
 	
-	def computePerceptions() : void {
-		synchronized (this) {
-			// TODO: migrate PU and INT to CarProperties
-			for (pair : this.physicsUpdates.entrySet()) {
-				var carUUID : UUID = pair.getKey()
-				var physicsUpdate : PhysicsUpdate = pair.getValue()
-				var result : List<PhysicsUpdate> = new ArrayList<PhysicsUpdate>()
-				recursiveAdd(
-					Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
-					intents.get(carUUID),
-					physicsUpdate,
-					result,
-					0, 
-					null, 
-					physicsUpdate.newElement
-				)
-				emit(new PerceptionUpdate(
-					result
-				)) [it.UUID == carUUID]
-			}
-			this.intents.clear()
+	synchronized def computePerceptions() : void {
+		// TODO: migrate PU and INT to CarProperties
+		for (pair : this.physicsUpdates.entrySet()) {
+			var carUUID : UUID = pair.getKey()
+			var physicsUpdate : PhysicsUpdate = pair.getValue()
+			var result : List<PhysicsUpdate> = new ArrayList<PhysicsUpdate>()
+			recursiveAdd(
+				Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
+				intents.get(carUUID),
+				physicsUpdate,
+				result,
+				0, 
+				null, 
+				physicsUpdate.newElement
+			)
+			emit(new PerceptionUpdate(
+				result
+			)) [it.UUID == carUUID]
 		}
+		this.intents.clear()
 	}
 }	
-

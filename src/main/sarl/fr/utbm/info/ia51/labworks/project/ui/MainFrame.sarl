@@ -155,8 +155,8 @@ class MainFrame extends JFrame implements ActionListener {
 		this.simView.setGraph(graph)
 	}
 
-	def passCarProperties(carProperties : Map<UUID, CarProperties>) {
-		this.simView.setCarProperties(carProperties)
+	def passCarsProperties(carsProperties : Map<UUID, CarProperties>) {
+		this.simView.setCarsProperties(carsProperties)
 	}
 	
 	def repaint() {

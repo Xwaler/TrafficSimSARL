@@ -75,13 +75,11 @@ agent Car {
 	on StopSimulationEvent {
 		killMe
 	}
-	
-	def registerNewBehavior(carBehavior : Behavior) : void {
-		synchronized (this) {
-			this.carBehavior = carBehavior
-			registerBehavior(this.carBehavior);
-			wake(new BehaviorInitialize)
-		}
+
+	synchronized def registerNewBehavior(carBehavior : Behavior) : void {
+		this.carBehavior = carBehavior
+		registerBehavior(this.carBehavior);
+		wake(new BehaviorInitialize)
 	}
 	
 	on PropertiesUpdate {
@@ -119,7 +117,6 @@ agent Car {
 	on PerceptionUpdate {
 		synchronized (this) {
 			/* TODO: Process perception */
-			info(occurrence)
 			/* TODO: Send intent with perception related values */
 			emit(new Intent(
 				this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
@@ -132,7 +129,7 @@ agent Car {
 		}
 	}
 	
-	def pathFinding(){
+	synchronized def pathFinding(){
 		var visited = new WeakHashMap<Intersection,Double>
 		var nodesToVisit = new WeakHashMap<Intersection, Double>
 		var tempNode = (this.startPoint as Intersection)
