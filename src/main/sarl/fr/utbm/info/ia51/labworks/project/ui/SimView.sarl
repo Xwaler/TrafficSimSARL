@@ -75,6 +75,15 @@ class SimView extends JPanel {
 			(secondary.y * this.dimension.height + sinN * this.laneWidth / 2) as int
 		)
 
+		/* DEBUGGING DISPLAY */
+		var road : Road = getRoadBetween(primary, secondary)
+		g.setColor(Color.green)
+		g.drawString(
+			road.class.simpleName + "@" + road.hashCode,
+			((0.5 * primary.x + 0.5 * secondary.x) * this.dimension.width - laneWidth) as int,
+			((0.5 * primary.y + 0.5 * secondary.y) * this.dimension.height - laneWidth) as int
+		)
+
 		g.setColor(Color.red)
 		if (this.carsProperties !== null) {
 			for (car : getRoadBetween(primary, secondary).getCars()) {
@@ -121,6 +130,15 @@ class SimView extends JPanel {
 			(secondary.y * this.dimension.height + sinN * this.laneWidth) as int
 		)
 
+		/* DEBUGGING DISPLAY */
+		var road : Road = getRoadBetween(primary, secondary)
+		g.setColor(Color.green)
+		g.drawString(
+			road.class.simpleName + "@" + road.hashCode,
+			((0.5 * primary.x + 0.5 * secondary.x) * this.dimension.width - laneWidth) as int,
+			((0.5 * primary.y + 0.5 * secondary.y) * this.dimension.height - laneWidth) as int
+		)
+
 		g.setColor(Color.red)
 		if (this.carsProperties !== null) {
 			for (car : getRoadBetween(primary, secondary).getCars()) {
@@ -152,21 +170,38 @@ class SimView extends JPanel {
 		)
 		g.setRenderingHints(rh)
 
-		g.setColor(Color.black)
 		for (entryPoint : this.graph.getEntryPoints()) {
+			g.setColor(Color.black)
 			g.fillRect(
 				((entryPoint.x - entryPoint.getLength() / 2) * this.dimension.width) as int,
 				((entryPoint.y - entryPoint.getLength() / 2) * this.dimension.height) as int,
 				(entryPoint.getLength() * this.dimension.width) as int,
 				(entryPoint.getLength() * this.dimension.height) as int
 			)
+			/* DEBUGGING DISPLAY
+			 */
+			g.setColor(Color.green)
+			g.drawString(
+				entryPoint.class.simpleName + "@" + entryPoint.hashCode,
+				((entryPoint.x - entryPoint.getLength()) * this.dimension.width) as int,
+				((entryPoint.y - entryPoint.getLength()) * this.dimension.height) as int
+			)
 		}
         for (intersection : this.graph.getIntersections()) {
+			g.setColor(Color.black)
 			g.fillRect(
 				((intersection.x - intersection.getLength() / 2) * this.dimension.width) as int,
 				((intersection.y - intersection.getLength() / 2) * this.dimension.height) as int,
 				(intersection.getLength() * this.dimension.width) as int,
 				(intersection.getLength() * this.dimension.height) as int
+			)
+			/* DEBUGGING DISPLAY
+			 */
+			g.setColor(Color.green)
+			g.drawString(
+				intersection.class.simpleName + "@" + intersection.hashCode,
+				((intersection.x - intersection.getLength()) * this.dimension.width) as int,
+				((intersection.y - intersection.getLength()) * this.dimension.height) as int
 			)
         }
 		g.setStroke(new BasicStroke(2))
