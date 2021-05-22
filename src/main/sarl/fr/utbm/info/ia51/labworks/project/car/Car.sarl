@@ -151,44 +151,46 @@ agent Car {
 				nodesToVisit.clear()
 				synchronized (nodesToVisitByLength) {
 					for (node : nodesToVisitByLength) {
-						if (!visited.containsKey(node)) {
-							for (road : node.getKey().getLinks()) {
-								if (road instanceof OneWayRoad) {
-									if ((road as OneWayRoad).entryAllowed(tempNode)) {
+						if (!pathFound) {
+							if (!visited.containsKey(node)) {
+								for (road : node.getKey().getLinks()) {
+									if (road instanceof OneWayRoad) {
+										if ((road as OneWayRoad).entryAllowed(tempNode)) {
+											if (road.getSecondaryNode() != this.endPoint) {
+												if (nodesToVisit.containsKey(road.getSecondaryNode())) {
+													if (nodesToVisit.get(road.getSecondaryNode()) >
+														node.getValue() + road.getLength()) {
+														nodesToVisit.put(road.getSecondaryNode(), node.getValue() +
+															road.getLength())
+													}
+												} else {
+													nodesToVisit.put(road.getSecondaryNode(), road.getLength())
+												}
+											} else {
+												info("PathFound")
+												pathFound = true;
+											}
+										}
+									} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
 										if (road.getSecondaryNode() != this.endPoint) {
 											if (nodesToVisit.containsKey(road.getSecondaryNode())) {
 												if (nodesToVisit.get(road.getSecondaryNode()) >
 													node.getValue() + road.getLength()) {
-													nodesToVisit.put(road.getSecondaryNode(), node.getValue() +
-														road.getLength())
+													nodesToVisit.put(road.getSecondaryNode(),
+														node.getValue() + road.getLength())
+													previouslyVisited = road
 												}
 											} else {
 												nodesToVisit.put(road.getSecondaryNode(), road.getLength())
+												if (Collections.min(nodesToVisit.values()) > road.getLength()) {
+													previouslyVisited = road
+												}
 											}
-										} else {
-											pathFound = true;
-											nodesToVisitByLength.clear()
-										}
-									}
-								} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
-									if (road.getSecondaryNode() != this.endPoint) {
-										if (nodesToVisit.containsKey(road.getSecondaryNode())) {
-											if (nodesToVisit.get(road.getSecondaryNode()) >
-												node.getValue() + road.getLength()) {
-												nodesToVisit.put(road.getSecondaryNode(),
-													node.getValue() + road.getLength())
-												previouslyVisited = road
-											}
-										} else {
-											nodesToVisit.put(road.getSecondaryNode(), road.getLength())
-											if (Collections.min(nodesToVisit.values()) > road.getLength()) {
-												previouslyVisited = road
-											}
-										}
 
-									} else {
-										pathFound = true;
-										nodesToVisitByLength.clear()
+										} else {
+											info("PathFound")
+											pathFound = true;
+										}
 									}
 								}
 							}
