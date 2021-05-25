@@ -24,6 +24,7 @@ import fr.utbm.info.ia51.labworks.project.events.CarProperties
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
 import javax.swing.BoxLayout
 import java.awt.Component
+import java.awt.Color
 
 class MainFrame extends JFrame implements ActionListener {
 	var screenSize = Toolkit.getDefaultToolkit.getScreenSize()
@@ -70,17 +71,14 @@ class MainFrame extends JFrame implements ActionListener {
 		this.startButton = new JButton("Start Simulation")
 		this.startButton.addActionListener(this)
 		this.startButton.setMargin(new Insets(20, 20, 20, 20))
-		this.startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		this.settingsButton = new JButton("Settings")
 		this.settingsButton.addActionListener(this)
 		this.settingsButton.setMargin(new Insets(20, 20, 20, 20))
-		this.settingsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		this.generationButton = new JButton("Generate roads")
 		this.generationButton.addActionListener(this)
 		this.generationButton.setMargin(new Insets(20, 20, 20, 20))
-		this.generationButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		/* Widgets of the left panel*/
 		
@@ -96,11 +94,11 @@ class MainFrame extends JFrame implements ActionListener {
 
 		/* Btn widget */
 		val btnPanel = new JPanel
-		btnPanel.setLayout(new BoxLayout(btnPanel, BoxLayout::X_AXIS))
 		btnPanel.add(this.generationButton)
 		btnPanel.add(this.startButton)
 		btnPanel.add(this.settingsButton)
-		btnPanel.setBorder(new EmptyBorder(100,20, 20, 100))
+		btnPanel.setAlignmentX(Component.CENTER_ALIGNMENT)
+		btnPanel.setBackground(Color.RED)
 
 		val leftPane = new JPanel
 		leftPane.layout = new BorderLayout
@@ -127,12 +125,14 @@ class MainFrame extends JFrame implements ActionListener {
 		if (arg0.getSource() == this.startButton){
 			if (simStartedFlag) {
 				this.startButton.setText("Start Simulation")
+				this.generationButton.setEnabled(true)
 				this.simStartedFlag = false
 				this.settingsFrame.lockSettings(false)
 				this.context.getDefaultSpace().emit(UIUUID, new StopSimulationEvent())
 			} else {
 				this.startButton.setText("Stop")
 				this.simStartedFlag = true
+				this.generationButton.setEnabled(false)
 				this.settingsFrame.lockSettings(true)
 				this.context.getDefaultSpace().emit(UIUUID, new StartSimulationEvent(
 					Integer.parseInt(this.settingsFrame.carNb.getText()),

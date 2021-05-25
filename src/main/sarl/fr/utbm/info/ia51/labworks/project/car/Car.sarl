@@ -19,12 +19,12 @@ import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
 import java.util.WeakHashMap
-import java.util.Map
 import java.util.ArrayList
 import java.util.Map.Entry
 import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 import java.util.Collections
+import java.util.List
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -32,7 +32,7 @@ agent Car {
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
 	protected var currentElement : RoadElement
-	protected var path : Map<Intersection,Double>
+	protected var path : List<Intersection>
 	protected var speed : double
 	protected var acceleration : double
 	protected var positionInRoad : double
@@ -61,7 +61,8 @@ agent Car {
 				this.startPoint = occurrence.road
 				this.endPoint = occurrence.destination
 				this.direction = 0
-				this.pathFinding() //TODO: re-enable when not looping indefinitely
+				this.pathFinding()
+				info("Path :" + this.path)
 				emit(new Intent(
 					0,
 					this.lane,
@@ -136,9 +137,11 @@ agent Car {
 		var visited = new WeakHashMap<Intersection,Double>
 		var nodesToVisit = new WeakHashMap<Intersection, Double>
 		var tempNodesToVisit : WeakHashMap<Intersection, Double>
+		this.path = new ArrayList<Intersection>()
 		
 		var tempNode = (this.startPoint as Intersection)
 		var pathFound = false
+		var pathGenerated = false
 		
 		nodesToVisit.put(tempNode, 0.0)
 		var nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>
@@ -149,35 +152,31 @@ agent Car {
 				tempNodesToVisit = new WeakHashMap(nodesToVisit)
 				nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(tempNodesToVisit.entrySet())
 				nodesToVisit.clear()
-				synchronized (nodesToVisitByLength) {
-					for (node : nodesToVisitByLength) {
-						if (!pathFound) {
-							if (!visited.containsKey(node)) {
-								for (road : node.getKey().getLinks()) {
-									if (road instanceof OneWayRoad) {
-										if ((road as OneWayRoad).entryAllowed(tempNode)) {
-											if (road.getSecondaryNode() != this.endPoint) {
-												if (nodesToVisit.containsKey(road.getSecondaryNode())) {
-													if (nodesToVisit.get(road.getSecondaryNode()) >
-														node.getValue() + road.getLength()) {
-														nodesToVisit.put(road.getSecondaryNode(), node.getValue() +
-															road.getLength())
+				for (node : nodesToVisitByLength) {
+					if (!pathFound) {
+						if (!visited.containsKey(node)) {
+							for (road : node.getKey().getLinks()) {
+								if (road instanceof OneWayRoad) {
+									if ((road as OneWayRoad).entryAllowed(node.getKey())) {
+										if (road.getSecondaryNode() != this.endPoint) {
+											if (nodesToVisit.containsKey(road.getSecondaryNode())) {
+												if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
+														nodesToVisit.put(road.getSecondaryNode(), node.getValue() +road.getLength())
 													}
 												} else {
 													nodesToVisit.put(road.getSecondaryNode(), road.getLength())
 												}
 											} else {
-												info("PathFound")
+												info("PathFound, start:" + this.startPoint + "end :" + this.endPoint)
 												pathFound = true;
+												tempNode = node.getKey()
 											}
 										}
-									} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
+									}else if (road instanceof TwoWayRoad && road != previouslyVisited) {
 										if (road.getSecondaryNode() != this.endPoint) {
 											if (nodesToVisit.containsKey(road.getSecondaryNode())) {
-												if (nodesToVisit.get(road.getSecondaryNode()) >
-													node.getValue() + road.getLength()) {
-													nodesToVisit.put(road.getSecondaryNode(),
-														node.getValue() + road.getLength())
+												if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
+													nodesToVisit.put(road.getSecondaryNode(),node.getValue() + road.getLength())
 													previouslyVisited = road
 												}
 											} else {
@@ -186,22 +185,34 @@ agent Car {
 													previouslyVisited = road
 												}
 											}
-
+	
 										} else {
-											info("PathFound")
+											info("PathFound, start:"+this.startPoint+"end :"+this.endPoint)
 											pathFound = true;
+											tempNode = node.getKey()
 										}
-									}
+									}	
 								}
-							}
 						}
-						visited.put(node.getKey(), node.getValue())
+					}
+					visited.put(node.getKey(), node.getValue())
+				}
+			}
+			path.add(this.endPoint as Intersection)
+			path.add(tempNode)
+			while(!pathGenerated){
+				for(road : tempNode.getLinks()){
+					if (!(road.getPrimaryNode() == this.startPoint)) {
+						if (visited.containsKey(road.getPrimaryNode()) && (visited.get(road.getPrimaryNode()) + road.getLength()) == visited.get(tempNode)) {
+							tempNode = road.getPrimaryNode()
+							path.add(tempNode)
+						}
+					}else{
+						pathGenerated = true
 					}
 				}
 			}
-			
-			info("Visited :" + visited + "/" + visited.size())
-			return visited
+			path.add(this.startPoint as Intersection)
 		}
 	}
 
