@@ -11,8 +11,4 @@ class TwoWayRoad extends Road{
 		super.enter(car)
 		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterTwoWayRoad(this))[it.UUID == car]
 	}
-	
-	def entryAllowed(intersection:Intersection):boolean{
-		return true
-	}
 }

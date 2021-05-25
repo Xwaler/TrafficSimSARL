@@ -154,22 +154,20 @@ agent Car {
 				for (node : nodesToVisitByLength) {
 					if (!pathFound) {
 						if (!visited.containsKey(node)) {
-							for (road : node.getKey().getLinks()) {
+							for (road : node.getKey().getAccessibleLinks()) {
 								if (road instanceof OneWayRoad) {
-									if ((road as OneWayRoad).entryAllowed(node.getKey())) {
-										if (road.getSecondaryNode() != this.endPoint) {
-											if (nodesToVisit.containsKey(road.getSecondaryNode())) {
-												if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
-													nodesToVisit.put(road.getSecondaryNode(), node.getValue() + road.getLength())
-												}
-											} else {
-												nodesToVisit.put(road.getSecondaryNode(), road.getLength())
+									if (road.getSecondaryNode() != this.endPoint) {
+										if (nodesToVisit.containsKey(road.getSecondaryNode())) {
+											if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
+												nodesToVisit.put(road.getSecondaryNode(), node.getValue() + road.getLength())
 											}
 										} else {
-											info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
-											pathFound = true;
-											tempNode = node.getKey()
+											nodesToVisit.put(road.getSecondaryNode(), road.getLength())
 										}
+									} else {
+										info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+										pathFound = true;
+										tempNode = node.getKey()
 									}
 								} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
 									var nextNode : Intersection = road.getOtherNode(node.getKey())
@@ -203,19 +201,19 @@ agent Car {
 			path.add(tempNode)
 			if (tempNode != this.startPoint) {
 				while (!pathGenerated) {
-					//info(this.startPoint + " | " + this.endPoint + ' | ' + this.path + ' | ' + visited)
 					for (road : tempNode.getLinks()) {
 						var nextNode : Intersection = road.getOtherNode(tempNode)
-						if (nextNode != this.startPoint) {
-							if (visited.containsKey(nextNode) &&
-								(visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
+						if (road.entryAllowed(nextNode)) {
+							if (nextNode != this.startPoint) {
+								if (visited.containsKey(nextNode) && (visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
+									path.add(nextNode)
+									tempNode = nextNode
+								}
+							} else {
 								path.add(nextNode)
-								tempNode = nextNode
+								pathGenerated = true
+								break
 							}
-						} else {
-							path.add(nextNode)
-							pathGenerated = true
-							break
 						}
 					}
 				}
