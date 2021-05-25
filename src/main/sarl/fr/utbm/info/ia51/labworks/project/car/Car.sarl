@@ -25,6 +25,8 @@ import fr.utbm.info.ia51.labworks.project.events.EnterEntryPoint
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 import java.util.Collections
 import java.util.List
+import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
+import fr.utbm.info.ia51.labworks.project.events.NewObjective
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -62,7 +64,6 @@ agent Car {
 				this.endPoint = occurrence.destination
 				this.direction = 0
 				this.pathFinding()
-				info("Path :" + this.path)
 				emit(new Intent(
 					0,
 					this.lane,
@@ -110,7 +111,22 @@ agent Car {
 						this.direction = 0
 					}
 				} else if (occurrence.newElement instanceof Intersection) {
-					this.direction = new Random().nextInt((occurrence.newElement as Intersection).getLinks().size())
+					var newIntersection : Intersection = occurrence.newElement as Intersection
+					if (newIntersection == this.endPoint) {
+						this.startPoint = this.endPoint
+						this.endPoint = null
+						info("Arrived ! Asking new objective")
+						emit(new RequestNewObjective(this.startPoint as Intersection))
+					} else {
+						var pathIndex : int = this.path.indexOf(occurrence.newElement)
+						for (i : 0 ..< newIntersection.getLinks().size()) {
+							if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) ==
+								this.path.get(pathIndex + 1)) {
+								this.direction = i
+								break
+							}
+						}
+					}
 				}
 			}
 			this.currentElement = occurrence.newElement
@@ -119,16 +135,20 @@ agent Car {
 	
 	on PerceptionUpdate {
 		synchronized (this) {
-			/* TODO: Process perception */
-			/* TODO: Send intent with perception related values */
-			emit(new Intent(
-				this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
-				this.lane,
-				this.positionInRoad,
-				this.speed,
-				this.currentElement,
-				this.direction
-			))
+			if (this.endPoint === null) {
+				emit(occurrence) [ it.UUID == this.ID ]
+			} else {
+				/* TODO: Process perception */
+				/* TODO: Send intent with perception related values */
+				emit(new Intent(
+					this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+					this.lane,
+					this.positionInRoad,
+					this.speed,
+					this.currentElement,
+					this.direction
+			)	)
+			}
 		}
 	}
 	
@@ -220,6 +240,24 @@ agent Car {
 				}
 			}
 			path.reverse()
+			info("Path :" + this.path)
+		}
+	}
+
+	on NewObjective {
+		info("Received new objective")
+		synchronized (this) {
+			this.endPoint = occurrence.newObjective
+			this.path.clear()
+			this.pathFinding()
+			var newIntersection : Intersection = this.currentElement as Intersection
+			var pathIndex : int = this.path.indexOf(this.currentElement)
+			for (i : 0 ..< newIntersection.getLinks().size()) {
+				if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) == this.path.get(pathIndex + 1)) {
+					this.direction = i
+					break
+				}
+			}
 		}
 	}
 }

@@ -7,10 +7,10 @@ import java.util.Random
 import io.sarl.lang.core.AgentContext
 
 class Graph {
-	var minEntryNode : int = 2
+	var minEntryNode : int = 1
 	var maxEntryNode : int = 3
 	var minOtherNodes : int = 5
-	var maxOtherNodes : int = 6
+	var maxOtherNodes : int = 9
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 
@@ -26,6 +26,14 @@ class Graph {
 	def enter(car : UUID) {
 		var destination : Intersection = this.intersections.get(this.generator.nextInt(this.intersections.size()))
 		this.entryPoints.get(this.generator.nextInt(this.entryPoints.size())).enter(car, destination)
+	}
+	
+	def getNewObjectiveDifferentFrom(node : Intersection) {
+		var destination : Intersection
+		do {
+			destination = this.intersections.get(this.generator.nextInt(this.intersections.size()))
+		} while (destination == node)
+		return destination
 	}
 
 	def getEntryPoints() : List<EntryPoint> {
@@ -160,7 +168,8 @@ class Graph {
 				if (road.getLength() == -1) {
 					road.setLength(
 						Math.sqrt(
-							Math.pow(road.getPrimaryNode().x - road.getSecondaryNode().x, 2) +
+							Math.pow(road.getPrimaryNode()
+							.x - road.getSecondaryNode().x, 2) +
 							Math.pow(road.getPrimaryNode().y - road.getSecondaryNode().y, 2)
 						)
 					)

@@ -29,7 +29,8 @@ import java.util.Map
 import io.sarl.core.AgentTask
 import fr.utbm.info.ia51.labworks.project.events.CarProperties
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
-
+import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
+import fr.utbm.info.ia51.labworks.project.events.NewObjective
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -79,6 +80,7 @@ agent Environment {
 			this.roads.clearCars()
 			this.intents.clear()
 			this.physicsUpdates.clear()
+			this.carsProperties.clear()
 			frameDelayTask.cancel()
 		}
 	}
@@ -130,6 +132,7 @@ agent Environment {
 				this.intents.put(occurrence.source.UUID, occurrence);
 				if (this.intents.size() == this.nbCars) {
 					this.resolveConflictsAndComputeNewProperties()
+					this.UI.passCarsProperties(this.carsProperties)
 					this.UI.repaint()
 					frameDelayTask.cancel()
 					frameDelayTask.in(1000 / 60) [
@@ -282,4 +285,13 @@ agent Environment {
 		}
 		this.intents.clear()
 	}
-}	
+	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on RequestNewObjective {
+		synchronized (this) {
+			emit(
+				new NewObjective(this.roads.getNewObjectiveDifferentFrom(occurrence.currentNode))
+			) [ it.UUID == occurrence.source.UUID ]
+		}
+	}
+}
