@@ -8,9 +8,9 @@ import io.sarl.lang.core.AgentContext
 
 class Graph {
 	var minEntryNode : int = 2
-	var maxEntryNode : int = 4
+	var maxEntryNode : int = 3
 	var minOtherNodes : int = 5
-	var maxOtherNodes : int = 10
+	var maxOtherNodes : int = 6
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 

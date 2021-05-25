@@ -49,10 +49,11 @@ agent Environment {
 	
 	on Initialize {
 		synchronized (this) {
-			this.UI = occurrence.parameters.get(0) as MainFrame
 			this.roads = new Graph(defaultContext)
 			this.roads.generateRandom()
+			this.UI = occurrence.parameters.get(0) as MainFrame
 			this.UI.passGraph(this.roads)
+			this.UI.passCarsProperties(this.carsProperties)
 		}
 	}
 	
@@ -129,7 +130,6 @@ agent Environment {
 				this.intents.put(occurrence.source.UUID, occurrence);
 				if (this.intents.size() == this.nbCars) {
 					this.resolveConflictsAndComputeNewProperties()
-					this.UI.passCarsProperties(this.carsProperties)
 					this.UI.repaint()
 					frameDelayTask.cancel()
 					frameDelayTask.in(1000 / 60) [

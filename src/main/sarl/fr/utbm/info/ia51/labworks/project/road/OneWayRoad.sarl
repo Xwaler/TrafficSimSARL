@@ -12,10 +12,6 @@ class OneWayRoad extends Road {
 	}
 	
 	def entryAllowed(intersection : Intersection) : boolean {
-		if (intersection == this.getPrimaryNode()) {
-			return true
-		} else {
-			return false
-		}
+		return intersection == this.getPrimaryNode()
 	}
 }
