@@ -159,10 +159,11 @@ agent Car {
 									if (road.getSecondaryNode() != this.endPoint) {
 										if (nodesToVisit.containsKey(road.getSecondaryNode())) {
 											if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
-												nodesToVisit.put(road.getSecondaryNode(), node.getValue() + road.getLength())
+												nodesToVisit.
+													put(road.getSecondaryNode(), node.getValue() + road.getLength())
 											}
 										} else {
-											nodesToVisit.put(road.getSecondaryNode(), road.getLength())
+											nodesToVisit.put(road.getSecondaryNode(), road.getLength()+ node.getValue())
 										}
 									} else {
 										info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
@@ -178,7 +179,7 @@ agent Car {
 												previouslyVisited = road
 											}
 										} else {
-											nodesToVisit.put(nextNode, road.getLength())
+											nodesToVisit.put(nextNode, node.getValue() + road.getLength())
 											if (Collections.min(nodesToVisit.values()) > road.getLength()) {
 												previouslyVisited = road
 											}
