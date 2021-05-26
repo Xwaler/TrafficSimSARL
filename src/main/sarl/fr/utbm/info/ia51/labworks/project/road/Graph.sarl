@@ -104,7 +104,7 @@ class Graph {
 					if (e > i) {
 						switch (generator.nextInt(2)) {
 							case 0: {
-								roads.get(i).add(new TwoWayRoad(this.context))
+								roads.get(i).add(new OneWayRoad(this.context))
 							}
 							case 1: {
 								roads.get(i).add(new TwoWayRoad(this.context))
@@ -117,10 +117,22 @@ class Graph {
 				}
 			}
 		}
+		/* Fix intersections with only one way roads connected to it
+		 * Avoid dead ends
+		 */
+		for (i : 0 ..< index.size()) {
+			if (index.get(i) != 1 && roads.get(i).stream().allMatch(road | road instanceof OneWayRoad)) {
+				var replaced : Road = roads.get(i).last()
+				var by : TwoWayRoad = new TwoWayRoad(this.context)
+				for (j : 0 ..< index.size()) {
+					roads.get(j).replaceAll(road | road == replaced ? by: road)
+				}
+			}
+		}
 		/* Instantiate intersections depending on the number of links
 		 * Corresponding road links are given to the newly created object
 		 * The intersections will tell the roads who they're linked to
-		 * */
+		 */
 		this.intersections = new ArrayList<Intersection>()
 		for (i : 0 ..< index.size()) {
 			var nbLinks : Integer = index.get(i)
@@ -168,8 +180,7 @@ class Graph {
 				if (road.getLength() == -1) {
 					road.setLength(
 						Math.sqrt(
-							Math.pow(road.getPrimaryNode()
-							.x - road.getSecondaryNode().x, 2) +
+							Math.pow(road.getPrimaryNode().x - road.getSecondaryNode().x, 2) +
 							Math.pow(road.getPrimaryNode().y - road.getSecondaryNode().y, 2)
 						)
 					)
