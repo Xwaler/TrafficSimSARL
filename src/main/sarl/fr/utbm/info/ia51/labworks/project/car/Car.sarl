@@ -115,9 +115,10 @@ agent Car {
 					if (newIntersection == this.endPoint) {
 						this.startPoint = this.endPoint
 						this.endPoint = null
+						this.path = null
 						info("Arrived ! Asking new objective")
 						emit(new RequestNewObjective(this.startPoint as Intersection))
-					} else {
+					} else if (this.path !== null) {
 						var pathIndex : int = this.path.indexOf(occurrence.newElement)
 						for (i : 0 ..< newIntersection.getLinks().size()) {
 							if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) ==
@@ -129,7 +130,7 @@ agent Car {
 					}
 				}
 			}
-			this.currentElement = occurrence.newElement
+			this.currentElement = occurrence.newElement	
 		}
 	}
 	
@@ -152,13 +153,14 @@ agent Car {
 		}
 	}
 	
-	synchronized def pathFinding(){
+	synchronized def pathFinding() : boolean {
 		var previouslyVisited : Road
 		var visited = new WeakHashMap<Intersection,Double>
 		var nodesToVisit = new WeakHashMap<Intersection, Double>
 		var tempNodesToVisit : WeakHashMap<Intersection, Double>
 		
 		var tempNode = (this.startPoint as Intersection)
+		assert tempNode !== null
 		var pathFound = false
 		var pathGenerated = false
 		
@@ -166,97 +168,109 @@ agent Car {
 		var nodesToVisitByLength : ArrayList<Entry<Intersection, Double>> = new ArrayList<Entry<Intersection, Double>>
 		nodesToVisitByLength.sort(Entry.comparingByValue())
 		
-		if (tempNode !== null) {
-			while (!pathFound){
-				tempNodesToVisit = new WeakHashMap(nodesToVisit)
-				nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(tempNodesToVisit.entrySet())
-				nodesToVisit.clear()
-				for (node : nodesToVisitByLength) {
-					if (!pathFound) {
-						if (!visited.containsKey(node)) {
-							for (road : node.getKey().getAccessibleLinks()) {
-								if (road instanceof OneWayRoad) {
-									if (road.getSecondaryNode() != this.endPoint) {
-										if (nodesToVisit.containsKey(road.getSecondaryNode())) {
-											if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
-												nodesToVisit.
-													put(road.getSecondaryNode(), node.getValue() + road.getLength())
-											}
-										} else {
-											nodesToVisit.put(road.getSecondaryNode(), road.getLength()+ node.getValue())
-										}
-									} else {
-										info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
-										pathFound = true;
-										tempNode = node.getKey()
-									}
-								} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
-									var nextNode : Intersection = road.getOtherNode(node.getKey())
-									if (nextNode != this.endPoint) {
-										if (nodesToVisit.containsKey(nextNode)) {
-											if (nodesToVisit.get(nextNode) > node.getValue() + road.getLength()) {
-												nodesToVisit.put(nextNode, node.getValue() + road.getLength())
-												previouslyVisited = road
-											}
-										} else {
-											nodesToVisit.put(nextNode, node.getValue() + road.getLength())
-											if (Collections.min(nodesToVisit.values()) > road.getLength()) {
-												previouslyVisited = road
-											}
-										}
-									} else {
-										info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
-										pathFound = true;
-										tempNode = node.getKey()
-									}
-								}
-							}
-						}
-					}
-					visited.put(node.getKey(), node.getValue())
-				}
-			}
+		var iter : int = 0
+		while (!pathFound){
+			if (iter++ > 30) return false
 			
-			this.path = new ArrayList<Intersection>(2)
-			path.add(this.endPoint as Intersection)
-			path.add(tempNode)
-			if (tempNode != this.startPoint) {
-				while (!pathGenerated) {
-					for (road : tempNode.getLinks()) {
-						var nextNode : Intersection = road.getOtherNode(tempNode)
-						if (road.entryAllowed(nextNode)) {
-							if (nextNode != this.startPoint) {
-								if (visited.containsKey(nextNode) && (visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
-									path.add(nextNode)
-									tempNode = nextNode
+			tempNodesToVisit = new WeakHashMap(nodesToVisit)
+			nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(tempNodesToVisit.entrySet())
+			nodesToVisit.clear()
+			for (node : nodesToVisitByLength) {
+				if (!pathFound) {
+					if (!visited.containsKey(node)) {
+						for (road : node.getKey().getAccessibleLinks()) {
+							if (road instanceof OneWayRoad) {
+								if (road.getSecondaryNode() != this.endPoint) {
+									if (nodesToVisit.containsKey(road.getSecondaryNode())) {
+										if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
+											nodesToVisit.
+												put(road.getSecondaryNode(), node.getValue() + road.getLength())
+										}
+									} else {
+										nodesToVisit.put(road.getSecondaryNode(), road.getLength()+ node.getValue())
+									}
+								} else {
+									info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+									pathFound = true;
+									tempNode = node.getKey()
 								}
-							} else {
-								path.add(nextNode)
-								pathGenerated = true
-								break
+							} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
+								var nextNode : Intersection = road.getOtherNode(node.getKey())
+								if (nextNode != this.endPoint) {
+									if (nodesToVisit.containsKey(nextNode)) {
+										if (nodesToVisit.get(nextNode) > node.getValue() + road.getLength()) {
+											nodesToVisit.put(nextNode, node.getValue() + road.getLength())
+											previouslyVisited = road
+										}
+									} else {
+										nodesToVisit.put(nextNode, node.getValue() + road.getLength())
+										if (Collections.min(nodesToVisit.values()) > road.getLength()) {
+											previouslyVisited = road
+										}
+									}
+								} else {
+									info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+									pathFound = true;
+									tempNode = node.getKey()
+								}
 							}
 						}
 					}
 				}
+				visited.put(node.getKey(), node.getValue())
 			}
-			path.reverse()
-			info("Path :" + this.path)
 		}
+		
+		this.path = new ArrayList<Intersection>(2)
+		path.add(this.endPoint as Intersection)
+		path.add(tempNode)
+		if (tempNode != this.startPoint) {
+			iter = 0
+			while (!pathGenerated) {
+				if (iter++ > visited.size()) {
+					this.path = null
+					return false
+				}
+				
+				for (road : tempNode.getLinks()) {
+					var nextNode : Intersection = road.getOtherNode(tempNode)
+					if (road.entryAllowed(nextNode)) {
+						if (nextNode != this.startPoint) {
+							if (visited.containsKey(nextNode) && (visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
+								path.add(nextNode)
+								tempNode = nextNode
+							}
+						} else {
+							path.add(nextNode)
+							pathGenerated = true
+							break
+						}
+					}
+				}
+			}
+		}
+		path.reverse()
+		info("Path :" + this.path)
+		return true
 	}
 
 	on NewObjective {
-		info("Received new objective")
 		synchronized (this) {
+			info("Received new objective")
 			this.endPoint = occurrence.newObjective
-			this.path.clear()
-			this.pathFinding()
-			var newIntersection : Intersection = this.currentElement as Intersection
-			var pathIndex : int = this.path.indexOf(this.currentElement)
-			for (i : 0 ..< newIntersection.getLinks().size()) {
-				if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) == this.path.get(pathIndex + 1)) {
-					this.direction = i
-					break
+			if (this.pathFinding()) {
+				var newIntersection : Intersection = this.currentElement as Intersection
+				var pathIndex : int = this.path.indexOf(this.currentElement)
+				for (i : 0 ..< newIntersection.getLinks().size()) {
+					if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) ==
+							this.path.get(pathIndex + 1)) {
+						this.direction = i
+						break
+					}
 				}
+			} else {
+				this.endPoint = null
+				emit(new RequestNewObjective(this.startPoint as Intersection))
 			}
 		}
 	}

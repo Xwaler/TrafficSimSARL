@@ -9,8 +9,8 @@ import io.sarl.lang.core.AgentContext
 class Graph {
 	var minEntryNode : int = 1
 	var maxEntryNode : int = 3
-	var minOtherNodes : int = 5
-	var maxOtherNodes : int = 9
+	var minOtherNodes : int = 10
+	var maxOtherNodes : int = 15
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 
@@ -104,7 +104,7 @@ class Graph {
 					if (e > i) {
 						switch (generator.nextInt(2)) {
 							case 0: {
-								roads.get(i).add(new OneWayRoad(this.context))
+								roads.get(i).add(new TwoWayRoad(this.context))
 							}
 							case 1: {
 								roads.get(i).add(new TwoWayRoad(this.context))

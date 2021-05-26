@@ -98,6 +98,7 @@ class MainFrame extends JFrame implements ActionListener {
 		btnPanel.add(this.startButton)
 		btnPanel.add(this.settingsButton)
 		btnPanel.setAlignmentX(Component.CENTER_ALIGNMENT)
+		btnPanel.setPreferredSize(new Dimension(400, 150))
 
 		val leftPane = new JPanel
 		leftPane.layout = new BorderLayout
