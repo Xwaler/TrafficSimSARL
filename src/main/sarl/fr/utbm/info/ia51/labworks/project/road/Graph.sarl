@@ -117,18 +117,6 @@ class Graph {
 				}
 			}
 		}
-		/* Fix intersections with only one way roads connected to it
-		 * Avoid dead ends
-		 */
-		for (i : 0 ..< index.size()) {
-			if (index.get(i) != 1 && roads.get(i).stream().allMatch(road | road instanceof OneWayRoad)) {
-				var replaced : Road = roads.get(i).last()
-				var by : TwoWayRoad = new TwoWayRoad(this.context)
-				for (j : 0 ..< index.size()) {
-					roads.get(j).replaceAll(road | road == replaced ? by: road)
-				}
-			}
-		}
 		/* Instantiate intersections depending on the number of links
 		 * Corresponding road links are given to the newly created object
 		 * The intersections will tell the roads who they're linked to
@@ -170,7 +158,27 @@ class Graph {
 				}	
 			}
 		}
+
+		/* Fix intersections with only one way roads connected to it
+		 * Avoid dead ends
+		 */
+		for (intersection : this.intersections) {
+			if (intersection.links.stream().allMatch(
+				road | road instanceof OneWayRoad && !road.entryAllowed(intersection)
+			)) {
+				var replaced : Road = intersection.getLinks().last()
+				var by : TwoWayRoad = new TwoWayRoad(this.context)
+				by.nodes = replaced.nodes
+				for (otherIntersection : this.intersections) {
+					otherIntersection.getLinks().replaceAll(road|road == replaced ? by : road)
+				}
+				System.out.println(
+					"Fixed " + intersection + ': ' + replaced + ' replaced by ' + by
+				)
+			}
+		}
 		
+		/* Compute the real lengths of every roads */
 		for (entryPoint: this.entryPoints) {
 			entryPoint.setLength(0.03)
 		}
