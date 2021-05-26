@@ -218,20 +218,26 @@ agent Car {
 			}
 			
 			this.path = new ArrayList<Intersection>(2)
-			path.add(this.endPoint as Intersection)
-			path.add(tempNode)
+			this.path.add(this.endPoint as Intersection)
+			this.path.add(tempNode)
+			var iter = 0
+			
+			//TODO : Fix bug infinite loop
+			
 			if (tempNode != this.startPoint) {
-				while (!pathGenerated) {
+				while (!pathGenerated && iter < 30) {
+					iter++
 					for (road : tempNode.getLinks()) {
 						var nextNode : Intersection = road.getOtherNode(tempNode)
-						if (road.entryAllowed(nextNode)) {
+						if(road.entryAllowed(nextNode) && visited.containsKey(nextNode))
+						{
 							if (nextNode != this.startPoint) {
-								if (visited.containsKey(nextNode) && (visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
-									path.add(nextNode)
+								if ((visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
+									this.path.add(nextNode)
 									tempNode = nextNode
 								}
 							} else {
-								path.add(nextNode)
+								this.path.add(nextNode)
 								pathGenerated = true
 								break
 							}
@@ -239,7 +245,7 @@ agent Car {
 					}
 				}
 			}
-			path.reverse()
+			this.path.reverse()
 			info("Path :" + this.path)
 		}
 	}
