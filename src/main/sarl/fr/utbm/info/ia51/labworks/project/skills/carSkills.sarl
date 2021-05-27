@@ -4,6 +4,19 @@ skill AccelerateSkill implements AccelerateCapacity {
 	
 }
 
-skill PerceptSkill implements PerceptCapacity {
+skill PerceptSkillHuman implements PerceptCapacity {
 	
+	var myself : HumanCar;
+	
+	new(HumanCar car){
+		this.myself = car
+	}
+	
+	def percept(List<CarProperties> surrounding){
+		
+	}
+	
+}
+
+skill PerceptSkillAutonomous implements PerceptCapacity {
 }
