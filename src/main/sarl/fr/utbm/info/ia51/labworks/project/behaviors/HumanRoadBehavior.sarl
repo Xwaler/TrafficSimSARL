@@ -5,27 +5,32 @@ import io.sarl.core.Logging
 import io.sarl.core.Initialize
 
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
+import fr.utbm.info.ia51.labworks.project.car.HumanCar
 
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging
 
+	var myself : HumanCar
+
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.myself = occurrence.parameters.get(0) as HumanCar
 	}
 
 	on BehaviorInitialize {
+
 	}
 }
 
 behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging
 
+	var myself : HumanCar
+	
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.myself = occurrence.parameters.get(0) as HumanCar
 	}
 
 	on BehaviorInitialize {
+		
 	}
 }

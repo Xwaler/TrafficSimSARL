@@ -27,25 +27,27 @@ import java.util.Collections
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
+import fr.utbm.info.ia51.labworks.project.events.CarProperties
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
 
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
-	protected var currentElement : RoadElement
+	var currentElement : RoadElement //TODO : Do a getter
 	protected var path : List<Intersection>
-	protected var speed : double
-	protected var acceleration : double
+	var speed : double // TODO : Do a getter
+	var acceleration : double // TODO : Do a getter
 	protected var positionInRoad : double
 	protected var lane : double
-	protected var direction : int
+	var direction : int // TODO : Do a getter
 	protected var obedienceRate : double
 	protected var reactionTime : double
 	protected var perceptionErrorRate : double
 	protected var viewDistance : double
 	protected var FOV : double
 	protected var carBehavior : Behavior
+	protected var surroundingCars : List<CarProperties>
 	
 	on Initialize {
 		synchronized (this) {
