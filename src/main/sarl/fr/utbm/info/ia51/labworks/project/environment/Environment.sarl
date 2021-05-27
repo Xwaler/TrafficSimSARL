@@ -129,15 +129,15 @@ agent Environment {
 	on Intent {
 		synchronized (this) {
 			if (this.cars.contains(occurrence.source.UUID)) {
-				this.intents.put(occurrence.source.UUID, occurrence);
+				this.intents.put(occurrence.source.UUID, occurrence)
 				if (this.intents.size() == this.nbCars) {
 					this.resolveConflictsAndComputeNewProperties()
 					this.UI.passCarsProperties(this.carsProperties)
 					this.UI.repaint()
 					frameDelayTask.cancel()
 					frameDelayTask.in(1000 / 60) [
-						this.computePerceptions()
 						this.updateGraph()
+						this.computePerceptions()
 					]
 				}
 			}

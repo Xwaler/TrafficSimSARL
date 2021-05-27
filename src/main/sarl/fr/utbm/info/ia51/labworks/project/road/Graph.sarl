@@ -9,8 +9,8 @@ import io.sarl.lang.core.AgentContext
 class Graph {
 	var minEntryNode : int = 1
 	var maxEntryNode : int = 3
-	var minOtherNodes : int = 10
-	var maxOtherNodes : int = 15
+	var minOtherNodes : int = 6
+	var maxOtherNodes : int = 10
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 
@@ -192,6 +192,39 @@ class Graph {
 							Math.pow(road.getPrimaryNode().y - road.getSecondaryNode().y, 2)
 						)
 					)
+				}
+			}
+		}
+		
+		for (intersection : this.intersections) {
+			for (road : intersection.getLinks()) {
+				if (road instanceof OneWayRoad) {
+					if (road.speedLimit == 0) {
+						road.nbOfLane = Math.max(
+							1, Math.ceil(road.getLength() * 4) as int + (generator.nextInt(3) - 1)		
+						)
+						switch (road.nbOfLane) {
+							case 1: road.speedLimit = 50
+							case 2: road.speedLimit = 70
+							case 3: road.speedLimit = 110
+							case 4: road.speedLimit = 130
+						}
+					}
+				} else if (road instanceof TwoWayRoad) {
+					if (road.speedLimit == 0) {
+						road.nbOfLanePrimary = Math.max(
+							1, Math.round(road.getLength() * 4) as int + (generator.nextInt(3) - 1)
+						)
+						road.nbOfLaneSecondary = Math.max(
+							1, Math.round(road.getLength() * 4) as int + (generator.nextInt(3) - 1)		
+						)
+						switch (Math.max(road.nbOfLanePrimary, road.nbOfLaneSecondary)) {
+							case 1: road.speedLimit = 50
+							case 2: road.speedLimit = 70
+							case 3: road.speedLimit = 110
+							case 4: road.speedLimit = 130
+						}
+					}
 				}
 			}
 		}

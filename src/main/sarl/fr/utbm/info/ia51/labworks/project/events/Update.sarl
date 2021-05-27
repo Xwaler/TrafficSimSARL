@@ -63,6 +63,7 @@ class CarProperties {
 	public var speed : double
 	public var futureSpeed : double
 	public var direction : int
+	public var lane : double
 	public var element : RoadElement
 	public var futureElement : RoadElement
 	
@@ -72,6 +73,7 @@ class CarProperties {
 		this.speed = intent.currentSpeed
 		this.futureSpeed = physicsUpdate.newSpeed
 		this.direction = intent.direction
+		this.lane = intent.intendedLaneChange
 		this.element = intent.currentElement
 		this.futureElement = physicsUpdate.newElement
 	}

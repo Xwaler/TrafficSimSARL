@@ -6,7 +6,7 @@ import java.util.ArrayList
 import io.sarl.lang.core.AgentContext
 
 abstract class RoadElement extends GraphElement {
-	var speedLimit : int
+	public var speedLimit : int
 
 	var cars : List<UUID> = new ArrayList<UUID>()
 	var length : double
