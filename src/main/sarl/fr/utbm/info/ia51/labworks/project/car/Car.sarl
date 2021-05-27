@@ -157,7 +157,6 @@ agent Car {
 		var previouslyVisited : Road
 		var visited = new WeakHashMap<Intersection,Double>
 		var nodesToVisit = new WeakHashMap<Intersection, Double>
-		var tempNodesToVisit : WeakHashMap<Intersection, Double>
 		
 		var tempNode = (this.startPoint as Intersection)
 		assert tempNode !== null
@@ -166,58 +165,56 @@ agent Car {
 		
 		nodesToVisit.put(this.startPoint as Intersection, 0.0)
 		var nodesToVisitByLength : ArrayList<Entry<Intersection, Double>> = new ArrayList<Entry<Intersection, Double>>
-		nodesToVisitByLength.sort(Entry.comparingByValue())
 		
 		var iter : int = 0
-		while (!pathFound){
+		while (!pathFound) {
 			if (iter++ > 30) return false
 			
-			tempNodesToVisit = new WeakHashMap(nodesToVisit)
-			nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(tempNodesToVisit.entrySet())
+			nodesToVisitByLength = new ArrayList<Entry<Intersection, Double>>(nodesToVisit.entrySet())
+			nodesToVisitByLength.sort(Entry.comparingByValue())
 			nodesToVisit.clear()
+			
 			for (node : nodesToVisitByLength) {
 				if (!pathFound) {
-					if (!visited.containsKey(node)) {
-						for (road : node.getKey().getAccessibleLinks()) {
-							if (road instanceof OneWayRoad) {
-								if (road.getSecondaryNode() != this.endPoint) {
-									if (nodesToVisit.containsKey(road.getSecondaryNode())) {
-										if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
-											nodesToVisit.
-												put(road.getSecondaryNode(), node.getValue() + road.getLength())
-										}
-									} else {
-										nodesToVisit.put(road.getSecondaryNode(), road.getLength()+ node.getValue())
+					for (road : node.getKey().getAccessibleLinks()) {
+						if (road instanceof OneWayRoad) {
+							if (road.getSecondaryNode() != this.endPoint) {
+								if (nodesToVisit.containsKey(road.getSecondaryNode())) {
+									if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
+										nodesToVisit.
+											put(road.getSecondaryNode(), node.getValue() + road.getLength())
 									}
 								} else {
-									info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
-									pathFound = true;
-									tempNode = node.getKey()
+									nodesToVisit.put(road.getSecondaryNode(), node.getValue() + road.getLength())
 								}
-							} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
-								var nextNode : Intersection = road.getOtherNode(node.getKey())
-								if (nextNode != this.endPoint) {
-									if (nodesToVisit.containsKey(nextNode)) {
-										if (nodesToVisit.get(nextNode) > node.getValue() + road.getLength()) {
-											nodesToVisit.put(nextNode, node.getValue() + road.getLength())
-											previouslyVisited = road
-										}
-									} else {
+							} else {
+								info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+								pathFound = true;
+								tempNode = node.getKey()
+							}
+						} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
+							var nextNode : Intersection = road.getOtherNode(node.getKey())
+							if (nextNode != this.endPoint) {
+								if (nodesToVisit.containsKey(nextNode)) {
+									if (nodesToVisit.get(nextNode) > node.getValue() + road.getLength()) {
 										nodesToVisit.put(nextNode, node.getValue() + road.getLength())
-										if (Collections.min(nodesToVisit.values()) > road.getLength()) {
-											previouslyVisited = road
-										}
+										previouslyVisited = road
 									}
 								} else {
-									info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
-									pathFound = true;
-									tempNode = node.getKey()
+									if (nodesToVisit.empty || Collections.min(nodesToVisit.values()) > node.getValue() + road.getLength()) {
+										previouslyVisited = road
+									}
+									nodesToVisit.put(nextNode, node.getValue() + road.getLength())
 								}
+							} else {
+								info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+								pathFound = true;
+								tempNode = node.getKey()
 							}
 						}
 					}
+					visited.put(node.getKey(), node.getValue())
 				}
-				visited.put(node.getKey(), node.getValue())
 			}
 		}
 		
@@ -236,7 +233,7 @@ agent Car {
 					var nextNode : Intersection = road.getOtherNode(tempNode)
 					if (road.entryAllowed(nextNode)) {
 						if (nextNode != this.startPoint) {
-							if (visited.containsKey(nextNode) && (visited.get(nextNode) + road.getLength()) == visited.get(tempNode)) {
+							if (visited.containsKey(nextNode) && visited.get(nextNode) + road.getLength() == visited.get(tempNode)) {
 								path.add(nextNode)
 								tempNode = nextNode
 							}
@@ -269,6 +266,7 @@ agent Car {
 					}
 				}
 			} else {
+				info("Abort pathfinding")
 				this.endPoint = null
 				emit(new RequestNewObjective(this.startPoint as Intersection))
 			}
