@@ -1,21 +1,23 @@
 package fr.utbm.info.ia51.labworks.project.skills
 
+import fr.utbm.info.ia51.labworks.project.car.HumanCar
+import java.util.List
+import fr.utbm.info.ia51.labworks.project.events.CarProperties
+
 skill AccelerateSkill implements AccelerateCapacity {
 	
 }
 
 skill PerceptSkillHuman implements PerceptCapacity {
-	
 	var myself : HumanCar;
 	
-	new(HumanCar car){
+	new(car : HumanCar) {
 		this.myself = car
 	}
 	
-	def percept(List<CarProperties> surrounding){
+	def percept(surrounding : List<CarProperties>) {
 		
 	}
-	
 }
 
 skill PerceptSkillAutonomous implements PerceptCapacity {
