@@ -5,7 +5,6 @@ import java.util.List
 import java.util.ArrayList
 import java.util.Random
 import io.sarl.lang.core.AgentContext
-import org.arakhne.afc.references.WeakHashSet
 import java.util.HashSet
 import java.util.Set
 
@@ -126,13 +125,10 @@ class Graph {
 		 */
 		this.intersections = new ArrayList<Intersection>()
 		for (i : 0 ..< index.size()) {
-			var nbLinks : Integer = index.get(i)
-			
-			if (nbLinks == 1) {
-				this.entryPoints.add(new EntryPoint(this.context, roads.get(i)))
-			}
-			else {
-				if (nbLinks == 3) {
+			switch (index.get(i)) {
+				case 1: 
+					this.entryPoints.add(new EntryPoint(this.context, roads.get(i)))
+				case 3: {
 					switch (generator.nextInt(2)) {
 						case 0: {
 							intersections.add(new IntersectionT(this.context, roads.get(i)))
@@ -141,7 +137,8 @@ class Graph {
 							intersections.add(new IntersectionY(this.context, roads.get(i)))
 						}
 					}
-				} else if (nbLinks == 4) {
+				}
+				case 4: {
 					switch (generator.nextInt(2)) {
 						case 0: {
 							intersections.add(new CrossIntersection(this.context, roads.get(i)))
@@ -150,9 +147,9 @@ class Graph {
 							intersections.add(new Roundabout(this.context, roads.get(i)))
 						}
 					}
-				} else {
+				}
+				default:
 					intersections.add(new Roundabout(this.context, roads.get(i)))
-				}	
 			}
 		}
 
@@ -194,12 +191,12 @@ class Graph {
 				var replaced : Road = intersection.getLinks().last()
 				var by : TwoWayRoad = new TwoWayRoad(this.context)
 				by.nodes = replaced.nodes
-				for (otherIntersection : this.intersections) {
-					otherIntersection.getLinks().replaceAll(road|road == replaced ? by : road)
-				}
 				System.out.println(
 					"Fixed " + intersection + ': ' + replaced + ' replaced by ' + by
 				)
+				for (otherIntersection : this.intersections) {
+					otherIntersection.getLinks().replaceAll(road|road == replaced ? by : road)
+				}
 			}
 		}
 		
