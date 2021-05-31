@@ -247,31 +247,35 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 	def keyPressed(arg0 : KeyEvent) {
 		if (arg0.getSource() == this.carNb) {
 			var c = arg0.getKeyChar();
-			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) || (c == KeyEvent.VK_ENTER))) {
+			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) || 
+				(c == KeyEvent.VK_ENTER) || (c == KeyEvent.VK_SHIFT))) {
 				this.carNb.setEditable(false)
 				this.validateButton.setEnabled(false)
 			}else{
 				this.carNb.setEditable(true)
+				this.validateButton.setEnabled(true)
 			}
 		}
 		if (arg0.getSource() == this.viewDistance) {
 			var c = arg0.getKeyChar();
 			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) ||
-				(c == KeyEvent.VK_ENTER))) {
+				(c == KeyEvent.VK_ENTER) || (c == KeyEvent.VK_SHIFT))) {
 				this.viewDistance.setEditable(false)
 				this.validateButton.setEnabled(false)
 			} else {
 				this.viewDistance.setEditable(true)
+				this.validateButton.setEnabled(true)
 			}
 		}
 		if (arg0.getSource() == this.FOV) {
 			var c = arg0.getKeyChar();
 			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) ||
-				(c == KeyEvent.VK_ENTER))) {
+				(c == KeyEvent.VK_ENTER) || (c == KeyEvent.VK_SHIFT))) {
 				this.FOV.setEditable(false)
 				this.validateButton.setEnabled(false)
 			} else {
 				this.FOV.setEditable(true)
+				this.validateButton.setEnabled(true)
 			}
 		}
 	}

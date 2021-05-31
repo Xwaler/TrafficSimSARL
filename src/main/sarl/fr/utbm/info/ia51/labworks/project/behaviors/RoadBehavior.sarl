@@ -4,9 +4,17 @@ import io.sarl.core.Logging
 import io.sarl.lang.core.Behavior
 
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
+import fr.utbm.info.ia51.labworks.project.car.Car
 
 behavior RoadBehavior extends Behavior  {
 	uses Logging
+
+	protected var myself : Car
+
+	new (myself : Car) {
+		super(myself)
+		this.myself = myself
+	}
 
 	on BehaviorInitialize {
 		// Event trigger before the behavior begin to live or to be used.

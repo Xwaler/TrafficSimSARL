@@ -7,6 +7,8 @@ import java.util.Random
 import io.sarl.lang.core.AgentContext
 import java.util.HashSet
 import java.util.Set
+import java.util.WeakHashMap
+import java.util.Map.Entry
 
 class Graph {
 	var minEntryNode : int = 1
@@ -154,12 +156,14 @@ class Graph {
 		}
 
 		for (entryPoint : this.entryPoints) {
-			entryPoint.length = 0.05
+			entryPoint.radius = 0.05
+			entryPoint.length = 2 * Math.PI * entryPoint.radius
 			entryPoint.x = generator.nextDouble * 0.05 + 0.05
 			entryPoint.y = generator.nextDouble * 0.90 + 0.05
 		}
 		for (intersection : this.intersections) {
-			intersection.length = 0.05
+			intersection.radius = 0.05
+			intersection.length = 2 * Math.PI * intersection.radius
 			intersection.x = generator.nextDouble * 0.70 + 0.15
 			intersection.y = generator.nextDouble * 0.90 + 0.05
 		}
@@ -191,9 +195,6 @@ class Graph {
 				var replaced : Road = intersection.getLinks().last()
 				var by : TwoWayRoad = new TwoWayRoad(this.context)
 				by.nodes = replaced.nodes
-				System.out.println(
-					"Fixed " + intersection + ': ' + replaced + ' replaced by ' + by
-				)
 				for (otherIntersection : this.intersections) {
 					otherIntersection.getLinks().replaceAll(road|road == replaced ? by : road)
 				}
@@ -208,7 +209,7 @@ class Graph {
 						Math.sqrt(
 							Math.pow(road.getPrimaryNode().x - road.getSecondaryNode().x, 2) +
 							Math.pow(road.getPrimaryNode().y - road.getSecondaryNode().y, 2)
-						)
+						) - road.primaryNode.radius - road.secondaryNode.radius
 					)
 				}
 			}
@@ -250,6 +251,29 @@ class Graph {
 			}
 		}
 		
+		for (entryPoint : this.entryPoints) {
+			entryPoint.linkThreshold.add(1.0)
+		}
+		for (intersection : this.intersections) {
+			var anglesMap = new WeakHashMap<Road, Double>()
+			for (link : intersection.links) {
+				var angle = Math.atan2(
+					link.getOtherNode(intersection).y - intersection.y,
+					link.getOtherNode(intersection).x - intersection.x
+				)
+				angle = angle < 0 ? angle + 2 * Math.PI : angle
+				anglesMap.put(link, angle)
+			}
+			var angles = new ArrayList<Entry<Road, Double>>(anglesMap.entrySet())
+			angles.sort(Entry.comparingByValue())
+			
+			intersection.links.clear()
+			for (pair : angles) {
+				intersection.links.add(pair.getKey())
+				intersection.linkThreshold.add(pair.getValue() / (2 * Math.PI))
+			}
+		}
+		
 		/* Debugging */
 		for (i : 0 ..< this.entryPoints.size()) {
 			System.out.println("Entry point " + i + " : " + this.entryPoints.get(i))
@@ -285,7 +309,7 @@ class Graph {
 		) / (Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2))
 		var x : double = A.x + u * (B.x - A.x)
 		var y : double = A.y + u * (B.y - A.y)
-		return Math.pow(C.x - x, 2) + Math.pow(C.y - y, 2) < Math.pow(C.length, 2)
+		return Math.pow(C.x - x, 2) + Math.pow(C.y - y, 2) < Math.pow(C.radius, 2)
 	}
 	
 	def isIntertwined(iter : int) : Intersection {
@@ -294,7 +318,7 @@ class Graph {
 			for (j : i + 1 ..< this.entryPoints.size()) {
 				var e1 = this.entryPoints.get(j)
 				if (Math.pow(e0.x - e1.x, 2) + Math.pow(e0.y - e1.y, 2) <=
-					Math.pow(0.1 + Math.max(e0.length, e1.length) / 2.0, 2)) {
+					Math.pow(0.1 + Math.max(e0.radius, e1.radius) / 2.0, 2)) {
 					return generator.nextBoolean ? e0: e1
 				}
 			}
@@ -305,7 +329,7 @@ class Graph {
 			for (j : i + 1 ..< this.intersections.size()) {
 				var e1 = this.intersections.get(j)
 				if (Math.pow(e0.x - e1.x, 2) + Math.pow(e0.y - e1.y, 2) <=
-					Math.pow(0.1 + Math.max(e0.length, e1.length) / 2.0, 2)) {
+					Math.pow(0.1 + Math.max(e0.radius, e1.radius) / 2.0, 2)) {
 					return generator.nextBoolean ? e0 : e1
 				}
 			}

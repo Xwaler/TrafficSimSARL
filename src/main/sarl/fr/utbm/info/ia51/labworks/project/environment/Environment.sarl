@@ -156,18 +156,32 @@ agent Environment {
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
 			update.newLane = intent.intendedLaneChange
-			if (update.newPosition >= 1.0) {
-				if (intent.currentElement instanceof Road) {
+			if (intent.currentElement instanceof Road) {
+				if (update.newPosition >= 1.0) {
 					update.newElement = intent.direction == 0 ? 
 						(intent.currentElement as Road).getPrimaryNode() : 
 						(intent.currentElement as Road).getSecondaryNode()
-				} 
-				else if (intent.currentElement instanceof Intersection) {
-					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
+					update.newPosition = (update.newElement as Intersection).linkThreshold.get(
+						(update.newElement as Intersection).links.indexOf(intent.currentElement)
+					)
 				}
-				update.newPosition = 0
 			}
-			else {
+			else if (intent.currentElement instanceof Intersection) {
+				var intersectionThreshold : double = (intent.currentElement as Intersection).linkThreshold.get(intent.direction)
+				if (intent.currentPosition < intersectionThreshold && update.newPosition >= intersectionThreshold) {
+					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
+					update.newPosition = 0
+				} else {
+					if (update.newPosition > 1.0) {
+						update.newPosition -= 1.0
+						if (update.newPosition >= intersectionThreshold) {
+							update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
+							update.newPosition = 0
+						}
+					}
+				}
+			}
+			if (update.newElement === null) {
 				update.newElement = intent.currentElement
 			}
 			this.physicsUpdates.put(carUUID, update)

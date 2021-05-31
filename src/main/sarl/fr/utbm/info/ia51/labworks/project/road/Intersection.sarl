@@ -6,8 +6,10 @@ import io.sarl.lang.core.AgentContext
 
 abstract class Intersection extends RoadElement {
 	var links : List<Road>
+	public var linkThreshold : List<Double>
 	public var x : double
 	public var y : double
+	public var radius : double
 	
 	new (context : AgentContext, links : List<Road>) {
 		super(context)
@@ -15,6 +17,7 @@ abstract class Intersection extends RoadElement {
 		for (l : links) {
 			l.addNode(this)
 		}
+		this.linkThreshold = new ArrayList<Double>()
 	}
 	
 	def getLinks() : List<Road> {
@@ -32,6 +35,10 @@ abstract class Intersection extends RoadElement {
 	}
 
 	def toString() : String {
-		return this.class.simpleName + '@' + this.hashCode + links.toString()
+		var str : String = this.class.simpleName + '@' + this.hashCode + '['
+		for (i : 0 ..< links.size()) {
+			str += linkThreshold.get(i) + ': ' + links.get(i).toString() + ', '
+		}
+		return str + ']'
 	}
 }

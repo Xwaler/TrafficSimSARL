@@ -10,10 +10,8 @@ import fr.utbm.info.ia51.labworks.project.car.HumanCar
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging
 
-	var myself : HumanCar
-
 	on Initialize {
-		this.myself = occurrence.parameters.get(0) as HumanCar
+
 	}
 
 	on BehaviorInitialize {
@@ -23,11 +21,9 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 
 behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging
-
-	var myself : HumanCar
 	
 	on Initialize {
-		this.myself = occurrence.parameters.get(0) as HumanCar
+		
 	}
 
 	on BehaviorInitialize {
