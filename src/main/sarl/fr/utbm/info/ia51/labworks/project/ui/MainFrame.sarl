@@ -102,7 +102,7 @@ class MainFrame extends JFrame implements ActionListener {
 		leftPane.setPreferredSize(new Dimension(400, this.height))
 
 		this.settingsFrame = new SettingsFrame(this.width + 400, this.height + 200, this.startButton, context, UIUUID)
-		this.simView = new SimView(new Dimension(this.width - 400, this.height))
+		this.simView = new SimView(new Dimension(this.height, this.height))
 		
 		/* Add widget to the left pane of the main ui */
 		leftPane.add(BorderLayout::NORTH, titlePanel)
