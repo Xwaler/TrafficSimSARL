@@ -28,6 +28,7 @@ import fr.utbm.info.ia51.labworks.project.road.RoadElement
 import java.util.Map
 import io.sarl.core.AgentTask
 import fr.utbm.info.ia51.labworks.project.events.CarProperties
+import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
@@ -211,58 +212,106 @@ agent Environment {
 	}
 	
 	synchronized def recursiveAdd(
-		maxViewDistance : double, observerIntent : Intent,
-		observerPositionData : PhysicsUpdate, result : List<PhysicsUpdate>, distanceToObserver : double,
+		maxViewDistance : double,
+		observerPositionData : PhysicsUpdate,
+		result : List<PerceptCar>,
+		distanceToObserver : double,
 		previousElement : RoadElement, currentElement : RoadElement
 	) : void {
-		/* Check if the current element hasn't already been processed */
+		/* Check if the current element hasn't already been processed (making sure that the previous element isn't processed again, 
+		 * in case of a loop, this does not work, but loop smaller than the view distance aren't possible
+		 */
 		if (currentElement != previousElement) {
+			/* Element is a intersection */
 			if (currentElement instanceof Intersection) {
 
-				/* add all cars in the intersection */
-				for (neighbour : currentElement.cars){
-					/* if neighbour isn't observer */
-					if(neighbour != observerPositionData.source.UUID){
-						result.add(physicsUpdates.get(neighbour));
+				/* If the observer see the whole intersection */
+				if (distanceToObserver + currentElement.length <= maxViewDistance){
+					/* add all cars in the intersection */
+					for (neighbour : currentElement.cars){
+						/* don't add self */
+						if (neighbour != observerPositionData.source.UUID) {
+							var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
+							//if the observed car changed element during the past frame, direction hasn't been updated yet
+							result.add(
+								new PerceptCar(
+									distanceToObserver, 
+									currentElement,
+									((neighbourCarProperties.element ==	neighbourCarProperties.futureElement) ? 
+										neighbourCarProperties.direction : -1),
+									neighbourCarProperties.futureSpeed, 
+									neighbourCarProperties.lane));
+						}
 					}
 				}
-				
-				/* If the view distance is greater that the already processed distance */
-				if (distanceToObserver + currentElement.length <= maxViewDistance) {
-					/* Keep going through next roads */
-					for (road : (currentElement as Intersection).getLinks()) {
-						recursiveAdd(maxViewDistance, observerIntent, observerPositionData,
-							result,	distanceToObserver + currentElement.length, currentElement, road)
-					}
+
+				/* Keep going through adjacent element */
+				for (road : (currentElement as Intersection).getLinks()) {
+					recursiveAdd(maxViewDistance, observerPositionData, result,
+						distanceToObserver + currentElement.length, currentElement, road)
 				}
+
 			} else {
-				// TODO for the first element , length isn't the right metric
+				// TODO changed neighbor to observed
+				/* Element is a Road */
 				var currentElementAsRoad : Road = (currentElement as Road);
 				for (neighbour : currentElement.cars) {
+					/* ignore self */
 					if (neighbour != observerPositionData.source.UUID) {
-						var neighbourPositionData : PhysicsUpdate = physicsUpdates.get(neighbour)
-						var neighbourIntent : Intent = intents.get(neighbour)
+						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
+						//TODO put this as parameter instead of PU, might need to add an UUID
+						var selfCarProperties : CarProperties = carsProperties.get(observerPositionData.source.UUID);
 						
+						/* Compute the distance between the observer and the neighbor */
 						var distanceNeighbourObserver : double = distanceToObserver;
-						/* If the car hasn't changed element last frame */
-						if (neighbourPositionData.newElement == neighbourIntent.currentElement){
-							/* If both car are going in the same direction (direction of the first is different than the origin of the last) */
-							if (neighbourIntent.direction != currentElementAsRoad.nodes.indexOf(previousElement)) {
-								distanceNeighbourObserver += neighbourPositionData.newPosition * currentElement.length
-							} else {
-								distanceNeighbourObserver +=  (1 - neighbourPositionData.newPosition) * currentElement.length
-							}
+						
+						/* Compute neighbor direction */
+						var neighborDirection : int 
+						if (neighbourCarProperties.element == neighbourCarProperties.futureElement) {
+							neighborDirection = neighbourCarProperties.direction
 						} else {
-							/* If both car are going in the same direction (origin are the same) */
-							if (currentElementAsRoad.nodes.indexOf(neighbourIntent.currentElement) ==
-								currentElementAsRoad.nodes.indexOf(previousElement)) {
-								distanceNeighbourObserver += neighbourPositionData.newPosition * currentElement.length
-							} else {
-								distanceNeighbourObserver += (1 - neighbourPositionData.newPosition) * currentElement.length
-							}
+							/* If the car has changed element during the past frame, direction is unknown, 
+							 * since the current element is a road, direction can be deduced
+							 */
+							neighborDirection = (currentElementAsRoad.nodes.indexOf(neighbourCarProperties.element) == 0 ? 1 : 0)
 						}
-						if (distanceToObserver + distanceNeighbourObserver <= maxViewDistance){
-							result.add(physicsUpdates.get(neighbour));
+						
+						var selfDirection : int
+						if (selfCarProperties.element == selfCarProperties.futureElement) {
+							selfDirection = selfCarProperties.direction
+						} else {
+							/* If the car has changed element during the past frame, direction is unknown, 
+							 * since the current element is a road, direction can be deduced
+							 */
+							selfDirection = (currentElementAsRoad.nodes.indexOf(selfCarProperties.element) ==
+								0 ? 1 : 0)
+						}
+						
+						var doesNeighborGoInTheSameDirection : boolean
+						if (previousElement === null) {
+							/* for the first element processed, the two cars are part of the same road */
+							doesNeighborGoInTheSameDirection = (selfDirection == neighborDirection)
+						} else {
+							/* for the adjacent element, the point from which the observer might enter this element (previousElement) is
+							 * used to compute of the neighbor is going in the same direction or not
+							 * if neighbor doesn't go toward previous element, it goes in the same direcion
+							 */
+							doesNeighborGoInTheSameDirection = (neighborDirection != currentElementAsRoad.nodes.indexOf(previousElement))
+
+						}
+						
+						if (doesNeighborGoInTheSameDirection) {
+							distanceNeighbourObserver += neighbourCarProperties.futurePosition * currentElement.length
+						} else {
+							distanceNeighbourObserver += (1 - neighbourCarProperties.futurePosition) * currentElement.length
+						}
+						
+						if (distanceNeighbourObserver <= maxViewDistance){
+							result.add(new PerceptCar(
+								distanceNeighbourObserver, 
+								currentElement, 
+								neighborDirection,
+								neighbourCarProperties.futureSpeed, neighbourCarProperties.lane));
 						}
 					}
 				}
@@ -271,7 +320,7 @@ agent Environment {
 				if (distanceToObserver + currentElement.length <= maxViewDistance) {
 					/* Keep going through next roads */
 					for (intersection : currentElementAsRoad.nodes) {
-						recursiveAdd(maxViewDistance, observerIntent, observerPositionData,
+						recursiveAdd(maxViewDistance, observerPositionData,
 							result,	distanceToObserver + currentElement.length, currentElement, intersection)
 					}
 				}
@@ -284,10 +333,9 @@ agent Environment {
 		for (pair : this.physicsUpdates.entrySet()) {
 			var carUUID : UUID = pair.getKey()
 			var physicsUpdate : PhysicsUpdate = pair.getValue()
-			var result : List<PhysicsUpdate> = new ArrayList<PhysicsUpdate>()
+			var result : List<PerceptCar> = new ArrayList<PerceptCar>()
 			recursiveAdd(
 				Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0,
-				intents.get(carUUID),
 				physicsUpdate,
 				result,
 				0, 

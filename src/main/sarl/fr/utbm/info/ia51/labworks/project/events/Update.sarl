@@ -10,9 +10,9 @@ event Update extends Event {
 }
 
 event PerceptionUpdate extends Update {
-	var surroundingCars : List<PhysicsUpdate>
+	var surroundingCars : List<PerceptCar>
 
-	new (surroundingCars : List<PhysicsUpdate>) {
+	new (surroundingCars : List<PerceptCar>) {
 		this.surroundingCars = surroundingCars
 	}
 }
@@ -54,6 +54,22 @@ event NewObjective {
 	
 	new (newObjective : Intersection) {
 		this.newObjective = newObjective
+	}
+}
+
+class PerceptCar {
+	public var distance : double
+	public var currentElement : RoadElement
+	public var direction : int
+	public var speed : double
+	public var lane : double
+	
+	new (distance : double, currentElement : RoadElement, direction : int, speed : double, lane : double){
+		this.distance = distance
+		this.currentElement = currentElement
+		this.direction = direction
+		this.speed = speed
+		this.lane =  lane
 	}
 }
 
