@@ -156,13 +156,13 @@ class Graph {
 		}
 
 		for (entryPoint : this.entryPoints) {
-			entryPoint.radius = 0.05
+			entryPoint.radius = 0.02
 			entryPoint.length = 2 * Math.PI * entryPoint.radius
 			entryPoint.x = generator.nextDouble * 0.05 + 0.05
 			entryPoint.y = generator.nextDouble * 0.90 + 0.05
 		}
 		for (intersection : this.intersections) {
-			intersection.radius = 0.05
+			intersection.radius = 0.04
 			intersection.length = 2 * Math.PI * intersection.radius
 			intersection.x = generator.nextDouble * 0.70 + 0.15
 			intersection.y = generator.nextDouble * 0.90 + 0.05
