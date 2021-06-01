@@ -14,7 +14,6 @@ import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
 import fr.utbm.info.ia51.labworks.project.events.PerceptionUpdate
 import fr.utbm.info.ia51.labworks.project.events.PropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.Intent
-import java.util.Random
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
@@ -28,6 +27,7 @@ import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
 import fr.utbm.info.ia51.labworks.project.events.CarProperties
+import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
@@ -105,7 +105,9 @@ agent Car {
 			this.acceleration = occurrence.newAcceleration
 			this.lane = occurrence.newLane
 			if (this.currentElement !== occurrence.newElement) {
-				// TODO: the car changed road => need to change direction
+				info("Exited road")
+				unregisterBehavior(this.carBehavior)
+				this.carBehavior = null
 				if (occurrence.newElement instanceof Road && this.currentElement instanceof Intersection) {
 					if ((occurrence.newElement as Road).primaryNodeIs(this.currentElement as Intersection)) {
 						this.direction = 1
@@ -138,19 +140,20 @@ agent Car {
 	
 	on PerceptionUpdate {
 		synchronized (this) {
-			if (this.endPoint === null) {
+			if (this.endPoint === null || this.carBehavior === null) {
 				emit(occurrence) [ it.UUID == this.ID ]
 			} else {
 				/* TODO: Process perception */
 				/* TODO: Send intent with perception related values */
-				emit(new Intent(
-					this.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+				wake(new BehaviorStep(
+					occurrence,
+					this.acceleration,
 					this.lane,
 					this.positionInRoad,
 					this.speed,
 					this.currentElement,
 					this.direction
-			)	)
+				))
 			}
 		}
 	}

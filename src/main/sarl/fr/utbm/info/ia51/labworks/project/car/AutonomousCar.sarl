@@ -36,30 +36,18 @@ agent AutonomousCar extends Car{
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterOneWayRoad {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new OneWayRoadAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterTwoWayRoad {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new TwoWayRoadAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
 		
@@ -67,40 +55,24 @@ agent AutonomousCar extends Car{
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterCrossIntersection {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new CrossIntersectionAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterIntersectionY {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new IntersectionYAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterIntersectionT {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new IntersectionTAutonomousBehavior(this))
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterRoundabout {
-		if (this.carBehavior !== null) {
-			info("Exited road")
-			unregisterBehavior(this.carBehavior)
-		}
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new RoundaboutAutonomousBehavior(this))
 	}

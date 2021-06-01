@@ -1,0 +1,36 @@
+package fr.utbm.info.ia51.labworks.project.events
+
+import io.sarl.lang.core.Event
+import fr.utbm.info.ia51.labworks.project.road.RoadElement
+
+event BehaviorInitialize extends Event {
+	
+}
+
+event BehaviorStep extends Event {
+	var perception : PerceptionUpdate
+	var acceleration : double
+	var lane : double
+	var position : double
+	var speed : double
+	var element : RoadElement
+	var direction : int
+
+	new (
+		perception : PerceptionUpdate,
+		acceleration : double,
+		lane : double,
+		position : double,
+		speed : double,
+		element : RoadElement,
+		direction : int
+	) {
+		this.perception = perception
+		this.acceleration = acceleration
+		this.lane = lane
+		this.position = position
+		this.speed = speed
+		this.element = element
+		this.direction = direction
+	}
+}
