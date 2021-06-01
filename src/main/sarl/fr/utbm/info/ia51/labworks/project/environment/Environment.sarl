@@ -157,6 +157,7 @@ agent Environment {
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
 			update.newLane = intent.intendedLaneChange
+			update.newElement = intent.currentElement
 			if (intent.currentElement instanceof Road) {
 				if (update.newPosition >= 1.0) {
 					update.newElement = intent.direction == 0 ? 
@@ -181,9 +182,6 @@ agent Environment {
 						}
 					}
 				}
-			}
-			if (update.newElement === null) {
-				update.newElement = intent.currentElement
 			}
 			this.physicsUpdates.put(carUUID, update)
 		}

@@ -58,23 +58,26 @@ agent Car {
 		}
 	}
 	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
 		synchronized (this) {
-			if (this.currentElement === null) { // TODO: remove this once the cars are disallowed to return to an entrypoint
-				this.currentElement = occurrence.road
-				this.startPoint = occurrence.road
-				this.endPoint = occurrence.destination
-				this.direction = 0
-				this.pathFinding()
-				emit(new Intent(
-					0,
-					this.lane,
-					this.positionInRoad,
-					this.speed,
-					this.currentElement,
-					this.direction
-				))
+			this.currentElement = occurrence.road
+			this.startPoint = occurrence.road
+			this.direction = 0
+			if (!this.pathFinding(occurrence.destination)) {
+				this.path = new ArrayList<Intersection>()
+				this.path.add(this.startPoint as Intersection)
+				this.endPoint = (this.startPoint as Intersection).getLinks().get(0).getSecondaryNode()
+				this.path.add(this.endPoint as Intersection)
 			}
+			emit(new Intent(
+				0,
+				this.lane,
+				this.positionInRoad,
+				this.speed,
+				this.currentElement,
+				this.direction
+			))
 		}
 	}
 	
@@ -105,7 +108,7 @@ agent Car {
 			this.acceleration = occurrence.newAcceleration
 			this.lane = occurrence.newLane
 			if (this.currentElement !== occurrence.newElement) {
-				info("Exited road")
+				info("Changed RoadElement")
 				unregisterBehavior(this.carBehavior)
 				this.carBehavior = null
 				if (occurrence.newElement instanceof Road && this.currentElement instanceof Intersection) {
@@ -120,9 +123,11 @@ agent Car {
 						this.startPoint = this.endPoint
 						this.endPoint = null
 						this.path = null
+						this.direction = -1
 						info("Arrived ! Asking new objective")
 						emit(new RequestNewObjective(this.startPoint as Intersection))
-					} else if (this.path !== null) {
+					} else {
+						info(newIntersection)
 						var pathIndex : int = this.path.indexOf(occurrence.newElement)
 						for (i : 0 ..< newIntersection.getLinks().size()) {
 							if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) ==
@@ -133,14 +138,14 @@ agent Car {
 						}
 					}
 				}
+				this.currentElement = occurrence.newElement
 			}
-			this.currentElement = occurrence.newElement	
 		}
 	}
 	
 	on PerceptionUpdate {
 		synchronized (this) {
-			if (this.endPoint === null || this.carBehavior === null) {
+			if (this.direction == -1 || this.carBehavior === null) {
 				emit(occurrence) [ it.UUID == this.ID ]
 			} else {
 				/* TODO: Process perception */
@@ -158,7 +163,7 @@ agent Car {
 		}
 	}
 	
-	synchronized def pathFinding() : boolean {
+	synchronized def pathFinding(destination : Intersection) : boolean {
 		var previouslyVisited : Road
 		var visited = new WeakHashMap<Intersection,Double>
 		var nodesToVisit = new WeakHashMap<Intersection, Double>
@@ -183,7 +188,7 @@ agent Car {
 				if (!pathFound) {
 					for (road : node.getKey().getAccessibleLinks()) {
 						if (road instanceof OneWayRoad) {
-							if (road.getSecondaryNode() != this.endPoint) {
+							if (road.getSecondaryNode() != destination) {
 								if (nodesToVisit.containsKey(road.getSecondaryNode())) {
 									if (nodesToVisit.get(road.getSecondaryNode()) > node.getValue() + road.getLength()) {
 										nodesToVisit.
@@ -193,13 +198,13 @@ agent Car {
 									nodesToVisit.put(road.getSecondaryNode(), node.getValue() + road.getLength())
 								}
 							} else {
-								info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+								info("PathFound, start:" + this.startPoint + ", end:" + destination)
 								pathFound = true;
 								tempNode = node.getKey()
 							}
 						} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
 							var nextNode : Intersection = road.getOtherNode(node.getKey())
-							if (nextNode != this.endPoint) {
+							if (nextNode != destination) {
 								if (nodesToVisit.containsKey(nextNode)) {
 									if (nodesToVisit.get(nextNode) > node.getValue() + road.getLength()) {
 										nodesToVisit.put(nextNode, node.getValue() + road.getLength())
@@ -212,7 +217,7 @@ agent Car {
 									nodesToVisit.put(nextNode, node.getValue() + road.getLength())
 								}
 							} else {
-								info("PathFound, start:" + this.startPoint + ", end:" + this.endPoint)
+								info("PathFound, start:" + this.startPoint + ", end:" + destination)
 								pathFound = true;
 								tempNode = node.getKey()
 							}
@@ -224,8 +229,8 @@ agent Car {
 		}
 		
 		this.path = new ArrayList<Intersection>(2)
-		path.add(this.endPoint as Intersection)
-		path.add(tempNode)
+		this.path.add(destination)
+		this.path.add(tempNode)
 		if (tempNode != this.startPoint) {
 			iter = 0
 			while (!pathGenerated) {
@@ -239,11 +244,11 @@ agent Car {
 					if (road.entryAllowed(nextNode)) {
 						if (nextNode != this.startPoint) {
 							if (visited.containsKey(nextNode) && visited.get(nextNode) + road.getLength() == visited.get(tempNode)) {
-								path.add(nextNode)
+								this.path.add(nextNode)
 								tempNode = nextNode
 							}
 						} else {
-							path.add(nextNode)
+							this.path.add(nextNode)
 							pathGenerated = true
 							break
 						}
@@ -251,28 +256,28 @@ agent Car {
 				}
 			}	
 		}
-		path.reverse()
+		this.path.reverse()
 		info("Path :" + this.path)
+		this.endPoint = destination
 		return true
 	}
 
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on NewObjective {
 		synchronized (this) {
 			info("Received new objective")
-			this.endPoint = occurrence.newObjective
-			if (this.pathFinding()) {
-				var newIntersection : Intersection = this.currentElement as Intersection
-				var pathIndex : int = this.path.indexOf(this.currentElement)
+			if (this.pathFinding(occurrence.newObjective)) {
+				var newIntersection : Intersection = this.startPoint as Intersection
+				var pathIndex : int = this.path.indexOf(newIntersection)
 				for (i : 0 ..< newIntersection.getLinks().size()) {
 					if (newIntersection.getLinks().get(i).getOtherNode(newIntersection) ==
-							this.path.get(pathIndex + 1)) {
+						this.path.get(pathIndex + 1)) {
 						this.direction = i
 						break
 					}
 				}
 			} else {
-				info("Abort pathfinding")
-				this.endPoint = null
+				info("Pathfinding aborted")
 				emit(new RequestNewObjective(this.startPoint as Intersection))
 			}
 		}

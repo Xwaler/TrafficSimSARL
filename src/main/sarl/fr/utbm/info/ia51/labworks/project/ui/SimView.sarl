@@ -94,7 +94,16 @@ class SimView extends JPanel {
 			)
 		}
 
+		/*g.setStroke(this.dashedStroke)
+		g.drawArc(
+			(primaryCosShift * this.dimension.width - road.nbOfLane * this.laneWidth / 2) as int,
+			(primarySinShift * this.dimension.height - road.nbOfLane * this.laneWidth / 2) as int, 
+			road.nbOfLane * this.laneWidth, road.nbOfLane * this.laneWidth,
+			Math.toDegrees(angle - Math.PI / 2) as int, 180
+		)*/
+
 		g.setColor(Color.red)
+		g.setStroke(this.defaultStroke)
 		if (this.carsProperties !== null) {
 			for (car : road.getCars()) {
 				var carProperties : CarProperties = this.carsProperties.get(car)
@@ -148,6 +157,7 @@ class SimView extends JPanel {
 		}
 
 		g.setColor(Color.red)
+		g.setStroke(this.defaultStroke)
 		if (this.carsProperties !== null) {
 			for (car : road.getCars()) {
 				var carProperties : CarProperties = this.carsProperties.get(car)
