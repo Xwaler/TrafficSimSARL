@@ -146,6 +146,7 @@ agent Car {
 				/* TODO: Process perception */
 				/* TODO: Send intent with perception related values */
 				wake(new BehaviorStep(
+					occurrence,
 					this.acceleration,
 					this.lane,
 					this.positionInRoad,

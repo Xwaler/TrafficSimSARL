@@ -8,6 +8,7 @@ event BehaviorInitialize extends Event {
 }
 
 event BehaviorStep extends Event {
+	var perception : PerceptionUpdate
 	var acceleration : double
 	var lane : double
 	var position : double
@@ -16,6 +17,7 @@ event BehaviorStep extends Event {
 	var direction : int
 
 	new (
+		perception : PerceptionUpdate,
 		acceleration : double,
 		lane : double,
 		position : double,
@@ -23,6 +25,7 @@ event BehaviorStep extends Event {
 		element : RoadElement,
 		direction : int
 	) {
+		this.perception = perception
 		this.acceleration = acceleration
 		this.lane = lane
 		this.position = position
