@@ -11,6 +11,8 @@ import java.util.Random
 import fr.utbm.info.ia51.labworks.project.events.Intent
 import io.sarl.core.DefaultContextInteractions
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
+import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
+import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging, DefaultContextInteractions, AccelerateCapacity
@@ -30,19 +32,26 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 		if (carInFront.currentElement == occurrence.element) {
 			if(carInFront.direction == occurrence.direction){
 				var safetyDistance = 6*((occurrence.speed / 2) as int)
-				if(occurrence.speed < occurrence.element.speedLimit){
-					if (carInFront.distance > safetyDistance) {
-						 newAcceleration = accelerate(carInFront.distance, safetyDistance, occurrence.speed)
-					} else {
-						newAcceleration =  decelerate(carInFront.distance, safetyDistance, occurrence.speed)
-					}	
-				} else {
-					if (carInFront.distance > safetyDistance) {
-						newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
-					} else {
-						newAcceleration =  decelerate(carInFront.distance, safetyDistance, occurrence.speed)
-					}	
-				}
+				if ((occurrence.element instanceof OneWayRoad && (occurrence.element as OneWayRoad).nbOfLane == 1) ||
+					(occurrence.element instanceof TwoWayRoad &&
+					((occurrence.direction == 1 && (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) ||
+					(occurrence.direction == 0 && (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1)))) {
+						if (occurrence.speed < occurrence.element.speedLimit) {
+							if (carInFront.distance > safetyDistance) {
+								newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+							} else {
+								newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+							}
+						} else {
+							if (carInFront.distance > safetyDistance) {
+								newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+							} else {
+								newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+							}
+						}
+					}else{
+						//TODO
+					}
 			} else {
 				if (occurrence.speed < occurrence.element.speedLimit) {
 					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)

@@ -19,10 +19,9 @@ skill PerceptSkillHuman implements PerceptCapacity {
 skill PerceptSkillAutonomous implements PerceptCapacity {
 }
 
-skill AccelerateSkill implements AccelerateCapacity{
+skill AccelerateSkill implements AccelerateCapacity{	
 	
-	
-	override accelerate(distanceToReach : double, myDistance : int, myspeed : double) : double {
+	override accelerateDistance(distanceToReach : double, myDistance : int, myspeed : double) : double {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 
@@ -30,7 +29,7 @@ skill AccelerateSkill implements AccelerateCapacity{
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 
-	override decelarate(distance : double, myDistance : int, myspeed : double) : double {
+	override decelerateDistance(distance : double, myDistance : int, myspeed : double) : double {
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 
@@ -38,5 +37,4 @@ skill AccelerateSkill implements AccelerateCapacity{
 		throw new UnsupportedOperationException("TODO: auto-generated method stub")
 	}
 
-	
 }

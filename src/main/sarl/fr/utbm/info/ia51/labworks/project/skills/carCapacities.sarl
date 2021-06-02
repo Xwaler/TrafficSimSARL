@@ -1,9 +1,9 @@
 package fr.utbm.info.ia51.labworks.project.skills
 
 capacity AccelerateCapacity {
-	def accelerate(distanceToReach : double, myDistance : int, myspeed : double) : double
+	def accelerateDistance(distanceToReach : double, myDistance : int, myspeed : double) : double
 	def accelerate(speed : int, mySpeed : double) : double
-	def decelarate(distance : double, myDistance : int, myspeed : double) : double
+	def decelerateDistance(distance : double, myDistance : int, myspeed : double) : double
 	def decelerate(speed : int, mySpeed : double) : double
 }
 
