@@ -6,16 +6,66 @@ import io.sarl.core.Initialize
 
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 import fr.utbm.info.ia51.labworks.project.car.HumanCar
+import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
+import java.util.Random
+import fr.utbm.info.ia51.labworks.project.events.Intent
+import io.sarl.core.DefaultContextInteractions
+import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
 
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
-	uses Logging
-
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+	
 	on Initialize {
 
 	}
 
 	on BehaviorInitialize {
 
+	}
+
+	on BehaviorStep {
+		var carInFront = occurrence.perception.surroundingCars.get(0)
+		var newAcceleration : double
+		
+		if (carInFront.currentElement == occurrence.element) {
+			if(carInFront.direction == occurrence.direction){
+				var safetyDistance = 6*((occurrence.speed / 2) as int)
+				if(occurrence.speed < occurrence.element.speedLimit){
+					if (carInFront.distance > safetyDistance) {
+						 newAcceleration = accelerate(carInFront.distance, safetyDistance, occurrence.speed)
+					} else {
+						newAcceleration =  decelerate(carInFront.distance, safetyDistance, occurrence.speed)
+					}	
+				} else {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration =  decelerate(carInFront.distance, safetyDistance, occurrence.speed)
+					}	
+				}
+			} else {
+				if (occurrence.speed < occurrence.element.speedLimit) {
+					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
+				} else {
+					newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
+				}
+			}
+		} else {
+			if (occurrence.speed < occurrence.element.speedLimit) {
+					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
+				} else {
+					newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
+				}
+		}
+		
+		emit(new Intent(
+			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+			occurrence.lane,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
 
