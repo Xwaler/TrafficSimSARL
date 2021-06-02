@@ -4,9 +4,10 @@ package fr.utbm.info.ia51.labworks.project.behaviors
 import io.sarl.core.Logging
 import io.sarl.core.Initialize
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
+import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
 
 behavior EntryPointAutonomousBehavior extends IntersectionBehavior {
-	uses Logging
+	uses Logging, AccelerateCapacity
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -18,7 +19,7 @@ behavior EntryPointAutonomousBehavior extends IntersectionBehavior {
 }
 
 behavior CrossIntersectionAutonomousBehavior extends IntersectionBehavior {
-	uses Logging
+	uses Logging, AccelerateCapacity
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -30,7 +31,7 @@ behavior CrossIntersectionAutonomousBehavior extends IntersectionBehavior {
 }
 
 behavior IntersectionTAutonomousBehavior extends IntersectionBehavior {
-	uses Logging
+	uses Logging, AccelerateCapacity
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -42,7 +43,7 @@ behavior IntersectionTAutonomousBehavior extends IntersectionBehavior {
 }
 
 behavior IntersectionYAutonomousBehavior extends IntersectionBehavior {
-	uses Logging
+	uses Logging, AccelerateCapacity
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -54,7 +55,7 @@ behavior IntersectionYAutonomousBehavior extends IntersectionBehavior {
 }
 
 behavior RoundaboutAutonomousBehavior extends IntersectionBehavior {
-	uses Logging
+	uses Logging, AccelerateCapacity
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.

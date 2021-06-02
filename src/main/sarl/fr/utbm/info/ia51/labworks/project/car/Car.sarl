@@ -28,9 +28,10 @@ import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
 import fr.utbm.info.ia51.labworks.project.events.CarProperties
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
+import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
 
 agent Car {
-	uses Lifecycle, Logging, Behaviors, DefaultContextInteractions
+	uses Lifecycle, Logging, Behaviors, PerceptCapacity, DefaultContextInteractions
 
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
@@ -143,13 +144,13 @@ agent Car {
 		}
 	}
 	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on PerceptionUpdate {
 		synchronized (this) {
 			if (this.direction == -1 || this.carBehavior === null) {
 				emit(occurrence) [ it.UUID == this.ID ]
 			} else {
-				/* TODO: Process perception */
-				/* TODO: Send intent with perception related values */
+				percept(occurrence.surroundingCars)
 				wake(new BehaviorStep(
 					occurrence,
 					this.acceleration,

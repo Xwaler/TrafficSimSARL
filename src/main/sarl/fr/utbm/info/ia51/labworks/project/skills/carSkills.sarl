@@ -1,40 +1,38 @@
 package fr.utbm.info.ia51.labworks.project.skills
 
-import fr.utbm.info.ia51.labworks.project.car.HumanCar
 import java.util.List
-import fr.utbm.info.ia51.labworks.project.events.CarProperties
+import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 
 skill PerceptSkillHuman implements PerceptCapacity {
-	var myself : HumanCar;
-	
-	new(car : HumanCar) {
-		this.myself = car
-	}
-	
-	def percept(surrounding : List<CarProperties>) {
-		
+	def percept(surrounding : List<PerceptCar>) : void {
+		// TODO
 	}
 }
 
 skill PerceptSkillAutonomous implements PerceptCapacity {
+	def percept(surrounding : List<PerceptCar>) : void {
+		// TODO
+	}
 }
 
-skill AccelerateSkill implements AccelerateCapacity{	
-	
+skill AccelerateSkill implements AccelerateCapacity {
 	override accelerateDistance(distanceToReach : double, myDistance : int, myspeed : double) : double {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		// TODO
+		return 0
 	}
 
 	override accelerate(speed : int, mySpeed : double) : double {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		// TODO
+		return 0
 	}
 
 	override decelerateDistance(distance : double, myDistance : int, myspeed : double) : double {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		// TODO
+		return 0
 	}
 
 	override decelerate(speed : int, mySpeed : double) : double {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		// TODO
+		return 0
 	}
-
 }

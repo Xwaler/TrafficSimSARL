@@ -298,7 +298,7 @@ agent Environment {
 						} else {
 							/* for the adjacent element, the point from which the observer might enter this element (previousElement) is
 							 * used to compute of the neighbor is going in the same direction or not
-							 * if neighbor doesn't go toward previous element, it goes in the same direcion
+							 * if neighbor doesn't go toward previous element, it goes in the same direction
 							 */
 							doesNeighborGoInTheSameDirection = (neighborDirection != currentElementAsRoad.nodes.indexOf(previousElement))
 
@@ -313,11 +313,12 @@ agent Environment {
 						}
 						
 						if (distanceNeighbourObserver <= maxViewDistance){
-							result.add(new PerceptCar(
-								distanceNeighbourObserver, 
-								currentElement, 
-								neighborDirection,
-								neighbourCarProperties.futureSpeed, neighbourCarProperties.lane
+							result.add(
+								new PerceptCar(
+									distanceNeighbourObserver, 
+									currentElement, 
+									neighborDirection,
+									neighbourCarProperties.futureSpeed, neighbourCarProperties.lane
 								)
 							);
 						}

@@ -6,7 +6,7 @@ import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
 
 class OneWayRoad extends Road {
-	public var nbOfLane : int = 0
+	public var nbOfLane : int
 	
 	def enter(car : UUID) {
 		super.enter(car)

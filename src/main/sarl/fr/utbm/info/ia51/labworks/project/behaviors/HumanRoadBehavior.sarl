@@ -1,70 +1,78 @@
-
 package fr.utbm.info.ia51.labworks.project.behaviors
 
-import io.sarl.core.Logging
 import io.sarl.core.Initialize
+import io.sarl.core.Logging
+import io.sarl.core.DefaultContextInteractions
 
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
-import fr.utbm.info.ia51.labworks.project.car.HumanCar
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
 import java.util.Random
 import fr.utbm.info.ia51.labworks.project.events.Intent
-import io.sarl.core.DefaultContextInteractions
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
+import fr.utbm.info.ia51.labworks.project.events.PerceptCar
+import java.util.ArrayList
 
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging, DefaultContextInteractions, AccelerateCapacity
 	
 	on Initialize {
-
+		
 	}
 
 	on BehaviorInitialize {
 
 	}
 
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on BehaviorStep {
-		var carInFront = occurrence.perception.surroundingCars.get(0)
 		var newAcceleration : double
+		var carInFront : PerceptCar = null
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.get(0)
+		}
 		
-		if (carInFront.currentElement == occurrence.element) {
-			if(carInFront.direction == occurrence.direction){
-				var safetyDistance = 6*((occurrence.speed / 2) as int)
-				if ((occurrence.element instanceof OneWayRoad && (occurrence.element as OneWayRoad).nbOfLane == 1) ||
-					(occurrence.element instanceof TwoWayRoad &&
-					((occurrence.direction == 1 && (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) ||
-					(occurrence.direction == 0 && (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1)))) {
-						if (occurrence.speed < occurrence.element.speedLimit) {
-							if (carInFront.distance > safetyDistance) {
-								newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
-							} else {
-								newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
-							}
-						} else {
-							if (carInFront.distance > safetyDistance) {
-								newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
-							} else {
-								newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
-							}
-						}
-					}else{
-						//TODO
-					}
-			} else {
+		if (carInFront !== null && carInFront.currentElement == occurrence.element && 
+			carInFront.direction == occurrence.direction
+		) {
+			var safetyDistance : int = 6 * ((occurrence.speed / 2) as int)
+			var laneNumber : int = occurrence.element instanceof OneWayRoad ?
+				(occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1 ? 
+				(occurrence.element as TwoWayRoad).nbOfLanePrimary :
+				(occurrence.element as TwoWayRoad).nbOfLaneSecondary
+				
+			if (laneNumber == 1) {
 				if (occurrence.speed < occurrence.element.speedLimit) {
-					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+					}
 				} else {
-					newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+					}
 				}
+			}
+			else {
+				var carsInAdjascentLanes = new ArrayList<PerceptCar>()
+				for (car : occurrence.perception.surroundingCars) {
+					if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
+						(Math.abs(car.lane - occurrence.lane) <= 1)) {
+						carsInAdjascentLanes.add(car)
+					}
+				}
+				// TODO
 			}
 		} else {
 			if (occurrence.speed < occurrence.element.speedLimit) {
-					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
-				} else {
-					newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
-				}
+				newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
+			} else {
+				newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
+			}
 		}
 		
 		emit(new Intent(

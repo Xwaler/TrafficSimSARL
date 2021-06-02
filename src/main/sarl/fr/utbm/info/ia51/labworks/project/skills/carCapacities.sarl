@@ -1,5 +1,8 @@
 package fr.utbm.info.ia51.labworks.project.skills
 
+import java.util.List
+import fr.utbm.info.ia51.labworks.project.events.PerceptCar
+
 capacity AccelerateCapacity {
 	def accelerateDistance(distanceToReach : double, myDistance : int, myspeed : double) : double
 	def accelerate(speed : int, mySpeed : double) : double
@@ -8,5 +11,5 @@ capacity AccelerateCapacity {
 }
 
 capacity PerceptCapacity {
-	
+	def percept(surrounding : List<PerceptCar>) : void
 }

@@ -8,13 +8,14 @@ import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 import java.util.Random
 import fr.utbm.info.ia51.labworks.project.events.Intent
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
+import fr.utbm.info.ia51.labworks.project.skills.AccelerateSkill
+import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
 
 behavior RoadBehavior extends Behavior  {
 	uses Logging, DefaultContextInteractions
 
 	on BehaviorInitialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		setSkill(new AccelerateSkill, AccelerateCapacity)
 		info(this.class.simpleName + " was started.")
 	}
 

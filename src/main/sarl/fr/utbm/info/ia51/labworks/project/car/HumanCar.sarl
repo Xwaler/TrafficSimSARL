@@ -3,7 +3,6 @@ package fr.utbm.info.ia51.labworks.project.car
 import io.sarl.core.Initialize
 import io.sarl.core.Destroy
 import io.sarl.core.Logging
-import io.sarl.core.Behaviors
 
 import fr.utbm.info.ia51.labworks.project.events.HumanCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
@@ -20,9 +19,11 @@ import fr.utbm.info.ia51.labworks.project.events.EnterIntersectionT
 import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionTHumanBehavior
 import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
 import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutHumanBehavior
+import fr.utbm.info.ia51.labworks.project.skills.PerceptSkillHuman
+import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
 
 agent HumanCar extends Car {
-	uses Logging, Behaviors
+	uses Logging
 
 	on Initialize {
 		// Event trigger before the agent begin to live or to be used.
@@ -30,6 +31,7 @@ agent HumanCar extends Car {
 		synchronized (this) {
 			this.obedienceRate = occurrence.parameters.get(4) as Double
 		}
+		setSkill(new PerceptSkillHuman, PerceptCapacity)
 		info("New human car spawned.")
 	}
 

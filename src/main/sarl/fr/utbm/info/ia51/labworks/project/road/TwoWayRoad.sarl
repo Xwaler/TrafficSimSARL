@@ -4,8 +4,8 @@ import java.util.UUID
 import fr.utbm.info.ia51.labworks.project.events.EnterTwoWayRoad
 
 class TwoWayRoad extends Road{
-	public var nbOfLanePrimary : int = 0
-	public var nbOfLaneSecondary : int = 0
+	public var nbOfLanePrimary : int
+	public var nbOfLaneSecondary : int
 	
 	def enter(car : UUID) {
 		super.enter(car)

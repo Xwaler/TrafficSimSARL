@@ -3,7 +3,6 @@ package fr.utbm.info.ia51.labworks.project.car
 import io.sarl.core.Initialize
 import io.sarl.core.Destroy
 import io.sarl.core.Logging
-import io.sarl.core.Behaviors
 
 import fr.utbm.info.ia51.labworks.project.events.AutonomousCarPropertiesUpdate
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
@@ -20,13 +19,16 @@ import fr.utbm.info.ia51.labworks.project.events.EnterIntersectionT
 import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionTAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
 import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutAutonomousBehavior
+import fr.utbm.info.ia51.labworks.project.skills.PerceptSkillAutonomous
+import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
 
 agent AutonomousCar extends Car{
-	uses Logging, Behaviors
+	uses Logging
 
 	on Initialize {
 		// Event trigger before the agent begin to live or to be used.
 		// You should put all the initialization statements in this block of code.
+		setSkill(new PerceptSkillAutonomous, PerceptCapacity)
 		info("New autonomous car spawned.")
 	}
 	
