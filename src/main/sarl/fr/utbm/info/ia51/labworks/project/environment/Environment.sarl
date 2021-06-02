@@ -155,7 +155,7 @@ agent Environment {
 			var intent : Intent = pair.getValue()
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
-			update.newPosition = intent.currentPosition + (update.newSpeed / intent.currentElement.getLength())
+			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
 			update.newLane = intent.intendedLaneChange
 			update.newElement = intent.currentElement
 			if (intent.currentElement instanceof Road) {
@@ -210,7 +210,7 @@ agent Environment {
 	}
 	
 	synchronized def recursiveAdd(
-		maxViewDistance : double,
+		maxViewDistance : int,
 		selfProperties : CarProperties,
 		selfUUID : UUID,
 		result : List<PerceptCar>,
@@ -225,7 +225,7 @@ agent Environment {
 			if (currentElement instanceof Intersection) {
 
 				/* If the observer see the whole intersection */
-				if (distanceToObserver + currentElement.length <= maxViewDistance){
+				if (distanceToObserver + currentElement.length * this.roads.realSize <= maxViewDistance) {
 					/* add all cars in the intersection */
 					for (neighbour : currentElement.cars){
 						/* don't add self */
@@ -239,15 +239,20 @@ agent Environment {
 									((neighbourCarProperties.element ==	neighbourCarProperties.futureElement) ? 
 										neighbourCarProperties.direction : -1),
 									neighbourCarProperties.futureSpeed, 
-									neighbourCarProperties.lane));
+									neighbourCarProperties.lane
+								)
+							);
 						}
 					}
 				}
 
 				/* Keep going through adjacent element */
 				for (road : (currentElement as Intersection).getLinks()) {
-					recursiveAdd(maxViewDistance, selfProperties, selfUUID, result,
-						distanceToObserver + currentElement.length, currentElement, road)
+					recursiveAdd(
+						maxViewDistance, selfProperties, selfUUID, 
+						result, distanceToObserver + currentElement.length * this.roads.realSize, 
+						currentElement, road
+					)
 				}
 
 			} else {
@@ -300,9 +305,11 @@ agent Environment {
 						}
 						
 						if (doesNeighborGoInTheSameDirection) {
-							distanceNeighbourObserver += neighbourCarProperties.futurePosition * currentElement.length
+							distanceNeighbourObserver +=
+								neighbourCarProperties.futurePosition * currentElement.length * this.roads.realSize
 						} else {
-							distanceNeighbourObserver += (1 - neighbourCarProperties.futurePosition) * currentElement.length
+							distanceNeighbourObserver +=
+								(1 - neighbourCarProperties.futurePosition) * currentElement.length * this.roads.realSize
 						}
 						
 						if (distanceNeighbourObserver <= maxViewDistance){
@@ -310,17 +317,22 @@ agent Environment {
 								distanceNeighbourObserver, 
 								currentElement, 
 								neighborDirection,
-								neighbourCarProperties.futureSpeed, neighbourCarProperties.lane));
+								neighbourCarProperties.futureSpeed, neighbourCarProperties.lane
+								)
+							);
 						}
 					}
 				}
 				
 
-				if (distanceToObserver + currentElement.length <= maxViewDistance) {
+				if (distanceToObserver + currentElement.length * this.roads.realSize <= maxViewDistance) {
 					/* Keep going through next roads */
 					for (intersection : currentElementAsRoad.nodes) {
-						recursiveAdd(maxViewDistance, selfProperties, selfUUID,
-							result,	distanceToObserver + currentElement.length, currentElement, intersection)
+						recursiveAdd(
+							maxViewDistance, selfProperties, selfUUID,
+							result, distanceToObserver + currentElement.length * this.roads.realSize,
+							currentElement, intersection
+						)
 					}
 				}
 			}
@@ -334,7 +346,7 @@ agent Environment {
 			var carProperties : CarProperties = pair.getValue()
 			var result : List<PerceptCar> = new ArrayList<PerceptCar>()
 			recursiveAdd(
-				Integer.parseInt(UI.settingsFrame.viewDistance.getText()) / 100.0 as double,
+				Integer.parseInt(UI.settingsFrame.viewDistance.getText()),
 				carProperties,
 				carUUID,
 				result,
