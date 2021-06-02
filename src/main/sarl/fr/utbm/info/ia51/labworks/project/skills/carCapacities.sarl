@@ -1,7 +1,10 @@
 package fr.utbm.info.ia51.labworks.project.skills
 
 capacity AccelerateCapacity {
-	
+	def accelerate(distance : double)
+	def accelerate(speed : int)
+	def decelarate(distance : double)
+	def decelerate(speed : int)
 }
 
 capacity PerceptCapacity {
