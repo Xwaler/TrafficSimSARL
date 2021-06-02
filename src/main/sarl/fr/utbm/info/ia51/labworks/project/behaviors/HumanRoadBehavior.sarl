@@ -32,29 +32,29 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 				var safetyDistance = 6*((occurrence.speed / 2) as int)
 				if(occurrence.speed < occurrence.element.speedLimit){
 					if (carInFront.distance > safetyDistance) {
-						 accelerate(carInFront.distance, safetyDistance, occurrence.speed)
-					}else{
-						 decelerate(carInFront.distance, safetyDistance, occurrence.speed)
+						 newAcceleration = accelerate(carInFront.distance, safetyDistance, occurrence.speed)
+					} else {
+						newAcceleration =  decelerate(carInFront.distance, safetyDistance, occurrence.speed)
 					}	
 				} else {
 					if (carInFront.distance > safetyDistance) {
-						decelerate(occurrence.element.speedLimit, occurrence.speed)
+						newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else {
-						decelerate(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration =  decelerate(carInFront.distance, safetyDistance, occurrence.speed)
 					}	
 				}
 			} else {
 				if (occurrence.speed < occurrence.element.speedLimit) {
-					accelerate(occurrence.element.speedLimit, occurrence.speed)
+					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
 				} else {
-					decelerate(occurrence.element.speedLimit, occurrence.speed)
+					newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
 				}
 			}
 		} else {
 			if (occurrence.speed < occurrence.element.speedLimit) {
-					accelerate(occurrence.element.speedLimit, occurrence.speed)
+					newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
 				} else {
-					decelerate(occurrence.element.speedLimit, occurrence.speed)
+					newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
 				}
 		}
 		
