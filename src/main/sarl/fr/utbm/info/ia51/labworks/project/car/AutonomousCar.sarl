@@ -21,9 +21,18 @@ import fr.utbm.info.ia51.labworks.project.events.EnterRoundabout
 import fr.utbm.info.ia51.labworks.project.behaviors.RoundaboutAutonomousBehavior
 import fr.utbm.info.ia51.labworks.project.skills.PerceptSkillAutonomous
 import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
+import fr.utbm.info.ia51.labworks.project.road.Road
+import fr.utbm.info.ia51.labworks.project.behaviors.RoadBehavior
+import fr.utbm.info.ia51.labworks.project.road.Intersection
+import fr.utbm.info.ia51.labworks.project.road.Roundabout
+import fr.utbm.info.ia51.labworks.project.road.CrossIntersection
+import fr.utbm.info.ia51.labworks.project.road.IntersectionT
+import fr.utbm.info.ia51.labworks.project.road.IntersectionY
+import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
+import io.sarl.core.Behaviors
 
 agent AutonomousCar extends Car{
-	uses Logging
+	uses Logging, Behaviors
 
 	on Initialize {
 		// Event trigger before the agent begin to live or to be used.
@@ -34,6 +43,28 @@ agent AutonomousCar extends Car{
 	
 	on AutonomousCarPropertiesUpdate {
 		info("Properties updated")
+	}
+
+	on PhysicsUpdate {
+		if (this.currentElement instanceof Road && this.positionInRoad > 0.80 &&
+			this.carBehavior instanceof RoadBehavior) {
+			unregisterBehavior(this.carBehavior)
+			var intersectionComing : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
+			switch (intersectionComing.class) {
+				case Roundabout: {
+					this.registerNewBehavior(new RoundaboutAutonomousBehavior(this))
+				}
+				case CrossIntersection: {
+					this.registerNewBehavior(new CrossIntersectionAutonomousBehavior(this))
+				}
+				case IntersectionT: {
+					this.registerNewBehavior(new IntersectionTAutonomousBehavior(this))
+				}
+				case IntersectionY: {
+					this.registerNewBehavior(new IntersectionYAutonomousBehavior(this))
+				}
+			}
+		}
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")

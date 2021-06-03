@@ -34,13 +34,13 @@ agent Car {
 
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
-	var currentElement : RoadElement //TODO : Do a getter
+	protected var currentElement : RoadElement //TODO : Do a getter
 	protected var path : List<Intersection>
-	var speed : double // TODO : Do a getter
-	var acceleration : double // TODO : Do a getter
+	protected var speed : double // TODO : Do a getter
+	protected var acceleration : double // TODO : Do a getter
 	protected var positionInRoad : double
 	protected var lane : double
-	var direction : int // TODO : Do a getter
+	protected var direction : int // TODO : Do a getter
 	protected var obedienceRate : double
 	protected var reactionTime : double
 	protected var perceptionErrorRate : double

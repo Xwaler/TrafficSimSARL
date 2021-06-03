@@ -11,4 +11,8 @@ class TwoWayRoad extends Road{
 		super.enter(car)
 		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterTwoWayRoad(this))[it.UUID == car]
 	}
+
+	def getIncomingNode(direction : int) : Intersection {
+		return direction == 0 ? this.getPrimaryNode() : this.getSecondaryNode()
+	}
 }
