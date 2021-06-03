@@ -19,7 +19,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	
 	var generator : Random
 	on Initialize {
-		generator = new Random()
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
@@ -29,15 +29,15 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on BehaviorStep {
 		var newAcceleration : double = 0
-		var makeSomeMess : boolean = (generator.nextDouble > occurrence.obedienceRate)
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(car | car.lane == occurrence.lane && car.currentElement == occurrence.element && car.direction == occurrence.direction && car.position < occurrence.position)
+			carInFront = occurrence.perception.surroundingCars.findFirst(car | car.lane == occurrence.lane && car.currentElement == occurrence.element && car.position < occurrence.position)
 		}
 		
 		if (carInFront !== null) {
-			var safetyDistance : int = 6 * ((occurrence.speed / 2) as int)
+			var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
 				
 			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || occurrence.lane == 0) {
 				if (occurrence.speed <= occurrence.element.speedLimit) {
@@ -102,13 +102,91 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 }
 
 behavior TwoWayRoadHumanBehavior extends RoadBehavior {
-	uses Logging
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+
+	var generator : Random
 	
 	on Initialize {
-		
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
 		
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
+		var carInFront : PerceptCar = null
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst( car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
+		}
+
+		if (carInFront !== null) {
+			var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+
+			if ((occurrence.direction == 1 && (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) ||
+				(occurrence.direction == 0 && (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1) ||
+				occurrence.lane == 0) {
+				if (occurrence.speed <= occurrence.element.speedLimit) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
+					} else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				} else if (occurrence.speed < occurrence.element.speedLimit && !makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				}
+			} else {
+				var carsInAdjascentLanes = new ArrayList<PerceptCar>()
+				for (car : occurrence.perception.surroundingCars) {
+					if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
+						((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
+						carsInAdjascentLanes.add(car)
+					}
+				}
+				if (occurrence.speed < occurrence.element.speedLimit) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
+					} else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
+						newLane = occurrence.lane - 1
+						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				} else if (!makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				}
+
+			}
+		} else {
+			if (occurrence.speed <= occurrence.element.speedLimit) {
+				newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+			} else if (!makeSomeMess) {
+				newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+			}
+		}
+
+		emit(new Intent(
+			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+			occurrence.lane,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
