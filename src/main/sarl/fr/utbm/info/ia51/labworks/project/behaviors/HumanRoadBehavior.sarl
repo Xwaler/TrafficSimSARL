@@ -42,15 +42,15 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || occurrence.lane == 0) {
 				if (occurrence.speed <= occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
-						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
 					} else if(!makeSomeMess){
-						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 					}
 				} else if (occurrence.speed < occurrence.element.speedLimit && !makeSomeMess) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else {
-						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 					}
 				}
 			}
@@ -64,20 +64,20 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 				}	
 				if (occurrence.speed < occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
-						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
 					}
 					else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
 						newLane = occurrence.lane - 1
 						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
 					} 
 					else if (!makeSomeMess) {
-						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 					}
 				} else if (!makeSomeMess) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else {
-						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 					}
 				}
 				
