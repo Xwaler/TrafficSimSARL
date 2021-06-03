@@ -4,9 +4,9 @@ import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 
 capacity AccelerateCapacity {
-	def accelerateDistance(distanceToReach : double, myDistance : int, myspeed : double) : double
+	def accelerateDistance(distanceToReach : double, myDistance : int) : double
 	def accelerate(speed : int, mySpeed : double) : double
-	def decelerateDistance(distance : double, myDistance : int, myspeed : double) : double
+	def decelerateDistance(distance : double, myDistance : int) : double
 	def decelerate(speed : int, mySpeed : double) : double
 }
 
