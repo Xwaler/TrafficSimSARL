@@ -49,7 +49,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 					} else if(!makeSomeMess){
 						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 					}
-				} else if (occurrence.speed < occurrence.element.speedLimit && !makeSomeMess) {
+				} else if(!makeSomeMess) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else {
@@ -142,7 +142,7 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 					} else if (!makeSomeMess) {
 						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 					}
-				} else if (occurrence.speed < occurrence.element.speedLimit && !makeSomeMess) {
+				} else if(!makeSomeMess) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else {
