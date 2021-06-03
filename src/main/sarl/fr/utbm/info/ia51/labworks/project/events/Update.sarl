@@ -59,13 +59,15 @@ event NewObjective {
 
 class PerceptCar {
 	public var distance : double
+	public var position : double
 	public var currentElement : RoadElement
 	public var direction : int
 	public var speed : double
 	public var lane : double
 	
-	new (distance : double, currentElement : RoadElement, direction : int, speed : double, lane : double){
+	new (distance : double, position : double, currentElement : RoadElement, direction : int, speed : double, lane : double){
 		this.distance = distance
+		this.position = position
 		this.currentElement = currentElement
 		this.direction = direction
 		this.speed = speed

@@ -4,13 +4,13 @@ import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 
 skill PerceptSkillHuman implements PerceptCapacity {
-	def percept(surrounding : List<PerceptCar>) : void {
+	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
 		// TODO
 	}
 }
 
 skill PerceptSkillAutonomous implements PerceptCapacity {
-	def percept(surrounding : List<PerceptCar>) : void {
+	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
 		// TODO
 	}
 }

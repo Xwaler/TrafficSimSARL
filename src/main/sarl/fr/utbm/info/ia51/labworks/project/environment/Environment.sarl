@@ -234,7 +234,8 @@ agent Environment {
 							//if the observed car changed element during the past frame, direction hasn't been updated yet
 							result.add(
 								new PerceptCar(
-									distanceToObserver, 
+									distanceToObserver,
+									neighbourCarProperties.position,
 									currentElement,
 									((neighbourCarProperties.element ==	neighbourCarProperties.futureElement) ? 
 										neighbourCarProperties.direction : -1),
@@ -315,7 +316,8 @@ agent Environment {
 						if (distanceNeighbourObserver <= maxViewDistance){
 							result.add(
 								new PerceptCar(
-									distanceNeighbourObserver, 
+									distanceNeighbourObserver,
+									neighbourCarProperties.position,
 									currentElement, 
 									neighborDirection,
 									neighbourCarProperties.futureSpeed, neighbourCarProperties.lane

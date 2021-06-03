@@ -26,7 +26,6 @@ import java.util.Collections
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
-import fr.utbm.info.ia51.labworks.project.events.CarProperties
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
 import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
 
@@ -48,7 +47,6 @@ agent Car {
 	protected var viewDistance : double
 	protected var FOV : double
 	protected var carBehavior : Behavior
-	protected var surroundingCars : List<CarProperties>
 	
 	on Initialize {
 		synchronized (this) {
@@ -150,7 +148,7 @@ agent Car {
 			if (this.direction == -1 || this.carBehavior === null) {
 				emit(occurrence) [ it.UUID == this.ID ]
 			} else {
-				percept(occurrence.surroundingCars)
+				percept(occurrence.surroundingCars, this.viewDistance, this.perceptionErrorRate)
 				wake(new BehaviorStep(
 					occurrence,
 					this.acceleration,

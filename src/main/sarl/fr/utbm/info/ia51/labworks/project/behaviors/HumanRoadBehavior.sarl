@@ -10,7 +10,6 @@ import java.util.Random
 import fr.utbm.info.ia51.labworks.project.events.Intent
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
-import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import java.util.ArrayList
 
@@ -19,7 +18,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	
 	var generator : Random
 	on Initialize {
-		generator = new Random()
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
@@ -29,16 +28,19 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on BehaviorStep {
 		var newAcceleration : double = 0
-		var makeSomeMess : boolean = (generator.nextDouble > occurrence.obedienceRate)
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(car | car.lane == occurrence.lane && car.currentElement == occurrence.element && car.direction == occurrence.direction && car.position < occurrence.position)
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+				car | car.lane == occurrence.lane && car.currentElement == occurrence.element && 
+				car.direction == occurrence.direction && car.position < occurrence.position
+			)
 		}
 		
 		if (carInFront !== null) {
 			var safetyDistance : int = 6 * ((occurrence.speed / 2) as int)
-				
+			
 			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || occurrence.lane == 0) {
 				if (occurrence.speed <= occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
