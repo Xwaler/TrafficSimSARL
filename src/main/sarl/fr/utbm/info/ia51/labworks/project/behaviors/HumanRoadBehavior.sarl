@@ -17,8 +17,9 @@ import java.util.ArrayList
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging, DefaultContextInteractions, AccelerateCapacity
 	
+	var generator : Random
 	on Initialize {
-		
+		generator = new Random()
 	}
 
 	on BehaviorInitialize {
@@ -27,29 +28,25 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on BehaviorStep {
-		var newAcceleration : double
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.get(0)
+			carInFront = occurrence.perception.surroundingCars.findFirst(car | car.lane == occurrence.lane && car.currentElement == occurrence.element && car.direction == occurrence.direction && car.position < occurrence.position)
 		}
 		
-		if (carInFront !== null && carInFront.currentElement == occurrence.element && 
-			carInFront.direction == occurrence.direction
-		) {
+		if (carInFront !== null) {
 			var safetyDistance : int = 6 * ((occurrence.speed / 2) as int)
-			var laneNumber : int = occurrence.element instanceof OneWayRoad ?
-				(occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1 ? 
-				(occurrence.element as TwoWayRoad).nbOfLanePrimary :
-				(occurrence.element as TwoWayRoad).nbOfLaneSecondary
 				
-			if (laneNumber == 1) {
-				if (occurrence.speed < occurrence.element.speedLimit) {
+			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || occurrence.lane == 0) {
+				if (occurrence.speed <= occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
-					} else {
+					} else if(!makeSomeMess){
 						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
 					}
-				} else {
+				} else if (occurrence.speed < occurrence.element.speedLimit && !makeSomeMess) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else {
@@ -61,16 +58,34 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 				var carsInAdjascentLanes = new ArrayList<PerceptCar>()
 				for (car : occurrence.perception.surroundingCars) {
 					if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
-						(Math.abs(car.lane - occurrence.lane) <= 1)) {
+						((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 						carsInAdjascentLanes.add(car)
 					}
+				}	
+				if (occurrence.speed < occurrence.element.speedLimit) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+					}
+					else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
+						newLane = occurrence.lane - 1
+						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+					} 
+					else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+					}
+				} else if (!makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance, occurrence.speed)
+					}
 				}
-				// TODO
+				
 			}
 		} else {
-			if (occurrence.speed < occurrence.element.speedLimit) {
+			if (occurrence.speed <= occurrence.element.speedLimit) {
 				newAcceleration =  accelerate(occurrence.element.speedLimit, occurrence.speed)
-			} else {
+			} else if(!makeSomeMess){
 				newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
 			}
 		}
