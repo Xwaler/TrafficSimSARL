@@ -6,6 +6,14 @@ import io.sarl.core.Initialize
 
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
+import io.sarl.core.DefaultContextInteractions
+import java.util.Random
+import fr.utbm.info.ia51.labworks.project.events.PerceptCar
+import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
+import fr.utbm.info.ia51.labworks.project.events.Intent
+import fr.utbm.info.ia51.labworks.project.road.Road
+import fr.utbm.info.ia51.labworks.project.road.Intersection
+import fr.utbm.info.ia51.labworks.project.road.Constants
 
 behavior EntryPointHumanBehavior extends IntersectionBehavior {
 	uses Logging, AccelerateCapacity
@@ -57,13 +65,64 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 }
 
 behavior RoundaboutHumanBehavior extends IntersectionBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+
+	var generator : Random
 
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
+		
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
+		var carInFront : PerceptCar = null
+		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+			car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
+		}
+		
+		if(occurrence.element instanceof Road){
+			if (carInFront != null) {
+				if (carInFront.distance < safetyDistance) {
+					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+				}
+			}else{
+				if (occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.FEU_ROUGE ||
+					occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.STOP) {
+					
+				} else if(occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.FEU_ORANGE ||
+					occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.CEDER){
+						
+				} else if(occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.FEU_VERT){
+					
+				}
+			}	
+		} else if (occurrence.element instanceof Intersection) {
+			if (carInFront != null) {
+			} else {
+			}	
+		}
+
+
+		emit(new Intent(
+			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+			occurrence.lane,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
