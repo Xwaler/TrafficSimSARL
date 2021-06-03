@@ -33,6 +33,10 @@ abstract class Intersection extends RoadElement {
 		}
 		return accessible
 	}
+	
+	def getSignalisation(road : Road){
+		return links.get(road)
+	}
 
 	def toString() : String {
 		var str : String = this.class.simpleName + '@' + this.hashCode + '['
