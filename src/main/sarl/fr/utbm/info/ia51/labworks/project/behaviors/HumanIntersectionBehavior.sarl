@@ -14,53 +14,361 @@ import fr.utbm.info.ia51.labworks.project.events.Intent
 import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.road.Intersection
 import fr.utbm.info.ia51.labworks.project.road.Constants
+import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
+import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 
 behavior EntryPointHumanBehavior extends IntersectionBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+
+	var generator : Random
+
 
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
 		
 	}
+
 }
 
 behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+
+	var generator : Random
+
 
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
+	}
+
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
+		var carInFront : PerceptCar = null
+		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
+				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
+				getIncomingNode(occurrence.direction)
+
+		var nbOfLane = (occurrence.element instanceof OneWayRoad)
+				? (occurrence.element as OneWayRoad).nbOfLane : ((occurrence.element instanceof TwoWayRoad)
+				? (occurrence.direction == 1
+				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0
+				? (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
+	
+	
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+			car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
+		}
+
+		if (occurrence.element instanceof Road) {
+			if (carInFront != null) {
+				if (carInFront.distance < safetyDistance) {
+					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+				}
+			} else {
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE) {
+					if (nbOfLane == 1) {
+						newAcceleration = decelerateDistance(0.0,)
+						// Give right lane to go in given the next road
+									// if intersection clear
+											// Go in intersection
+					} else {
+							// Give right lane to go in given the next road
+						// if intersection clear
+						// Go in intersection
+						}
+
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) ==
+					Constants.FEU_ORANGE) {
+					if (!makeSomeMess) {
+						if (nbOfLane == 1) {
+							newAcceleration = decelerateDistance(0.0,)
+							// Give right lane to go in given the next road
+										// if intersection clear
+										// Go in intersection
+						} else {
+							// Give right lane to go in given the next road
+							// if intersection clear
+							// Go in intersection
+						}
+					}
+
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) ==
+					Constants.FEU_VERT) {
+					newAcceleration = decelerate(20, occurrence.speed)
+						// Go back to right lane
+						// Pass to the next road
+				}
+			}
+		} else if (occurrence.element instanceof Intersection) {
+			if (carInFront != null) {
+				if (occurrence.speed <= 20) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
+					} else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				} else if (!makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				}
+			} else {
+				if (occurrence.speed <= 20) {
+					newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+				} else if (!makeSomeMess) {
+					newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+				}
+			}
+		}
+
+		emit(new Intent(
+			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+			occurrence.lane,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
 
 behavior IntersectionTHumanBehavior extends IntersectionBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+
+	var generator : Random
+
 
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
+	}
+
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
+		var carInFront : PerceptCar = null
+		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
+				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
+				getIncomingNode(occurrence.direction)
+
+		var nbOfLane = (occurrence.element instanceof OneWayRoad)
+				? (occurrence.element as OneWayRoad).nbOfLane : ((occurrence.element instanceof TwoWayRoad)
+				? (occurrence.direction == 1
+				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0
+				? (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
+	
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+			car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
+		}
+
+		if (occurrence.element instanceof Road) {
+			if (carInFront != null) {
+				if (carInFront.distance < safetyDistance) {
+					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+				}
+			} else {
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.STOP) {
+					if (nbOfLane == 1) {
+						newAcceleration = decelerateDistance(0.0,)
+						// Give right lane to go in given the next road
+									// if intersection clear
+											// Go in intersection
+					} else {
+							// Give right lane to go in given the next road
+						// if intersection clear
+						// Go in intersection
+						}
+
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) ==
+					Constants.FEU_ORANGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
+					if (!makeSomeMess) {
+						if (nbOfLane == 1) {
+							newAcceleration = decelerateDistance(0.0,)
+							// Give right lane to go in given the next road
+										// if intersection clear
+										// Go in intersection
+						} else {
+							// Give right lane to go in given the next road
+							// if intersection clear
+							// Go in intersection
+						}
+					}
+
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) ==
+					Constants.FEU_VERT) {
+					newAcceleration = decelerate(20, occurrence.speed)
+						// Go back to right lane
+						// Pass to the next road
+				}
+			}
+		} else if (occurrence.element instanceof Intersection) {
+			if (carInFront != null) {
+				if (occurrence.speed <= 20) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
+					} else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				} else if (!makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				}
+			} else {
+				if (occurrence.speed <= 20) {
+					newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+				} else if (!makeSomeMess) {
+					newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+				}
+			}
+		}
+
+		emit(new Intent(
+			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+			occurrence.lane,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
 
 behavior IntersectionYHumanBehavior extends IntersectionBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+
+	var generator : Random
 
 	on Initialize {
-		// Event trigger before the behavior begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
+	}
+
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
+		var carInFront : PerceptCar = null
+		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
+				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
+				getIncomingNode(occurrence.direction)
+				
+		var nbOfLane = (occurrence.element instanceof OneWayRoad) ? (occurrence.element as OneWayRoad).
+				nbOfLane : ((occurrence.element instanceof TwoWayRoad) ? (occurrence.direction == 1 ? 
+					(occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0 ? 
+						(occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
+
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+			car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
+		}
+
+		if (occurrence.element instanceof Road) {
+			if (carInFront != null) {
+				if (carInFront.distance < safetyDistance) {
+					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+				}
+			} else {
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.STOP) {
+					if (nbOfLane == 1) {
+						newAcceleration = decelerateDistance(0.0,)
+						// Give right lane to go in given the next road
+									// if intersection clear
+											// Go in intersection
+					} else {
+							// Give right lane to go in given the next road
+						// if intersection clear
+						// Go in intersection
+						}
+
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) ==
+					Constants.FEU_ORANGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
+					if (!makeSomeMess) {
+						if (nbOfLane == 1) {
+							newAcceleration = decelerateDistance(0.0,)
+							// Give right lane to go in given the next road
+										// if intersection clear
+										// Go in intersection
+						} else {
+							// Give right lane to go in given the next road
+							// if intersection clear
+							// Go in intersection
+						}
+					}
+
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) ==
+					Constants.FEU_VERT) {
+					newAcceleration = decelerate(20, occurrence.speed)
+					//Go back to right lane
+					//Pass to the next road
+				}
+			}
+		} else if (occurrence.element instanceof Intersection) {
+			if (carInFront != null) {
+				if (occurrence.speed <= 20) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
+					} else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				} else if (!makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				}
+			} else {
+				if (occurrence.speed <= 20) {
+					newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+				} else if (!makeSomeMess) {
+					newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+				}
+			}
+		}
+
+		emit(new Intent(
+			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
+			occurrence.lane,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
 
@@ -74,7 +382,6 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 	}
 
 	on BehaviorInitialize {
-		
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
@@ -84,7 +391,16 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-		
+		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
+				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
+				getIncomingNode(occurrence.direction)
+
+		var nbOfLane = (occurrence.element instanceof OneWayRoad)
+				? (occurrence.element as OneWayRoad).nbOfLane : ((occurrence.element instanceof TwoWayRoad)
+				? (occurrence.direction == 1
+				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0
+				? (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
+				
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 			car |
@@ -99,19 +415,42 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 				}
 			}else{
-				if (occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.FEU_ROUGE ||
-					occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.STOP) {
-					
-				} else if(occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.FEU_ORANGE ||
-					occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.CEDER){
-						
-				} else if(occurrence.element.getIncomingNode().getSignalisation(occurrence.element) == Constants.FEU_VERT){
-					
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
+					if (!makeSomeMess) {
+						if (nbOfLane == 1) {
+							newAcceleration = decelerateDistance(0.0,)
+								// Give right lane to go in given the next road
+								//if intersection clear
+									// Go in intersection
+						} else {
+							// Give right lane to go in given the next road
+							//if intersection clear
+							// Go in intersection
+						}
+					}
 				}
 			}	
 		} else if (occurrence.element instanceof Intersection) {
 			if (carInFront != null) {
+				if (occurrence.speed <= 20) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
+					} else if (!makeSomeMess) {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				} else if (!makeSomeMess) {
+					if (carInFront.distance > safetyDistance) {
+						newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+					} else {
+						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
+					}
+				}
 			} else {
+				if (occurrence.speed <= 20) {
+					newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
+				} else if (!makeSomeMess) {
+					newAcceleration = decelerate(occurrence.element.speedLimit, occurrence.speed)
+				}
 			}	
 		}
 
