@@ -1,11 +1,14 @@
 package fr.utbm.info.ia51.labworks.project.road
 
+import io.sarl.lang.core.AgentContext
+
 import java.util.List
 import java.util.ArrayList
-import io.sarl.lang.core.AgentContext
+import java.util.Map
 
 abstract class Intersection extends RoadElement {
 	var links : List<Road>
+	var signalisationLinks : Map<Road, Integer>
 	public var linkThreshold : List<Double>
 	public var x : double
 	public var y : double
@@ -34,8 +37,25 @@ abstract class Intersection extends RoadElement {
 		return accessible
 	}
 	
-	def getSignalisation(road : Road){
-		return links.get(road)
+	def getSignalisation(road : Road) : int {
+		return this.signalisationLinks.get(road)
+	}
+	
+	def getWantedExit(direction : int) {
+		return this.links.get(direction)
+	}
+	
+	def getWantedExitDirection(direction : int) : int {
+		var wantedExit : Road = this.getWantedExit(direction)
+		return wantedExit.nodes.indexOf(wantedExit.getOtherNode(this))
+	}
+	
+	def getNextExit(position : double) {
+		for (var i : int = this.linkThreshold.size() - 1; i >= 0; i--) {
+			if (this.linkThreshold.get(i) <= position) {
+				return this.links.get(i)
+			}
+		}
 	}
 
 	def toString() : String {
