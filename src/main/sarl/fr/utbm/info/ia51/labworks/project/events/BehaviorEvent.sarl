@@ -14,7 +14,8 @@ event BehaviorStep extends Event {
 	var position : double
 	var speed : double
 	var element : RoadElement
-	var direction : int
+	var direction : Integer
+	var nextIntersectionDirection : int
 	var obedienceRate : double
 
 	new (
@@ -25,6 +26,7 @@ event BehaviorStep extends Event {
 		speed : double,
 		element : RoadElement,
 		direction : int,
+		nextIntersectionDirection : Integer,
 		obedienceRate : double
 	) {
 		this.perception = perception
@@ -34,6 +36,7 @@ event BehaviorStep extends Event {
 		this.speed = speed
 		this.element = element
 		this.direction = direction
+		this.nextIntersectionDirection = nextIntersectionDirection
 		this.obedienceRate = obedienceRate
 	}
 }

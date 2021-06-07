@@ -28,8 +28,6 @@ abstract class Road extends RoadElement {
 		return this.nodes.get(1)
 	}
 
-	abstract def getIncomingNode(direction : int) : Intersection
-
 	def getOtherNode(node : Intersection) {
 		assert this.primaryNodeIs(node) || this.secondaryNodeIs(node)
 		if (this.primaryNodeIs(node)) {
@@ -38,6 +36,8 @@ abstract class Road extends RoadElement {
 			return this.getPrimaryNode()
 		}
 	}
+
+	def getLinks() : List<Road> {}
 	
 	def toString() : String {
 		return this.class.simpleName + "@" + this.hashCode

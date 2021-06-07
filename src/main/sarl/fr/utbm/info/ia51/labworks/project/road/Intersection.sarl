@@ -7,12 +7,13 @@ import java.util.ArrayList
 import java.util.Map
 
 abstract class Intersection extends RoadElement {
-	var links : List<Road>
-	var signalisationLinks : Map<Road, Integer>
+	public var links : List<Road>
+	public var signalisationLinks : Map<Road, Integer>
 	public var linkThreshold : List<Double>
 	public var x : double
 	public var y : double
 	public var radius : double
+	public var nbLanes : int
 	
 	new (context : AgentContext, links : List<Road>) {
 		super(context)
@@ -37,11 +38,15 @@ abstract class Intersection extends RoadElement {
 		return accessible
 	}
 	
+	def getNbOfLane() : int {
+		return this.nbLanes
+	}
+	
 	def getSignalisation(road : Road) : int {
 		return this.signalisationLinks.get(road)
 	}
 	
-	def getWantedExit(direction : int) {
+	def getWantedExit(direction : int) : Road {
 		return this.links.get(direction)
 	}
 	
@@ -50,13 +55,24 @@ abstract class Intersection extends RoadElement {
 		return wantedExit.nodes.indexOf(wantedExit.getOtherNode(this))
 	}
 	
-	def getNextExit(position : double) {
+	def getNextExit(position : double) : Road {
 		for (var i : int = this.linkThreshold.size() - 1; i >= 0; i--) {
 			if (this.linkThreshold.get(i) <= position) {
 				return this.links.get(i)
 			}
 		}
+		return this.links.get(0)
 	}
+	
+	def exitIsOnTheRight(entryDirection : int, exitDirection : int) {
+		return this.links.indexOf(this.getNextExit(entryDirection)) == exitDirection
+	}
+
+	def exitIsOnCenter(entryDirection : int, exitDirection : int) {
+		return this.links.indexOf(this.getNextExit((entryDirection + 1) % this.links.size())) == exitDirection
+	}
+
+	def getIncomingNode(direction : int) : Intersection {}
 
 	def toString() : String {
 		var str : String = this.class.simpleName + '@' + this.hashCode + '['

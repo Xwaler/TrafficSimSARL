@@ -44,7 +44,7 @@ agent AutonomousCar extends Car{
 	on AutonomousCarPropertiesUpdate {
 		info("Properties updated")
 	}
-
+	
 	on PhysicsUpdate {
 		if (this.currentElement instanceof Road && this.positionInRoad > 0.80 &&
 			this.carBehavior instanceof RoadBehavior) {

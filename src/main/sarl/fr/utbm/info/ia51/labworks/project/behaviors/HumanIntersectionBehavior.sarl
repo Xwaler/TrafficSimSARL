@@ -423,21 +423,27 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 				}
 			}
 			
-			if (carInFront != null) {
+			if (carInFront !== null) {
 				if (carInFront.distance < safetyDistance) {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 				}
-			}else{
+			} else {
 				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
 					if (!makeSomeMess) {
 						newAcceleration = decelerateDistance(myDistanceFromIntersection, 0.0)
 						if (nbOfIntersetionLane == 3) {
-							if(sortie1){
+							if (incomingNode.exitIsOnTheRight(
+								incomingNode.links.indexOf(occurrence.element),
+								occurrence.nextIntersectionDirection)
+							) {
 								if(carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 0){
 									newLane = occurrence.lane - 1
 								}
 								intersectionLane = 0
-							} else if (sortie2) {
+							} else if (incomingNode.exitIsOnCenter(
+								incomingNode.links.indexOf(occurrence.element),
+								occurrence.nextIntersectionDirection)
+							) {
 								if (carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 1) {
 									if (occurrence.lane > 1) {
 										newLane = occurrence.lane - 1
@@ -453,7 +459,10 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 								intersectionLane = 2
 							}
 						} else if (nbOfIntersetionLane == 2) {
-							if (sortie1) {
+							if (incomingNode.exitIsOnTheRight(
+								incomingNode.links.indexOf(occurrence.element),
+								occurrence.nextIntersectionDirection)
+							) {
 								if (carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 0) {
 									newLane = occurrence.lane - 1
 								}

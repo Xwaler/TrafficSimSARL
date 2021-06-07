@@ -23,7 +23,9 @@ abstract class RoadElement extends GraphElement {
 		this.length = length
 	}
 	// Compilation fix for Intersection.getLinks()
-	def getLinks() : List<Road> {}
+	abstract def getLinks() : List<Road> 
+
+	abstract def getIncomingNode(direction : int) : Intersection
 	
 	def getLength() : double {
 		return this.length

@@ -149,6 +149,18 @@ agent Car {
 				emit(occurrence) [ it.UUID == this.ID ]
 			} else {
 				percept(occurrence.surroundingCars, this.viewDistance, this.perceptionErrorRate)
+				var nextIntersectionDirection : Integer = null
+				if (this.currentElement instanceof Road) {
+					var nextIntersection : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
+					var pathIndex : int = this.path.indexOf(nextIntersection)
+					for (i : 0 ..< nextIntersection.getLinks().size()) {
+						if (nextIntersection.getLinks().get(i).getOtherNode(nextIntersection) ==
+							this.path.get(pathIndex + 1)) {
+							nextIntersectionDirection = i
+							break
+						}
+					}
+				}
 				wake(new BehaviorStep(
 					occurrence,
 					this.acceleration,
@@ -157,6 +169,7 @@ agent Car {
 					this.speed,
 					this.currentElement,
 					this.direction,
+					nextIntersectionDirection,
 					this.obedienceRate
 				))
 			}
