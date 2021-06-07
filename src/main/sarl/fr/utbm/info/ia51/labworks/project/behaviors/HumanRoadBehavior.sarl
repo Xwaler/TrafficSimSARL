@@ -98,6 +98,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 			occurrence.lane,
 			occurrence.position,
 			occurrence.speed,
+			occurrence.lane,
 			occurrence.element,
 			occurrence.direction
 		))
@@ -188,6 +189,7 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 			occurrence.lane,
 			occurrence.position,
 			occurrence.speed,
+			occurrence.lane,
 			occurrence.element,
 			occurrence.direction
 		))

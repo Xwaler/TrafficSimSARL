@@ -5,24 +5,27 @@ import fr.utbm.info.ia51.labworks.project.road.RoadElement
 
 event Intent extends Event {
 	var intendedAcceleration : double
-	var intendedLaneChange : double
+	var intendedLane : double
 	var currentPosition : double
 	var currentSpeed : double
+	var currentLane : double
 	var currentElement : RoadElement
 	var direction : int
 
 	new (
 		intendedAcceleration : double,
-		intendedLaneChange : double,
+		intendedLane : double,
 		currentPosition : double,
 		currentSpeed : double,
+		currentLane : double,
 		currentElement : RoadElement,
 		direction : int
 	) {
 		this.intendedAcceleration = intendedAcceleration
-		this.intendedLaneChange = intendedLaneChange
+		this.intendedLane = intendedLane
 		this.currentPosition = currentPosition
 		this.currentSpeed = currentSpeed
+		this.currentLane = currentLane
 		this.currentElement = currentElement
 		this.direction = direction
 	}

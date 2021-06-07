@@ -25,6 +25,7 @@ behavior RoadBehavior extends Behavior  {
 			occurrence.lane,
 			occurrence.position,
 			occurrence.speed,
+			occurrence.lane,
 			occurrence.element,
 			occurrence.direction
 		))

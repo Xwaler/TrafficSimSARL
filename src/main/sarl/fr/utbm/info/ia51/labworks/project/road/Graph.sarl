@@ -164,7 +164,7 @@ class Graph {
 			entryPoint.y = generator.nextDouble * 0.90 + 0.05
 		}
 		for (intersection : this.intersections) {
-			intersection.radius = 0.04
+			intersection.radius = 0.05
 			intersection.length = 2 * Math.PI * intersection.radius
 			intersection.x = generator.nextDouble * 0.70 + 0.15
 			intersection.y = generator.nextDouble * 0.90 + 0.05

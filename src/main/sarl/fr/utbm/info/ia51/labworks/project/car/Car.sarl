@@ -28,6 +28,7 @@ import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
 import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
+import java.util.Random
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, PerceptCapacity, DefaultContextInteractions
@@ -47,6 +48,7 @@ agent Car {
 	protected var viewDistance : double
 	protected var FOV : double
 	protected var carBehavior : Behavior
+	var generator : Random = new Random()
 	
 	on Initialize {
 		synchronized (this) {
@@ -74,6 +76,7 @@ agent Car {
 				this.lane,
 				this.positionInRoad,
 				this.speed,
+				this.lane,
 				this.currentElement,
 				this.direction
 			))
@@ -116,6 +119,10 @@ agent Car {
 					} else {
 						this.direction = 0
 					}
+					this.lane = this.generator.nextInt((occurrence.newElement instanceof OneWayRoad)
+						? (occurrence.newElement as OneWayRoad).nbOfLane : this.direction == 1
+						? (occurrence.newElement as TwoWayRoad).nbOfLaneSecondary
+						: (occurrence.newElement as TwoWayRoad).nbOfLanePrimary)
 				} else if (occurrence.newElement instanceof Intersection) {
 					var newIntersection : Intersection = occurrence.newElement as Intersection
 					if (newIntersection == this.endPoint) {

@@ -32,6 +32,8 @@ import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
+import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
+import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -156,7 +158,7 @@ agent Environment {
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
-			update.newLane = intent.intendedLaneChange
+			update.newLane = intent.currentLane + 1 / 60 * Math.signum(intent.intendedLane - intent.currentLane)
 			update.newElement = intent.currentElement
 			if (intent.currentElement instanceof Road) {
 				if (update.newPosition >= 1.0) {
