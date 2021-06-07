@@ -16,6 +16,7 @@ import fr.utbm.info.ia51.labworks.project.road.Intersection
 import fr.utbm.info.ia51.labworks.project.road.Constants
 import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
+import java.util.ArrayList
 
 behavior EntryPointHumanBehavior extends IntersectionBehavior {
 	uses Logging, DefaultContextInteractions, AccelerateCapacity
@@ -395,6 +396,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
 				getIncomingNode(occurrence.direction)
 
+		//fix
 		var nbOfLane = (occurrence.element instanceof OneWayRoad)
 				? (occurrence.element as OneWayRoad).nbOfLane : ((occurrence.element instanceof TwoWayRoad)
 				? (occurrence.direction == 1
@@ -410,6 +412,17 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		}
 		
 		if(occurrence.element instanceof Road){
+			var nbOfIntersetionLane = incomingNode.getNbOfLane()
+			var carInIntersection = new ArrayList<PerceptCar>()
+			var intersectionLane = Math.round(occurrence.lane)
+			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
+			for (car : occurrence.perception.surroundingCars) {
+				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
+					((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
+					carsInAdjascentLanes.add(car)
+				}
+			}
+			
 			if (carInFront != null) {
 				if (carInFront.distance < safetyDistance) {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
@@ -417,15 +430,55 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 			}else{
 				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
 					if (!makeSomeMess) {
-						if (nbOfLane == 1) {
-							newAcceleration = decelerateDistance(0.0,)
-								// Give right lane to go in given the next road
-								//if intersection clear
-									// Go in intersection
+						newAcceleration = decelerateDistance(myDistanceFromIntersection, 0.0)
+						if (nbOfIntersetionLane == 3) {
+							if(sortie1){
+								if(carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 0){
+									newLane = occurrence.lane - 1
+								}
+								intersectionLane = 0
+							} else if (sortie2) {
+								if (carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 1) {
+									if (occurrence.lane > 1) {
+										newLane = occurrence.lane - 1
+									} else {
+										newLane = occurrence.lane + 1
+									}
+								}
+								intersectionLane = 1
+							} else {
+								if (carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 2) {
+									newLane = occurrence.lane + 1
+								}
+								intersectionLane = 2
+							}
+						} else if (nbOfIntersetionLane == 2) {
+							if (sortie1) {
+								if (carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 0) {
+									newLane = occurrence.lane - 1
+								}
+								intersectionLane = 0
+							} else {
+								if (carsInAdjascentLanes.get(0).distance > safetyDistance && occurrence.lane != 1) {
+									newLane = occurrence.lane + 1
+								}
+								intersectionLane = 1
+							}
 						} else {
-							// Give right lane to go in given the next road
-							//if intersection clear
-							// Go in intersection
+							intersectionLane = 0
+						}
+							
+						for (car : occurrence.perception.surroundingCars) {
+							if (car.currentElement == incomingNode && car.direction == occurrence.direction &&
+									((car.lane - intersectionLane) < 1.5) && ((car.lane - intersectionLane) >= 0.5)) {
+								carInIntersection.add(car)
+							}
+						}
+							
+						if(carInIntersection.get(0).distance > 12){
+								//go in intersection
+						} else {
+							newAcceleration = decelerate(0,occurrence.speed)
 						}
 					}
 				}
