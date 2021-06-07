@@ -224,29 +224,27 @@ class Graph {
 			for (road : intersection.getLinks()) {
 				if (road instanceof OneWayRoad) {
 					if (road.speedLimit == 0) {
-						road.nbOfLane = Math.max(
+						road.nbOfLane = Math.min(Math.max(
 							1, Math.round(road.getLength() * 3) as int + (generator.nextInt(3) - 1)		
-						)
+						), 3)
 						switch (road.nbOfLane) {
 							case 1: road.speedLimit = 50
 							case 2: road.speedLimit = 70
 							case 3: road.speedLimit = 110
-							case 4: road.speedLimit = 130
 						}
 					}
 				} else if (road instanceof TwoWayRoad) {
 					if (road.speedLimit == 0) {
-						road.nbOfLanePrimary = Math.max(
+						road.nbOfLanePrimary = Math.min(Math.max(
 							1, Math.round(road.getLength() * 3) as int + (generator.nextInt(3) - 1)
-						)
-						road.nbOfLaneSecondary = Math.max(
+						), 3)
+						road.nbOfLaneSecondary = Math.min(Math.max(
 							1, Math.round(road.getLength() * 3) as int + (generator.nextInt(3) - 1)		
-						)
+						), 3)
 						switch (Math.max(road.nbOfLanePrimary, road.nbOfLaneSecondary)) {
 							case 1: road.speedLimit = 50
 							case 2: road.speedLimit = 70
 							case 3: road.speedLimit = 110
-							case 4: road.speedLimit = 130
 						}
 					}
 				}
@@ -273,6 +271,38 @@ class Graph {
 			for (pair : angles) {
 				intersection.links.add(pair.getKey())
 				intersection.linkThreshold.add(pair.getValue() / (2 * Math.PI))
+			}
+		}
+		
+		for (entryPoint : this.entryPoints) {
+			entryPoint.nbLanes = 1
+		}
+		for (intersection : this.intersections) {
+			var maxLanes : int
+			for (link : intersection.links) {
+				var nbLanes : int = (link instanceof OneWayRoad) ? (link as OneWayRoad).nbOfLane : 
+					Math.max(
+						(link as TwoWayRoad).nbOfLanePrimary,
+						(link as TwoWayRoad).nbOfLaneSecondary
+					)
+				if (nbLanes > maxLanes) {
+					maxLanes = nbLanes
+				}
+			}
+			intersection.nbLanes = maxLanes
+		}
+
+		for (entryPoint : this.entryPoints) {
+			for (link: entryPoint.links) {
+				entryPoint.signalisationLinks.put(link, Constants.CEDER)
+			}
+		}
+		for (intersection : this.intersections) {
+			for (link : intersection.links) {
+				intersection.signalisationLinks.put(
+					link,
+					intersection instanceof Roundabout ? Constants.CEDER : Constants.FEU_VERT
+				)
 			}
 		}
 		

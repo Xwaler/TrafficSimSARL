@@ -53,15 +53,6 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
-				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
-				getIncomingNode(occurrence.direction)
-
-		var nbOfLane = (occurrence.element instanceof OneWayRoad)
-				? (occurrence.element as OneWayRoad).nbOfLane : ((occurrence.element instanceof TwoWayRoad)
-				? (occurrence.direction == 1
-				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0
-				? (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
 	
 	
 		if (occurrence.perception.surroundingCars.size() > 0) {
@@ -73,6 +64,10 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 		}
 
 		if (occurrence.element instanceof Road) {
+			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
+			var nbOfLane = (occurrence.element instanceof OneWayRoad)
+					? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1 ? (occurrence.
+					element as TwoWayRoad).nbOfLaneSecondary : (occurrence.element as TwoWayRoad).nbOfLanePrimary
 			if (carInFront != null) {
 				if (carInFront.distance < safetyDistance) {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
@@ -168,16 +163,7 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
-				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
-				getIncomingNode(occurrence.direction)
 
-		var nbOfLane = (occurrence.element instanceof OneWayRoad)
-				? (occurrence.element as OneWayRoad).nbOfLane : ((occurrence.element instanceof TwoWayRoad)
-				? (occurrence.direction == 1
-				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0
-				? (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
-	
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 			car |
@@ -187,6 +173,11 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 		}
 
 		if (occurrence.element instanceof Road) {
+			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
+			var nbOfLane = (occurrence.element instanceof OneWayRoad)
+					? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
+					? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
+					: (occurrence.element as TwoWayRoad).nbOfLanePrimary
 			if (carInFront != null) {
 				if (carInFront.distance < safetyDistance) {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
@@ -283,15 +274,7 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
-				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
-				getIncomingNode(occurrence.direction)
-				
-		var nbOfLane = (occurrence.element instanceof OneWayRoad) ? (occurrence.element as OneWayRoad).
-				nbOfLane : ((occurrence.element instanceof TwoWayRoad) ? (occurrence.direction == 1 ? 
-					(occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) : (occurrence.direction == 0 ? 
-						(occurrence.element as TwoWayRoad).nbOfLanePrimary == 1))
-
+		
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 			car |
@@ -301,6 +284,11 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 		}
 
 		if (occurrence.element instanceof Road) {
+			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
+			var nbOfLane = (occurrence.element instanceof OneWayRoad)
+					? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
+					? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
+					: (occurrence.element as TwoWayRoad).nbOfLanePrimary
 			if (carInFront != null) {
 				if (carInFront.distance < safetyDistance) {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
@@ -398,15 +386,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-		var incomingNode : Intersection = (occurrence.element instanceof OneWayRoad) ? (occurrence.
-				element as OneWayRoad).getIncomingNode(occurrence.direction) : (occurrence.element as TwoWayRoad).
-				getIncomingNode(occurrence.direction)
 
-		//fix
-		var nbOfLane = (occurrence.element instanceof OneWayRoad)
-				? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1 ? (occurrence.
-				element as TwoWayRoad).nbOfLaneSecondary : (occurrence.element as TwoWayRoad).nbOfLanePrimary
-				
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 			car |
@@ -415,7 +395,12 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 			)
 		}
 		
-		if(occurrence.element instanceof Road){
+		if (occurrence.element instanceof Road) {
+			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
+			var nbOfLane = (occurrence.element instanceof OneWayRoad)
+					? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
+					? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
+					: (occurrence.element as TwoWayRoad).nbOfLanePrimary
 			var nbOfIntersetionLane = incomingNode.getNbOfLane()
 			var carInIntersection = new ArrayList<PerceptCar>()
 			var intersectionLane = Math.round(occurrence.lane)

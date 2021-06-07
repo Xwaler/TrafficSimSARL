@@ -5,6 +5,7 @@ import io.sarl.lang.core.AgentContext
 import java.util.List
 import java.util.ArrayList
 import java.util.Map
+import java.util.HashMap
 
 abstract class Intersection extends RoadElement {
 	public var links : List<Road>
@@ -22,6 +23,7 @@ abstract class Intersection extends RoadElement {
 			l.addNode(this)
 		}
 		this.linkThreshold = new ArrayList<Double>()
+		this.signalisationLinks = new HashMap<Road, Integer>()
 	}
 	
 	def getLinks() : List<Road> {

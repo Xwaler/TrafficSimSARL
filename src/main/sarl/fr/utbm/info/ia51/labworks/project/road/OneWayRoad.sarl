@@ -6,8 +6,6 @@ import fr.utbm.info.ia51.labworks.project.road.Road
 import fr.utbm.info.ia51.labworks.project.events.EnterOneWayRoad
 
 class OneWayRoad extends Road {
-	public var nbOfLane : int
-	
 	def enter(car : UUID) {
 		super.enter(car)
 		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterOneWayRoad(this))[it.UUID == car]
