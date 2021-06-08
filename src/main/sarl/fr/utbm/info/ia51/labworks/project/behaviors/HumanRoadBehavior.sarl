@@ -64,12 +64,13 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 						((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 						carsInAdjascentLanes.add(car)
 					}
-				}	
+				}
 				if (occurrence.speed < occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
 					}
-					else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
+					else if (carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance ||
+						makeSomeMess) {
 						newLane = newLane - 1
 						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
 					} 
@@ -96,6 +97,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 		emit(new Intent(
 			newAcceleration,
 			newLane,
+			0,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,
@@ -161,7 +163,8 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 				if (occurrence.speed < occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
-					} else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
+					} else if (carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance ||
+						makeSomeMess) {
 						newLane = newLane - 1
 						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else if (!makeSomeMess) {
@@ -187,6 +190,7 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 		emit(new Intent(
 			newAcceleration,
 			newLane,
+			0,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,

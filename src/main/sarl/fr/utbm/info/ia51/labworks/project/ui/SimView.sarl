@@ -107,7 +107,6 @@ class SimView extends JPanel {
 		if (this.carsProperties !== null) {
 			for (car : road.getCars()) {
 				var carProperties : CarProperties = this.carsProperties.get(car)
-				System.out.println(carProperties.lane)
 				var fromCos : double = carProperties.direction == 0 ? secondaryCosShift : primaryCosShift
 				var toCos : double = carProperties.direction == 0 ? primaryCosShift : secondaryCosShift
 				var fromSin : double = carProperties.direction == 0 ? secondarySinShift : primarySinShift
@@ -162,7 +161,6 @@ class SimView extends JPanel {
 		if (this.carsProperties !== null) {
 			for (car : road.getCars()) {
 				var carProperties : CarProperties = this.carsProperties.get(car)
-				System.out.println(carProperties.lane)
 				var fromCos : double = carProperties.direction == 0 ? secondaryCosShift : primaryCosShift
 				var toCos : double = carProperties.direction == 0 ? primaryCosShift : secondaryCosShift
 				var fromSin : double = carProperties.direction == 0 ? secondarySinShift : primarySinShift
@@ -204,7 +202,6 @@ class SimView extends JPanel {
 		g.setColor(Color.red)
 		for (car : intersection.getCars()) {
 			var carProperties : CarProperties = this.carsProperties.get(car)
-			System.out.println(carProperties.lane)
 			var angle = carProperties.position * 2 * Math.PI
 			var cosC = Math.cos(angle) * (intersection.radius * this.dimension.width - 
 				this.laneWidth / 2 - (intersection.nbLanes - 1 - carProperties.lane) * this.laneWidth

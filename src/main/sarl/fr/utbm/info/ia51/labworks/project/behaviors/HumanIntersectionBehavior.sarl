@@ -32,6 +32,18 @@ behavior EntryPointHumanBehavior extends IntersectionBehavior {
 		
 	}
 
+	on BehaviorStep {
+		emit(new Intent(
+			occurrence.speed < 50 && new Random().nextBoolean ? 1 : 0,
+			occurrence.lane,
+			0,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.lane,
+			occurrence.element,
+			occurrence.direction
+		))
+	}
 }
 
 behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
@@ -47,116 +59,115 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 	on BehaviorInitialize {
 	}
 
-on BehaviorStep {
-	var newAcceleration : double = 0
-	var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
-	var newLane : double = Math.round(occurrence.lane)
-	var carInFront : PerceptCar = null
-	var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-
-	if (occurrence.perception.surroundingCars.size() > 0) {
-		carInFront = occurrence.perception.surroundingCars.findFirst(
-		car |
-			car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
-		)
-	}
-
-	if (occurrence.element instanceof Road) {
-		var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
-		var nbOfLane = (occurrence.element instanceof OneWayRoad)
-				? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
-				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
-				: (occurrence.element as TwoWayRoad).nbOfLanePrimary
-		var nbOfIntersetionLane = incomingNode.getNbOfLane()
-		var carInIntersection = new ArrayList<PerceptCar>()
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
 		var intersectionLane = Math.round(occurrence.lane)
-		var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-		for (car : occurrence.perception.surroundingCars) {
-			if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
-				((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
-				carsInAdjascentLanes.add(car)
-			}
+		var carInFront : PerceptCar = null
+		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+	
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+			car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
 		}
-
-		if (carInFront !== null) {
-			if (carInFront.distance < safetyDistance) {
-				newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
-			}
-		} else {
-			newAcceleration = decelerate((occurrence.element.speedLimit * (1 - occurrence.position)) as int,
-				occurrence.speed)
-			if (nbOfIntersetionLane == 3) {
-				if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
-					occurrence.nextIntersectionDirection)) {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != Math.min(nbOfLane, 2)) {
-						newLane = newLane + 1
-					}
-					intersectionLane = 2
-				} else if (incomingNode.exitIsOnCenter(incomingNode.links.indexOf(occurrence.element),
-					occurrence.nextIntersectionDirection)) {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != Math.min(nbOfLane, 1)) {
-						if (occurrence.lane > 1) {
-							newLane = newLane - 1
-						} else {
-							newLane = newLane + 1
-						}
-					}
-					intersectionLane = 1
-				} else {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != 0) {
-						newLane = newLane - 1
-					}
-					intersectionLane = 0
+	
+		if (occurrence.element instanceof Road) {
+			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
+			var nbOfLane = (occurrence.element instanceof OneWayRoad)
+					? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
+					? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
+					: (occurrence.element as TwoWayRoad).nbOfLanePrimary
+			var nbOfIntersetionLane = incomingNode.getNbOfLane()
+			var carInIntersection = new ArrayList<PerceptCar>()
+			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
+			for (car : occurrence.perception.surroundingCars) {
+				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
+					((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
+					carsInAdjascentLanes.add(car)
 				}
-			} else if (nbOfIntersetionLane == 2) {
-				if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
-					occurrence.nextIntersectionDirection)) {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != Math.min(nbOfLane, 1)) {
-						newLane = newLane + 1
-					}
-					intersectionLane = 1
-				} else {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != 0) {
-						newLane = newLane - 1
-					}
-					intersectionLane = 0
+			}
+	
+			if (carInFront !== null) {
+				if (carInFront.distance < safetyDistance) {
+					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 				}
 			} else {
-				intersectionLane = 0
-			}
-
-			if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
-				incomingNode.getSignalisation(occurrence.element as Road) == Constants.STOP) {
+				newAcceleration = decelerate((occurrence.element.speedLimit * (1 - occurrence.position)) as int,
+					occurrence.speed)
+				if (nbOfIntersetionLane == 3) {
+					if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
+						occurrence.nextIntersectionDirection)) {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != Math.min(nbOfLane, 2)) {
+							newLane = newLane + 1
+						}
+						intersectionLane = 2
+					} else if (incomingNode.exitIsOnCenter(incomingNode.links.indexOf(occurrence.element),
+						occurrence.nextIntersectionDirection)) {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != Math.min(nbOfLane, 1)) {
+							if (occurrence.lane > 1) {
+								newLane = newLane - 1
+							} else {
+								newLane = newLane + 1
+							}
+						}
+						intersectionLane = 1
+					} else {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != 0) {
+							newLane = newLane - 1
+						}
+						intersectionLane = 0
+					}
+				} else if (nbOfIntersetionLane == 2) {
+					if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
+						occurrence.nextIntersectionDirection)) {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != Math.min(nbOfLane, 1)) {
+							newLane = newLane + 1
+						}
+						intersectionLane = 1
+					} else {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != 0) {
+							newLane = newLane - 1
+						}
+						intersectionLane = 0
+					}
+				} else {
+					intersectionLane = 0
+				}
 	
-				newAcceleration = decelerate(0, occurrence.speed)
-	
-			} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ORANGE ||
-				incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
-				if (!makeSomeMess) {
-	
-					for (car : occurrence.perception.surroundingCars) {
-						if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
-							carInIntersection.add(car)
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.STOP) {
+		
+					newAcceleration = decelerate(0, occurrence.speed)
+		
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ORANGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
+					if (!makeSomeMess) {
+		
+						for (car : occurrence.perception.surroundingCars) {
+							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
+								carInIntersection.add(car)
+							}
+						}
+		
+						if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
+							newAcceleration = accelerate(20, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(0, occurrence.speed)
 						}
 					}
-	
-					if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
-						newAcceleration = accelerate(20, occurrence.speed)
-					} else {
-						newAcceleration = decelerate(0, occurrence.speed)
-					}
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					newAcceleration = decelerate(20, occurrence.speed)
 				}
-	
-			} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
-				newAcceleration = decelerate(20, occurrence.speed)
-				}
-		}
+			}
 		} else if (occurrence.element instanceof Intersection) {
 			if (carInFront !== null) {
 				if (occurrence.speed <= 20) {
@@ -180,10 +191,11 @@ on BehaviorStep {
 				}
 			}
 		}
-
+	
 		emit(new Intent(
 			newAcceleration,
 			newLane,
+			intersectionLane,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,
@@ -194,128 +206,128 @@ on BehaviorStep {
 }
 
 behavior IntersectionTHumanBehavior extends IntersectionBehavior {
-uses Logging, DefaultContextInteractions, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+	
+	var generator : Random
 
-var generator : Random
-
-on Initialize {
-	this.generator = new Random()
+	on Initialize {
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
 	}
 
-on BehaviorStep {
-	var newAcceleration : double = 0
-	var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
-	var newLane : double = Math.round(occurrence.lane)
-	var carInFront : PerceptCar = null
-	var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
-
-	if (occurrence.perception.surroundingCars.size() > 0) {
-		carInFront = occurrence.perception.surroundingCars.findFirst(
-		car |
-			car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
-		)
-	}
-
-	if (occurrence.element instanceof Road) {
-		var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
-		var nbOfLane = (occurrence.element instanceof OneWayRoad)
-				? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
-				? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
-				: (occurrence.element as TwoWayRoad).nbOfLanePrimary
-		var nbOfIntersetionLane = incomingNode.getNbOfLane()
-		var carInIntersection = new ArrayList<PerceptCar>()
+	on BehaviorStep {
+		var newAcceleration : double = 0
+		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
+		var newLane : double = Math.round(occurrence.lane)
 		var intersectionLane = Math.round(occurrence.lane)
-		var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-		for (car : occurrence.perception.surroundingCars) {
-			if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
-				((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
-				carsInAdjascentLanes.add(car)
-			}
+		var carInFront : PerceptCar = null
+		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+	
+		if (occurrence.perception.surroundingCars.size() > 0) {
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+			car |
+				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
+					car.direction == occurrence.direction && car.position < occurrence.position
+			)
 		}
-
-		if (carInFront !== null) {
-			if (carInFront.distance < safetyDistance) {
-				newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
-			}
-		} else {
-
-			newAcceleration = decelerate((occurrence.element.speedLimit * (1 - occurrence.position)) as int,
-				occurrence.speed)
-			if (nbOfIntersetionLane == 3) {
-				if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
-					occurrence.nextIntersectionDirection)) {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != Math.min(nbOfLane, 2)) {
-						newLane = newLane + 1
-					}
-					intersectionLane = 2
-				} else if (incomingNode.exitIsOnCenter(incomingNode.links.indexOf(occurrence.element),
-					occurrence.nextIntersectionDirection)) {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != Math.min(nbOfLane, 1)) {
-						if (occurrence.lane > 1) {
-							newLane = newLane - 1
-						} else {
-							newLane = newLane + 1
-						}
-					}
-					intersectionLane = 1
-				} else {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != 0) {
-						newLane = newLane - 1
-					}
-					intersectionLane = 0
+	
+		if (occurrence.element instanceof Road) {
+			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
+			var nbOfLane = (occurrence.element instanceof OneWayRoad)
+					? (occurrence.element as OneWayRoad).nbOfLane : occurrence.direction == 1
+					? (occurrence.element as TwoWayRoad).nbOfLaneSecondary
+					: (occurrence.element as TwoWayRoad).nbOfLanePrimary
+			var nbOfIntersetionLane = incomingNode.getNbOfLane()
+			var carInIntersection = new ArrayList<PerceptCar>()
+			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
+			for (car : occurrence.perception.surroundingCars) {
+				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
+					((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
+					carsInAdjascentLanes.add(car)
 				}
-			} else if (nbOfIntersetionLane == 2) {
-				if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
-					occurrence.nextIntersectionDirection)) {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != Math.min(nbOfLane, 1)) {
-						newLane = newLane + 1
-					}
-					intersectionLane = 1
-				} else {
-					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
-							newLane != 0) {
-						newLane = newLane - 1
-					}
-					intersectionLane = 0
+			}
+	
+			if (carInFront !== null) {
+				if (carInFront.distance < safetyDistance) {
+					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
 				}
 			} else {
-				intersectionLane = 0
-			}
-
-			if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
-				incomingNode.getSignalisation(occurrence.element as Road) == Constants.STOP) {
 	
-				newAcceleration = decelerate(0, occurrence.speed)
-	
-			} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ORANGE ||
-				incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
-				if (!makeSomeMess) {
-	
-					for (car : occurrence.perception.surroundingCars) {
-						if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
-							carInIntersection.add(car)
+				newAcceleration = decelerate((occurrence.element.speedLimit * (1 - occurrence.position)) as int,
+					occurrence.speed)
+				if (nbOfIntersetionLane == 3) {
+					if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
+						occurrence.nextIntersectionDirection)) {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != Math.min(nbOfLane, 2)) {
+							newLane = newLane + 1
 						}
-					}
-	
-					if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
-						newAcceleration = accelerate(20, occurrence.speed)
+						intersectionLane = 2
+					} else if (incomingNode.exitIsOnCenter(incomingNode.links.indexOf(occurrence.element),
+						occurrence.nextIntersectionDirection)) {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != Math.min(nbOfLane, 1)) {
+							if (occurrence.lane > 1) {
+								newLane = newLane - 1
+							} else {
+								newLane = newLane + 1
+							}
+						}
+						intersectionLane = 1
 					} else {
-						newAcceleration = decelerate(0, occurrence.speed)
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != 0) {
+							newLane = newLane - 1
+						}
+						intersectionLane = 0
 					}
+				} else if (nbOfIntersetionLane == 2) {
+					if (incomingNode.exitIsOnTheRight(incomingNode.links.indexOf(occurrence.element),
+						occurrence.nextIntersectionDirection)) {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != Math.min(nbOfLane, 1)) {
+							newLane = newLane + 1
+						}
+						intersectionLane = 1
+					} else {
+						if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
+								newLane != 0) {
+							newLane = newLane - 1
+						}
+						intersectionLane = 0
+					}
+				} else {
+					intersectionLane = 0
 				}
 	
-			} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
-				newAcceleration = decelerate(20, occurrence.speed)
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.STOP) {
+		
+					newAcceleration = decelerate(0, occurrence.speed)
+		
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ORANGE ||
+					incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
+					if (!makeSomeMess) {
+		
+						for (car : occurrence.perception.surroundingCars) {
+							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
+								carInIntersection.add(car)
+							}
+						}
+		
+						if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
+							newAcceleration = accelerate(20, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(0, occurrence.speed)
+						}
+					}
+		
+				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					newAcceleration = decelerate(20, occurrence.speed)
+				}
 			}
-		}
 		} else if (occurrence.element instanceof Intersection) {
 			if (carInFront !== null) {
 				if (occurrence.speed <= 20) {
@@ -343,6 +355,7 @@ on BehaviorStep {
 		emit(new Intent(
 			newAcceleration,
 			newLane,
+			intersectionLane,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,
@@ -353,12 +366,12 @@ on BehaviorStep {
 }
 
 behavior IntersectionYHumanBehavior extends IntersectionBehavior {
-uses Logging, DefaultContextInteractions, AccelerateCapacity
+	uses Logging, DefaultContextInteractions, AccelerateCapacity
+	
+	var generator : Random
 
-var generator : Random
-
-on Initialize {
-	this.generator = new Random()
+	on Initialize {
+		this.generator = new Random()
 	}
 
 	on BehaviorInitialize {
@@ -368,6 +381,7 @@ on Initialize {
 		var newAcceleration : double = 0
 		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
 		var newLane : double = Math.round(occurrence.lane)
+		var intersectionLane = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
 
@@ -386,7 +400,6 @@ on Initialize {
 					element as TwoWayRoad).nbOfLaneSecondary : (occurrence.element as TwoWayRoad).nbOfLanePrimary
 			var nbOfIntersetionLane = incomingNode.getNbOfLane()
 			var carInIntersection = new ArrayList<PerceptCar>()
-			var intersectionLane = Math.round(occurrence.lane)
 			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
 			for (car : occurrence.perception.surroundingCars) {
 				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
@@ -504,6 +517,7 @@ on Initialize {
 		emit(new Intent(
 			newAcceleration,
 			newLane,
+			intersectionLane,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,
@@ -530,6 +544,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		var newAcceleration : double = 0
 		var makeSomeMess : boolean = (this.generator.nextDouble > occurrence.obedienceRate)
 		var newLane : double = Math.round(occurrence.lane)
+		var intersectionLane = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
 
@@ -549,7 +564,6 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 					: (occurrence.element as TwoWayRoad).nbOfLanePrimary
 			var nbOfIntersetionLane = incomingNode.getNbOfLane()
 			var carInIntersection = new ArrayList<PerceptCar>()
-			var intersectionLane = Math.round(occurrence.lane)
 			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
 			for (car : occurrence.perception.surroundingCars) {
 				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
@@ -658,6 +672,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		emit(new Intent(
 			newAcceleration,
 			newLane,
+			intersectionLane,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,

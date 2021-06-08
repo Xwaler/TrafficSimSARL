@@ -18,16 +18,4 @@ behavior IntersectionBehavior extends Behavior {
 		setSkill(new AccelerateSkill, AccelerateCapacity)
 		info(this.class.simpleName + " was started.")
 	}
-
-	on BehaviorStep {
-		emit(new Intent(
-			occurrence.speed < 50 && new Random().nextBoolean ? 1 : 0,
-			occurrence.lane,
-			occurrence.position,
-			occurrence.speed,
-			occurrence.lane,
-			occurrence.element,
-			occurrence.direction
-		))
-	}
 }
