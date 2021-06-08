@@ -165,10 +165,8 @@ class SimView extends JPanel {
 				var toCos : double = carProperties.direction == 0 ? primaryCosShift : secondaryCosShift
 				var fromSin : double = carProperties.direction == 0 ? secondarySinShift : primarySinShift
 				var toSin : double = carProperties.direction == 0 ? primarySinShift : secondarySinShift
-				var cosC : double = (0.5 + (carProperties.direction == 0 ? 1: -1) * carProperties.lane) *
-					(carProperties.direction == 0 ? cos : -cos)
-				var sinC : double = (0.5 + (carProperties.direction == 0 ? 1 : -1) * carProperties.lane) *
-					(carProperties.direction == 0 ? sin : -sin)
+				var cosC : double = (0.5 + carProperties.lane) * (carProperties.direction == 0 ? cos : -cos)
+				var sinC : double = (0.5 + carProperties.lane) * (carProperties.direction == 0 ? sin : -sin)
 				g.fillOval(
 					((carProperties.position * toCos + (1 - carProperties.position) * fromCos) *
 						this.dimension.width + cosC * this.laneWidth - this.carDiameter / 2
