@@ -165,8 +165,8 @@ class MainFrame extends JFrame implements ActionListener {
 		this.simView.repaint()
 	}
 	
-	def sendData(mesureFlux : double, tauxAccident : double, tempsTrajet : double){
-		this.feedBackView.updateFields(mesureFlux, tauxAccident, tempsTrajet)
+	def sendData(mesureFlux : double, tauxAccident : double, tempsTrajetHumain : double, tempsTrajetAutonome : double) {
+		this.feedBackView.updateFields(mesureFlux, tauxAccident, tempsTrajetHumain, tempsTrajetAutonome)
 	}
 	
 }

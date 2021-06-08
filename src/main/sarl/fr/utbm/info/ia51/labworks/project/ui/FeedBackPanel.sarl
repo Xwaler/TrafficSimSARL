@@ -11,10 +11,11 @@ class FeedBackPanel extends JPanel{
 	
 	val tauxAccident : JTextField
 	val mesureFlux : JTextField
-	val vitesseTrajet : JTextField
+	val vitesseTrajetHumain : JTextField
+	val vitesseTrajetAutonomous : JTextField
 	
 	new{
-		this.layout = new GridLayout(3,1)
+		this.layout = new GridLayout(4,1)
 		
 		val tauxPanel = new JPanel
 		tauxPanel.setLayout(new FlowLayout())
@@ -34,24 +35,35 @@ class FeedBackPanel extends JPanel{
 		mesurePanel.add(mesureFluxLabel)
 		mesurePanel.add(this.mesureFlux)
 
-		val trajetPanel = new JPanel
-		trajetPanel.setLayout(new FlowLayout())
-		this.vitesseTrajet = new JTextField()
-		this.vitesseTrajet.setEditable(false)
-		this.vitesseTrajet.setPreferredSize(new Dimension(200,30))
-		val vitesseTrajetLabel = new JLabel("Vitesse de trajet :")
-		trajetPanel.add(vitesseTrajetLabel)
-		trajetPanel.add(this.vitesseTrajet)
+		val trajetPanelHumain = new JPanel
+		trajetPanelHumain.setLayout(new FlowLayout())
+		this.vitesseTrajetHumain = new JTextField()
+		this.vitesseTrajetHumain.setEditable(false)
+		this.vitesseTrajetHumain.setPreferredSize(new Dimension(200, 30))
+		val vitesseTrajetHumainLabel = new JLabel("Vitesse de trajet Humain:")
+		trajetPanelHumain.add(vitesseTrajetHumainLabel)
+		trajetPanelHumain.add(this.vitesseTrajetHumain)
+
+		val trajetPanelAutonome = new JPanel
+		trajetPanelAutonome.setLayout(new FlowLayout())
+		this.vitesseTrajetAutonomous = new JTextField()
+		this.vitesseTrajetAutonomous.setEditable(false)
+		this.vitesseTrajetAutonomous.setPreferredSize(new Dimension(200, 30))
+		val vitesseTrajetAutonomeLabel = new JLabel("Vitesse de trajet Autonome:")
+		trajetPanelAutonome.add(vitesseTrajetAutonomeLabel)
+		trajetPanelAutonome.add(this.vitesseTrajetAutonomous)
 		
 		this.add(tauxPanel)
 		this.add(mesurePanel)
-		this.add(trajetPanel)
+		this.add(trajetPanelHumain)
+		this.add(trajetPanelAutonome)
 	}
 	
-	def updateFields(mesureFlux : double, tauxAccident : double, tempsTrajet : double){
+	def updateFields(mesureFlux : double, tauxAccident : double, tempsTrajetHumain : double, tempsTrajetAutonome : double) {
 		this.mesureFlux.setText("" + mesureFlux)
 		this.tauxAccident.setText("" + tauxAccident)
-		this.vitesseTrajet.setText("" + tempsTrajet)
+		this.vitesseTrajetHumain.setText("" + tempsTrajetHumain)
+		this.vitesseTrajetAutonomous.setText("" + tempsTrajetAutonome)
 	}
 	
 }
