@@ -19,6 +19,7 @@ import java.util.Set
 import org.arakhne.afc.references.WeakHashSet
 import java.awt.Stroke
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
+import fr.utbm.info.ia51.labworks.project.road.Constants
 
 class SimView extends JPanel {
 	val dimension : Dimension
@@ -27,6 +28,7 @@ class SimView extends JPanel {
 
 	var laneWidth : int = 9
 	var carDiameter : int = 8
+	var feuDiameter : int = 6
 
 	var rh : RenderingHints
 	var defaultStroke : Stroke
@@ -155,6 +157,24 @@ class SimView extends JPanel {
 				(secondarySinShift * this.dimension.height + i * sin * this.laneWidth) as int
 			)
 		}
+		switch (road.getPrimaryNode().signalisationLinks.get(road)) {
+			case Constants.FEU_ROUGE: {
+				g.setColor(Color.red)
+			}
+			case Constants.FEU_ORANGE: {
+				g.setColor(Color.orange)
+			}
+			case Constants.FEU_VERT: {
+				g.setColor(Color.green)
+			}
+		}
+		g.fillOval(
+			(primaryCosShift * this.dimension.width + (road.nbOfLanePrimary + 1) * cos * this.laneWidth -
+				feuDiameter / 2) as int,
+			(primarySinShift * this.dimension.height + (road.nbOfLanePrimary + 1) * sin * this.laneWidth -
+				feuDiameter / 2) as int,
+			feuDiameter, feuDiameter
+		)
 
 		g.setColor(Color.red)
 		g.setStroke(this.defaultStroke)

@@ -71,7 +71,7 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 				car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
+				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
 	
@@ -158,7 +158,7 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 							}
 						}
 		
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -229,7 +229,7 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 				car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
+				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
 	
@@ -317,7 +317,7 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 							}
 						}
 		
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -389,7 +389,7 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 				car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
+				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
 
@@ -479,7 +479,7 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 							}
 						}
 
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -552,7 +552,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 				car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
+				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
 		
@@ -628,7 +628,9 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 					intersectionLane = 0
 				}
 				
-				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
+				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER ||
+					incomingNode.getSignalisation(occurrence.element as Road) != Constants.FEU_ROUGE
+				) {
 					if (!makeSomeMess) {
 							
 						for (car : occurrence.perception.surroundingCars) {
@@ -637,7 +639,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 							}
 						}
 							
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0,occurrence.speed)

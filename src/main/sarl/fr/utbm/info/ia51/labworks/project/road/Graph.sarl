@@ -305,7 +305,7 @@ class Graph {
 					link,
 					intersection instanceof Roundabout ? Constants.CEDER : feu
 				)
-				feu = (feu + 1) % (Constants.FEU_VERT + 1)
+				feu = (feu + 1) % (Constants.FEU_ROUGE + 1)
 			}
 		}
 		

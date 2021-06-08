@@ -5,9 +5,9 @@ final class Constants{
 	
 	private new{}
 	
-	public static val FEU_ROUGE = 0
+	public static val FEU_VERT = 0
 	public static val FEU_ORANGE = 1
-	public static val FEU_VERT = 2
+	public static val FEU_ROUGE = 2
 	public static val STOP = 3
 	public static val CEDER = 4
 	

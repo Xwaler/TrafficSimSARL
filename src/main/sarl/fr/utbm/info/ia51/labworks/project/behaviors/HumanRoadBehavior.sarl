@@ -37,7 +37,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 				car | 
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element && 
-				car.direction == occurrence.direction && car.position < occurrence.position
+				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
 		
@@ -132,7 +132,7 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
 				car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
-				car.direction == occurrence.direction && car.position < occurrence.position
+				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
 

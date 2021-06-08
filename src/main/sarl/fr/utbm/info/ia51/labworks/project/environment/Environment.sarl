@@ -217,10 +217,10 @@ agent Environment {
 			}
 		}
 		this.tick++
-		if (this.tick % 60  == 0) {
+		if (this.tick % 120  == 0) {
 			for (intersection : this.roads.intersections) {
 				for (link : intersection.links) {
-					if (this.tick % 180 == 0 || intersection.getSignalisation(link) == Constants.FEU_ROUGE) {
+					if (this.tick % 240 == 0 || intersection.getSignalisation(link) == Constants.FEU_ORANGE) {
 						intersection.incrementSignalisation(link)
 					}
 				}

@@ -49,9 +49,9 @@ abstract class Intersection extends RoadElement {
 	}
 	
 	def incrementSignalisation(road : Road) : void {
-		this.signalisationLinks.replace(
+		this.signalisationLinks.put(
 			road,
-			(this.signalisationLinks.get(road) + 1) % (Constants.FEU_VERT + 1)
+			(this.signalisationLinks.get(road) + 1) % (Constants.FEU_ROUGE + 1)
 		)
 	}
 	
