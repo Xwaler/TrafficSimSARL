@@ -65,13 +65,13 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var intersectionLane = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
-		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 	
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
-			car |
-				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-					car.direction == occurrence.direction && car.position < occurrence.position
+				car |
+				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				car.direction == occurrence.direction && car.position < occurrence.position
 			)
 		}
 	
@@ -158,7 +158,7 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 							}
 						}
 		
-						if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -223,13 +223,13 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var intersectionLane = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
-		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 	
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
-			car |
-				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-					car.direction == occurrence.direction && car.position < occurrence.position
+				car |
+				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				car.direction == occurrence.direction && car.position < occurrence.position
 			)
 		}
 	
@@ -317,7 +317,7 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 							}
 						}
 		
-						if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -383,13 +383,13 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var intersectionLane = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
-		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
-			car |
-				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-					car.direction == occurrence.direction && car.position < occurrence.position
+				car |
+				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				car.direction == occurrence.direction && car.position < occurrence.position
 			)
 		}
 
@@ -479,7 +479,7 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 							}
 						}
 
-						if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -546,13 +546,13 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var intersectionLane = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
-		var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
-			car |
-				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-					car.direction == occurrence.direction && car.position < occurrence.position
+				car |
+				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				car.direction == occurrence.direction && car.position < occurrence.position
 			)
 		}
 		
@@ -637,7 +637,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 							}
 						}
 							
-						if (carInIntersection.stream().allMatch(car|car.distance > 12)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0,occurrence.speed)

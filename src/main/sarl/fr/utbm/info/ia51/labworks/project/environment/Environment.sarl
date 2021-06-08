@@ -41,7 +41,8 @@ agent Environment {
 	var UI : MainFrame
 	var mesureFlux : double
 	var tauxAccident : double
-	var tempsTrajet : List<Double>
+	var tempsTrajetHuman : List<Double>
+	var tempsTrajetAutonomous : List<Double>
 	var roads : Graph
 	var frameDelayTask : AgentTask
 	var tick : int = 0
@@ -54,6 +55,8 @@ agent Environment {
 	
 	on Initialize {
 		synchronized (this) {
+			this.tempsTrajetHuman = new ArrayList<Double>
+			this.tempsTrajetAutonomous = new ArrayList<Double>
 			this.roads = new Graph(defaultContext)
 			this.roads.generateRandom()
 			this.UI = occurrence.parameters.get(0) as MainFrame
@@ -398,7 +401,19 @@ agent Environment {
 	}
 	
 	on Statistics {
-		this.tempsTrajet.add(occurrence.travelTime as double / 60)
+		synchronized (this) {
+			if (occurrence.isHuman) {
+				this.tempsTrajetHuman.add(occurrence.travelTime / 60)
+			} else {
+				this.tempsTrajetAutonomous.add(occurrence.travelTime / 60)
+			}
+			this.UI.sendData(
+				0.0,
+				0.0,
+				this.tempsTrajetHuman.stream().mapToDouble(d|d).average().orElse(0.0),
+				this.tempsTrajetAutonomous.stream().mapToDouble(d|d).average().orElse(0.0)
+			)
+		}
 	}
 	
 	@SuppressWarnings("discouraged_occurrence_readonly_use")

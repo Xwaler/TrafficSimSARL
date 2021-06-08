@@ -29,6 +29,8 @@ import fr.utbm.info.ia51.labworks.project.events.NewObjective
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
 import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
 import java.util.Random
+import fr.utbm.info.ia51.labworks.project.events.Statistics
+import fr.utbm.info.ia51.labworks.project.road.Constants
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, PerceptCapacity, DefaultContextInteractions
@@ -36,7 +38,9 @@ agent Car {
 	protected var startPoint : RoadElement
 	protected var endPoint : RoadElement
 	protected var currentElement : RoadElement //TODO : Do a getter
+	protected var travelTime : int
 	protected var path : List<Intersection>
+	protected var pathLength : double
 	protected var speed : double // TODO : Do a getter
 	protected var acceleration : double // TODO : Do a getter
 	protected var positionInRoad : double
@@ -65,6 +69,7 @@ agent Car {
 			this.currentElement = occurrence.road
 			this.startPoint = occurrence.road
 			this.direction = 0
+			this.travelTime = 0
 			if (!this.pathFinding(occurrence.destination)) {
 				this.path = new ArrayList<Intersection>()
 				this.path.add(this.startPoint as Intersection)
@@ -106,6 +111,7 @@ agent Car {
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on PhysicsUpdate {
 		synchronized (this) {
+			this.travelTime++
 			this.positionInRoad = occurrence.newPosition
 			this.speed = occurrence.newSpeed
 			this.acceleration = occurrence.newAcceleration
@@ -132,6 +138,10 @@ agent Car {
 						this.path = null
 						this.direction = -1
 						info("Arrived ! Asking new objective")
+						emit(new Statistics(
+							this instanceof HumanCar,
+							this.travelTime / (Constants.WORLD_SIZE_SCALLER * this.pathLength)
+						))
 						emit(new RequestNewObjective(this.startPoint as Intersection))
 					} else {
 						info(newIntersection)
@@ -224,6 +234,7 @@ agent Car {
 								info("PathFound, start:" + this.startPoint + ", end:" + destination)
 								pathFound = true;
 								tempNode = node.getKey()
+								visited.put(destination, node.getValue() + road.getLength())
 							}
 						} else if (road instanceof TwoWayRoad && road != previouslyVisited) {
 							var nextNode : Intersection = road.getOtherNode(node.getKey())
@@ -243,6 +254,7 @@ agent Car {
 								info("PathFound, start:" + this.startPoint + ", end:" + destination)
 								pathFound = true;
 								tempNode = node.getKey()
+								visited.put(destination, node.getValue() + road.getLength())
 							}
 						}
 					}
@@ -254,6 +266,7 @@ agent Car {
 		this.path = new ArrayList<Intersection>(2)
 		this.path.add(destination)
 		this.path.add(tempNode)
+		this.pathLength = visited.get(destination)
 		if (tempNode != this.startPoint) {
 			iter = 0
 			while (!pathGenerated) {
@@ -290,6 +303,7 @@ agent Car {
 		synchronized (this) {
 			info("Received new objective")
 			if (this.pathFinding(occurrence.newObjective)) {
+				this.travelTime = 0
 				var newIntersection : Intersection = this.startPoint as Intersection
 				var pathIndex : int = this.path.indexOf(newIntersection)
 				for (i : 0 ..< newIntersection.getLinks().size()) {

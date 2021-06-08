@@ -5,9 +5,11 @@ final class Constants{
 	
 	private new{}
 	
-	public static final val FEU_ROUGE = 0
-	public static final val FEU_ORANGE = 1
-	public static final val FEU_VERT = 2
-	public static final val STOP = 3
-	public static final val CEDER = 4
+	public static val FEU_ROUGE = 0
+	public static val FEU_ORANGE = 1
+	public static val FEU_VERT = 2
+	public static val STOP = 3
+	public static val CEDER = 4
+	
+	public static val WORLD_SIZE_SCALLER = 10
 }

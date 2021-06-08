@@ -30,3 +30,16 @@ event StopSimulationEvent extends Event {
 event GenerateRoadsEvent extends Event {
 	
 }
+
+event Statistics extends Event {
+	public var isHuman : boolean
+	public var travelTime : double
+	
+	new (
+		isHuman : boolean,
+		travelTime : double
+	) {
+		this.isHuman = isHuman
+		this.travelTime = travelTime
+	}
+}

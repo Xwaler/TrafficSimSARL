@@ -4,6 +4,7 @@ import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import java.util.ArrayList
 import java.util.Random
+import fr.utbm.info.ia51.labworks.project.road.Constants
 
 skill PerceptSkillHuman implements PerceptCapacity {
 	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
@@ -11,7 +12,8 @@ skill PerceptSkillHuman implements PerceptCapacity {
 		var random : Random = new Random();
 		for (car : surrounding) {
 			if (car.distance < viewDistance) {
-				if (random.nextDouble > ((car.distance / viewDistance) + 1) ** 2 * perceptionErrorRate) {
+				if (random.nextDouble >
+					((car.distance / (Constants.WORLD_SIZE_SCALLER * viewDistance)) + 1) ** 2 * perceptionErrorRate) {
 					perceptCars.add(car)
 				}
 			}
@@ -26,7 +28,8 @@ skill PerceptSkillAutonomous implements PerceptCapacity {
 		var random : Random = new Random();
 		for (car : surrounding){
 			if(car.distance < viewDistance){
-				if (random.nextDouble > ((car.distance / viewDistance) + 1) ** 2 * perceptionErrorRate) {
+				if (random.nextDouble >
+					((car.distance / (Constants.WORLD_SIZE_SCALLER * viewDistance)) + 1) ** 2 * perceptionErrorRate) {
 					perceptCars.add(car)
 				}
 			}

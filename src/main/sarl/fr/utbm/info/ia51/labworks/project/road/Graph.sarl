@@ -18,7 +18,7 @@ class Graph {
 	var minNodeLinks : int = 3
 	var maxNodeLinks : int = 5
 	
-	public var realSize : int = 10000
+	public var realSize : int = Constants.WORLD_SIZE_SCALLER * 1000
 
 	var context : AgentContext
 	var generator : Random = new Random()

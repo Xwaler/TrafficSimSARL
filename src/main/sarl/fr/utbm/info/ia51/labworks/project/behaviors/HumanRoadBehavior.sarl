@@ -13,6 +13,7 @@ import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
 import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import java.util.ArrayList
 import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
+import fr.utbm.info.ia51.labworks.project.road.Constants
 
 behavior OneWayRoadHumanBehavior extends RoadBehavior {
 	uses Logging, DefaultContextInteractions, AccelerateCapacity
@@ -34,13 +35,14 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 		var carInFront : PerceptCar = null
 		if (occurrence.perception.surroundingCars.size() > 0) {
 			carInFront = occurrence.perception.surroundingCars.findFirst(
-				car | car.lane == occurrence.lane && car.currentElement == occurrence.element && 
+				car | 
+				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element && 
 				car.direction == occurrence.direction && car.position < occurrence.position
 			)
 		}
 		
 		if (carInFront !== null) {
-			var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+			var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 				
 			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || newLane == 0) {
 				if (occurrence.speed <= occurrence.element.speedLimit) {
@@ -127,14 +129,15 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
 		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst( car |
-				car.lane == occurrence.lane && car.currentElement == occurrence.element &&
-					car.direction == occurrence.direction && car.position < occurrence.position
+			carInFront = occurrence.perception.surroundingCars.findFirst(
+				car |
+				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				car.direction == occurrence.direction && car.position < occurrence.position
 			)
 		}
 
 		if (carInFront !== null) {
-			var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
+			var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
 			if ((occurrence.direction == 1 && (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) ||
 				(occurrence.direction == 0 && (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1) ||
