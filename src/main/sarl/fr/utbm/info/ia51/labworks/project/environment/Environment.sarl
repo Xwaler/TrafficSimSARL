@@ -32,6 +32,7 @@ import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
+import fr.utbm.info.ia51.labworks.project.events.Statistics
 import fr.utbm.info.ia51.labworks.project.road.Constants
 
 agent Environment {
@@ -40,7 +41,7 @@ agent Environment {
 	var UI : MainFrame
 	var mesureFlux : double
 	var tauxAccident : double
-	var tempsTrajet : double
+	var tempsTrajet : List<Double>
 	var roads : Graph
 	var frameDelayTask : AgentTask
 	var tick : int = 0
@@ -376,6 +377,10 @@ agent Environment {
 			))[it.UUID == carUUID]
 		}
 		this.intents.clear()
+	}
+	
+	on Statistics {
+		this.tempsTrajet.add(occurrence.travelTime as double / 60)
 	}
 	
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
