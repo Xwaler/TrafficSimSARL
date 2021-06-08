@@ -119,16 +119,16 @@ on BehaviorStep {
 						occurrence.lane != Math.min(nbOfLane, 1)) {
 						newLane = occurrence.lane + 1
 					}
-					intersectionLane = 2
+					intersectionLane = 1
 				} else {
 					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
 						occurrence.lane != 0) {
 						newLane = occurrence.lane - 1
 					}
-					intersectionLane = 1
+					intersectionLane = 0
 				}
 			} else {
-				intersectionLane = 2
+				intersectionLane = 0
 			}
 
 			if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
@@ -278,16 +278,16 @@ on BehaviorStep {
 						occurrence.lane != Math.min(nbOfLane, 1)) {
 						newLane = occurrence.lane + 1
 					}
-					intersectionLane = 2
+					intersectionLane = 1
 				} else {
 					if ((carsInAdjascentLanes.size() == 0 || carsInAdjascentLanes.get(0).distance > safetyDistance) &&
 						occurrence.lane != 0) {
 						newLane = occurrence.lane - 1
 					}
-					intersectionLane = 1
+					intersectionLane = 0
 				}
 			} else {
-				intersectionLane = 2
+				intersectionLane = 0
 			}
 
 			if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
@@ -439,16 +439,16 @@ on Initialize {
 							occurrence.lane != Math.min(nbOfLane, 1)) {
 							newLane = occurrence.lane + 1
 						}
-						intersectionLane = 2
+						intersectionLane = 1
 					} else {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance > safetyDistance) && occurrence.lane != 0) {
 							newLane = occurrence.lane - 1
 						}
-						intersectionLane = 1
+						intersectionLane = 0
 					}
 				} else {
-					intersectionLane = 2
+					intersectionLane = 0
 				}
 
 				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ROUGE ||
@@ -602,16 +602,16 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 							occurrence.lane != Math.min(nbOfLane, 1)) {
 							newLane = occurrence.lane + 1
 						}
-						intersectionLane = 2
+						intersectionLane = 1
 					} else {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance > safetyDistance) && occurrence.lane != 0) {
 							newLane = occurrence.lane - 1
 						}
-						intersectionLane = 1
+						intersectionLane = 0
 					}
 				} else {
-					intersectionLane = 2
+					intersectionLane = 0
 				}
 				
 				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
