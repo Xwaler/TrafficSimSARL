@@ -57,7 +57,7 @@ event NewObjective {
 	}
 }
 
-class PerceptCar {
+class PerceptCar implements Comparable<PerceptCar> {
 	public var distance : double
 	public var position : double
 	public var currentElement : RoadElement
@@ -73,6 +73,18 @@ class PerceptCar {
 		this.speed = speed
 		this.lane =  lane
 	}
+	
+	def compareTo(arg0 : PerceptCar) : int {
+		var difference : double = this.distance - arg0.distance
+		if(difference > 0){
+			return 1;
+		} else if(difference < 0){
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+	
 }
 
 class CarProperties {

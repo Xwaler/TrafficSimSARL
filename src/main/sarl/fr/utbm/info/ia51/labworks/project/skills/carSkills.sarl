@@ -2,16 +2,36 @@ package fr.utbm.info.ia51.labworks.project.skills
 
 import java.util.List
 import fr.utbm.info.ia51.labworks.project.events.PerceptCar
+import java.util.ArrayList
+import java.util.Random
 
 skill PerceptSkillHuman implements PerceptCapacity {
 	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
-		// TODO
+		var perceptCars : ArrayList<PerceptCar> = new ArrayList();
+		var random : Random = new Random();
+		for (car : surrounding) {
+			if (car.distance < viewDistance) {
+				if (random.nextDouble > ((car.distance / viewDistance) + 1) ** 2 * perceptionErrorRate) {
+					perceptCars.add(car)
+				}
+			}
+		}
+		perceptCars.sort()
 	}
 }
 
 skill PerceptSkillAutonomous implements PerceptCapacity {
 	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
-		// TODO
+		var perceptCars : ArrayList<PerceptCar> = new ArrayList();
+		var random : Random = new Random();
+		for (car : surrounding){
+			if(car.distance < viewDistance){
+				if (random.nextDouble > ((car.distance / viewDistance) + 1) ** 2 * perceptionErrorRate) {
+					perceptCars.add(car)
+				}
+			}
+		}
+		perceptCars.sort()
 	}
 }
 
