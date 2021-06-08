@@ -321,11 +321,29 @@ agent Environment {
 						}
 						
 						if (doesNeighborGoInTheSameDirection) {
-							distanceNeighbourObserver +=
-								neighbourCarProperties.futurePosition * currentElement.length * this.roads.realSize
+							if (previousElement === null) {
+								distanceNeighbourObserver = 
+									(neighbourCarProperties.futurePosition - selfProperties.futurePosition) * 
+									currentElement.length * this.roads.realSize
+								if (distanceNeighbourObserver < 0) {
+									distanceNeighbourObserver = distanceNeighbourObserver * -1
+								}
+							} else {
+								distanceNeighbourObserver += 
+									neighbourCarProperties.futurePosition * currentElement.length * this.roads.realSize
+							}
 						} else {
-							distanceNeighbourObserver +=
-								(1 - neighbourCarProperties.futurePosition) * currentElement.length * this.roads.realSize
+							if (previousElement === null) {
+								distanceNeighbourObserver = ((1 - neighbourCarProperties.futurePosition) -
+									selfProperties.futurePosition) * currentElement.length * this.roads.realSize
+								if (distanceNeighbourObserver < 0) {
+									distanceNeighbourObserver = distanceNeighbourObserver * -1
+								}
+							} else {
+								distanceNeighbourObserver +=
+									(1 - neighbourCarProperties.futurePosition) * currentElement.length *
+										this.roads.realSize
+							}
 						}
 						
 						if (distanceNeighbourObserver <= maxViewDistance){
