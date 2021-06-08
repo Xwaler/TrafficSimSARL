@@ -158,7 +158,7 @@ agent Environment {
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
-			update.newLane = Math.max(0, intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 60))
+			update.newLane = Math.max(0, intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 20))
 			update.newElement = intent.currentElement
 			if (intent.currentElement instanceof Road) {
 				if (update.newPosition >= 1.0) {
@@ -168,6 +168,7 @@ agent Environment {
 					update.newPosition = (update.newElement as Intersection).linkThreshold.get(
 						(update.newElement as Intersection).links.indexOf(intent.currentElement)
 					)
+					update.newLane = intent.intendedIntersectionLane
 				}
 			}
 			else if (intent.currentElement instanceof Intersection) {
@@ -175,12 +176,14 @@ agent Environment {
 				if (intent.currentPosition < intersectionThreshold && update.newPosition >= intersectionThreshold) {
 					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 					update.newPosition = 0
+					update.newLane = intent.intendedLane
 				} else {
 					if (update.newPosition > 1.0) {
 						update.newPosition -= 1.0
 						if (update.newPosition >= intersectionThreshold) {
 							update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
 							update.newPosition = 0
+							update.newLane = intent.intendedLane
 						}
 					}
 				}

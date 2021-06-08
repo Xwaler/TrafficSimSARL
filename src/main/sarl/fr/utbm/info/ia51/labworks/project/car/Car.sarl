@@ -74,6 +74,7 @@ agent Car {
 			emit(new Intent(
 				0,
 				this.lane,
+				0,
 				this.positionInRoad,
 				this.speed,
 				this.lane,

@@ -5,9 +5,13 @@ import io.sarl.core.Logging
 import io.sarl.core.Initialize
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
+import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
+import fr.utbm.info.ia51.labworks.project.events.Intent
+import java.util.Random
+import io.sarl.core.DefaultContextInteractions
 
 behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, AccelerateCapacity, DefaultContextInteractions
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -15,11 +19,24 @@ behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
 	}
 
 	on BehaviorInitialize {
+	}
+
+	on BehaviorStep {
+		emit(new Intent(
+			occurrence.speed < 50 && new Random().nextBoolean ? 1 : 0,
+			occurrence.lane,
+			0,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.lane,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
 
 behavior TwoWayRoadAutonomousBehavior extends RoadBehavior {
-	uses Logging, AccelerateCapacity
+	uses Logging, AccelerateCapacity, DefaultContextInteractions
 
 	on Initialize {
 		// Event trigger before the behavior begin to live or to be used.
@@ -27,5 +44,18 @@ behavior TwoWayRoadAutonomousBehavior extends RoadBehavior {
 	}
 
 	on BehaviorInitialize {
+	}
+
+	on BehaviorStep {
+		emit(new Intent(
+			occurrence.speed < 50 && new Random().nextBoolean ? 1 : 0,
+			occurrence.lane,
+			0,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.lane,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }

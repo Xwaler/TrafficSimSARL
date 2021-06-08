@@ -103,7 +103,7 @@ class CarProperties {
 		this.speed = intent.currentSpeed
 		this.futureSpeed = physicsUpdate.newSpeed
 		this.direction = intent.direction
-		this.lane = physicsUpdate.newLane
+		this.lane = intent.currentLane
 		this.element = intent.currentElement
 		this.futureElement = physicsUpdate.newElement
 	}

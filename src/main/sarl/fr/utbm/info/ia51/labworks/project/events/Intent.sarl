@@ -6,6 +6,7 @@ import fr.utbm.info.ia51.labworks.project.road.RoadElement
 event Intent extends Event {
 	var intendedAcceleration : double
 	var intendedLane : double
+	var intendedIntersectionLane : double
 	var currentPosition : double
 	var currentSpeed : double
 	var currentLane : double
@@ -15,6 +16,7 @@ event Intent extends Event {
 	new (
 		intendedAcceleration : double,
 		intendedLane : double,
+		intendedIntersectionLane : double,
 		currentPosition : double,
 		currentSpeed : double,
 		currentLane : double,
@@ -23,6 +25,7 @@ event Intent extends Event {
 	) {
 		this.intendedAcceleration = intendedAcceleration
 		this.intendedLane = intendedLane
+		this.intendedIntersectionLane = intendedIntersectionLane
 		this.currentPosition = currentPosition
 		this.currentSpeed = currentSpeed
 		this.currentLane = currentLane
