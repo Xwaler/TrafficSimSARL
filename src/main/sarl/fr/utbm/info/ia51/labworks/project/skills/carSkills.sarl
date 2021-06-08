@@ -44,14 +44,14 @@ skill AccelerateSkill implements AccelerateCapacity {
 	}
 
 	override accelerate(speed : int, mySpeed : double) : double {
-		return (speed - mySpeed) / (60 * 60)
+		return (speed - mySpeed) / 60
 	}
 
 	override decelerateDistance(distance : double, myDistance : int) : double {
-		return (myDistance - distance) / (60 * 60)
+		return (distance - myDistance) / (60 * 60)
 	}
 
 	override decelerate(speed : int, mySpeed : double) : double {
-		return (mySpeed - speed) / (60 * 60)
+		return (speed - mySpeed) / 60
 	}
 }
