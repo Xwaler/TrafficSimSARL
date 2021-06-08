@@ -92,10 +92,10 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 				newAcceleration =  decelerate(occurrence.element.speedLimit, occurrence.speed)
 			}
 		}
-		
+
 		emit(new Intent(
-			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
-			occurrence.lane,
+			newAcceleration,
+			newLane,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,
@@ -185,8 +185,8 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 		}
 
 		emit(new Intent(
-			occurrence.speed < 0.005 && new Random().nextBoolean ? 0.0001 : 0,
-			occurrence.lane,
+			newAcceleration,
+			newLane,
 			occurrence.position,
 			occurrence.speed,
 			occurrence.lane,
