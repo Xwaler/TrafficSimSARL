@@ -42,7 +42,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 		if (carInFront !== null) {
 			var safetyDistance : int = 6 * ((occurrence.speed / 10) as int)
 				
-			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || occurrence.lane == 0) {
+			if ((occurrence.element as OneWayRoad).nbOfLane == 1 || newLane == 0) {
 				if (occurrence.speed <= occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
@@ -70,7 +70,7 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
 					}
 					else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
-						newLane = occurrence.lane - 1
+						newLane = newLane - 1
 						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
 					} 
 					else if (!makeSomeMess) {
@@ -136,7 +136,7 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 
 			if ((occurrence.direction == 1 && (occurrence.element as TwoWayRoad).nbOfLaneSecondary == 1) ||
 				(occurrence.direction == 0 && (occurrence.element as TwoWayRoad).nbOfLanePrimary == 1) ||
-				occurrence.lane == 0) {
+				newLane == 0) {
 				if (occurrence.speed <= occurrence.element.speedLimit) {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
@@ -162,7 +162,7 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 					if (carInFront.distance > safetyDistance) {
 						newAcceleration = accelerateDistance(carInFront.distance, safetyDistance)
 					} else if (carsInAdjascentLanes.get(0).distance > safetyDistance || makeSomeMess) {
-						newLane = occurrence.lane - 1
+						newLane = newLane - 1
 						newAcceleration = accelerate(occurrence.element.speedLimit, occurrence.speed)
 					} else if (!makeSomeMess) {
 						newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
