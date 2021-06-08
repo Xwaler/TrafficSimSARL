@@ -221,6 +221,7 @@ class Graph {
 		 * based on it's length and set it's speed limit accordingly
 		 */
 		for (intersection : this.intersections) {
+			intersection.speedLimit = 20
 			for (road : intersection.getLinks()) {
 				if (road instanceof OneWayRoad) {
 					if (road.speedLimit == 0) {
