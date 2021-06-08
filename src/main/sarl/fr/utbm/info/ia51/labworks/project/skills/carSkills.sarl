@@ -17,7 +17,7 @@ skill PerceptSkillAutonomous implements PerceptCapacity {
 
 skill AccelerateSkill implements AccelerateCapacity {
 	override accelerateDistance(distanceToReach : double, myDistance : int) : double {
-		return (myDistance - distanceToReach)/(60*60)
+		return (distanceToReach - myDistance) / (60 * 60)
 	}
 
 	override accelerate(speed : int, mySpeed : double) : double {
@@ -29,6 +29,6 @@ skill AccelerateSkill implements AccelerateCapacity {
 	}
 
 	override decelerate(speed : int, mySpeed : double) : double {
-		return (speed - mySpeed) / (60 * 60)
+		return (mySpeed - speed) / (60 * 60)
 	}
 }

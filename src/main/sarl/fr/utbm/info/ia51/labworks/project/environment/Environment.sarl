@@ -158,7 +158,7 @@ agent Environment {
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
-			update.newLane = intent.currentLane + 1 / 60 * Math.signum(intent.intendedLane - intent.currentLane)
+			update.newLane = Math.max(0, intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 60))
 			update.newElement = intent.currentElement
 			if (intent.currentElement instanceof Road) {
 				if (update.newPosition >= 1.0) {
