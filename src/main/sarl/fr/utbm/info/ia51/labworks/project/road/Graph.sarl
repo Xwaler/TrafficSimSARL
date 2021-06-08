@@ -294,15 +294,17 @@ class Graph {
 
 		for (entryPoint : this.entryPoints) {
 			for (link: entryPoint.links) {
-				entryPoint.signalisationLinks.put(link, Constants.CEDER)
+				entryPoint.signalisationLinks.put(link, Constants.FEU_VERT)
 			}
 		}
+		var feu : int  = Constants.FEU_ROUGE
 		for (intersection : this.intersections) {
 			for (link : intersection.links) {
 				intersection.signalisationLinks.put(
 					link,
-					intersection instanceof Roundabout ? Constants.CEDER : Constants.FEU_VERT
+					intersection instanceof Roundabout ? Constants.CEDER : feu
 				)
+				feu = (feu + 1) % (Constants.FEU_VERT + 1)
 			}
 		}
 		

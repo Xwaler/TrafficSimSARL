@@ -32,8 +32,7 @@ import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 import fr.utbm.info.ia51.labworks.project.events.GenerateRoadsEvent
 import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
-import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
-import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
+import fr.utbm.info.ia51.labworks.project.road.Constants
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -44,6 +43,7 @@ agent Environment {
 	var tempsTrajet : double
 	var roads : Graph
 	var frameDelayTask : AgentTask
+	var tick : int = 0
 
 	var nbCars : int
 	var cars : List<UUID> = new ArrayList<UUID>
@@ -209,6 +209,16 @@ agent Environment {
 				carProperties.futureElement.enter(carUUID)
 			}
 		}
+		this.tick++
+		if (this.tick % 60  == 0) {
+			for (intersection : this.roads.intersections) {
+				for (link : intersection.links) {
+					if (this.tick % 180 == 0 || intersection.getSignalisation(link) == Constants.FEU_ROUGE) {
+						intersection.incrementSignalisation(link)
+					}
+				}
+			}
+		}
 	}
 	
 	synchronized def recursiveAdd(
@@ -257,7 +267,6 @@ agent Environment {
 						currentElement, road
 					)
 				}
-
 			} else {
 				// TODO changed neighbor to observed
 				/* Element is a Road */
