@@ -95,6 +95,25 @@ class SimView extends JPanel {
 				(secondarySinShift * this.dimension.height + i * sin * this.laneWidth) as int
 			)
 		}
+		switch (road.getSecondaryNode().signalisationLinks.get(road)) {
+			case Constants.FEU_ROUGE: {
+				g.setColor(Color.red)
+			}
+			case Constants.FEU_ORANGE: {
+				g.setColor(Color.orange)
+			}
+			case Constants.FEU_VERT: {
+				g.setColor(Color.green)
+			}
+		}
+		g.fillOval(
+			(secondaryCosShift * this.dimension.width - (road.nbOfLane + 1) * cos * this.laneWidth -
+				feuDiameter / 2) as int,
+			(secondarySinShift * this.dimension.height - (road.nbOfLane + 1) * sin * this.laneWidth -
+				feuDiameter / 2) as int,
+			feuDiameter,
+			feuDiameter
+		)
 
 		/*g.setStroke(this.dashedStroke)
 		g.drawArc(
@@ -104,7 +123,7 @@ class SimView extends JPanel {
 			Math.toDegrees(angle - Math.PI / 2) as int, 180
 		)*/
 
-		g.setColor(Color.red)
+		g.setColor(Color.blue)
 		g.setStroke(this.defaultStroke)
 		if (this.carsProperties !== null) {
 			for (car : road.getCars()) {
@@ -175,8 +194,27 @@ class SimView extends JPanel {
 				feuDiameter / 2) as int,
 			feuDiameter, feuDiameter
 		)
+		switch (road.getSecondaryNode().signalisationLinks.get(road)) {
+			case Constants.FEU_ROUGE: {
+				g.setColor(Color.red)
+			}
+			case Constants.FEU_ORANGE: {
+				g.setColor(Color.orange)
+			}
+			case Constants.FEU_VERT: {
+				g.setColor(Color.green)
+			}
+		}
+		g.fillOval(
+			(secondaryCosShift * this.dimension.width - (road.nbOfLaneSecondary + 1) * cos * this.laneWidth -
+				feuDiameter / 2) as int,
+			(secondarySinShift * this.dimension.height - (road.nbOfLaneSecondary + 1) * sin * this.laneWidth -
+				feuDiameter / 2) as int,
+			feuDiameter,
+			feuDiameter
+		)
 
-		g.setColor(Color.red)
+		g.setColor(Color.blue)
 		g.setStroke(this.defaultStroke)
 		if (this.carsProperties !== null) {
 			for (car : road.getCars()) {
@@ -217,7 +255,7 @@ class SimView extends JPanel {
 			)
 		}
 		
-		g.setColor(Color.red)
+		g.setColor(Color.blue)
 		for (car : intersection.getCars()) {
 			var carProperties : CarProperties = this.carsProperties.get(car)
 			var angle = carProperties.position * 2 * Math.PI

@@ -165,7 +165,11 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 						}
 					}
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
-					newAcceleration = decelerate(20, occurrence.speed)
+					if (occurrence.speed > 20) {
+						newAcceleration = decelerate(20, occurrence.speed)
+					} else {
+						newAcceleration = accelerate(20, occurrence.speed)
+					}
 				}
 			}
 		} else if (occurrence.element instanceof Intersection) {
@@ -325,7 +329,11 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 					}
 		
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
-					newAcceleration = decelerate(20, occurrence.speed)
+					if (occurrence.speed > 20) {
+						newAcceleration = decelerate(20, occurrence.speed)
+					} else {
+						newAcceleration = accelerate(20, occurrence.speed)
+					}
 				}
 			}
 		} else if (occurrence.element instanceof Intersection) {
@@ -487,7 +495,11 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 					}
 
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
-					newAcceleration = decelerate(20, occurrence.speed)
+					if (occurrence.speed > 20) {
+						newAcceleration = decelerate(20, occurrence.speed)
+					} else {
+						newAcceleration = accelerate(20, occurrence.speed)
+					}
 				}
 			}
 		} else if (occurrence.element instanceof Intersection) {
