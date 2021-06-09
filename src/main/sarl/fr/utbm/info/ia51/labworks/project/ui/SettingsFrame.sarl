@@ -35,7 +35,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 	var defaultReaction = 10
 	var defaultPerception = 10
 	var defaultViewDistance = 10
-	var defaultFOV = 60	
 	
 	var simRunning = false
 	
@@ -49,7 +48,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 	public val reactionTime : JSlider
 	public val perceptionErrorRate : JSlider
 	public val viewDistance : JTextField
-	public val FOV : JTextField
 
 	var context : AgentContext
 	var UIUUID : UUID
@@ -155,14 +153,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 		this.viewDistance.setPreferredSize(new Dimension(200, 30))
 		viewDistancePanel.add(viewDistanceLabel)
 		viewDistancePanel.add(viewDistance)
-
-		val FOVPanel = new JPanel()
-		FOVPanel.layout = new FlowLayout()
-		val FOVLabel = new JLabel("Champs de vue max (deg) :")
-		this.FOV = new JTextField(""+defaultFOV)
-		this.FOV.setPreferredSize(new Dimension(200, 30))
-		FOVPanel.add(FOVLabel)
-		FOVPanel.add(FOV)
 		
 		/* Bouton panel */
 		val btnSettingsPane = new JPanel()
@@ -179,7 +169,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 		
 		this.carNb.addKeyListener(this)
 		this.viewDistance.addKeyListener(this)
-		this.FOV.addKeyListener(this)
 		this.addWindowListener(this)
 		
 		/* add widgets and panel to the frame */
@@ -189,7 +178,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 		settingsPane.add(reactionTimePanel)
 		settingsPane.add(perceptionErrorRatePanel)
 		settingsPane.add(viewDistancePanel)
-		settingsPane.add(FOVPanel)
 		
 		this.contentPane.add(BorderLayout::NORTH, settingsTitlePane)
 		this.contentPane.add(BorderLayout::CENTER, settingsPane)
@@ -209,20 +197,17 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 			this.defaultReaction = this.reactionTime.getValue()
 			this.defaultPerception = this.perceptionErrorRate.getValue()
 			this.defaultViewDistance = Integer.parseInt(this.viewDistance.getText())
-			this.defaultFOV = Integer.parseInt(this.FOV.getText())	
 			
 			this.context.getDefaultSpace().emit(UIUUID, new HumanCarPropertiesUpdate(
 				this.obedienceRate.getValue() / 100.0 as double,
 				this.reactionTime.getValue() as double,
 				this.perceptionErrorRate.getValue() / 100.0 as double,
-				Integer.parseInt(this.viewDistance.getText()) / 100.0 as double,
-				Integer.parseInt(this.FOV.getText()) / 3.1415 as double
+				Integer.parseInt(this.viewDistance.getText()) / 100.0 as double
 			))
 			this.context.getDefaultSpace().emit(UIUUID, new AutonomousCarPropertiesUpdate(
 				this.reactionTime.getValue() as double,
 				this.perceptionErrorRate.getValue() / 100.0 as double,
-				Integer.parseInt(this.viewDistance.getText()) / 100.0 as double,
-				Integer.parseInt(this.FOV.getText()) / 3.1415 as double
+				Integer.parseInt(this.viewDistance.getText()) / 100.0 as double
 			))
 		}
 		if (arg0.getSource() == this.leaveButton) {
@@ -232,7 +217,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 				this.carNb.setEditable(true)
 			}			
 			this.viewDistance.setEditable(true)
-			this.FOV.setEditable(true)
 			this.startButton.setEnabled(true)
 			this.carNb.setText("" + defaultCarNb)
 			this.carRate.setValue(defaultAutonomousProportion)
@@ -240,7 +224,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 			this.reactionTime.setValue(defaultReaction)
 			this.perceptionErrorRate.setValue(defaultPerception)
 			this.viewDistance.setText(""+defaultViewDistance)
-			this.FOV.setText("" + defaultFOV)
 		}
 	}
 	
@@ -264,17 +247,6 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 				this.validateButton.setEnabled(false)
 			} else {
 				this.viewDistance.setEditable(true)
-				this.validateButton.setEnabled(true)
-			}
-		}
-		if (arg0.getSource() == this.FOV) {
-			var c = arg0.getKeyChar();
-			if (!(((c >= '0') && (c <= '9')) || (c == KeyEvent.VK_DELETE) || (c == KeyEvent.VK_BACK_SPACE) ||
-				(c == KeyEvent.VK_ENTER) || (c == KeyEvent.VK_SHIFT))) {
-				this.FOV.setEditable(false)
-				this.validateButton.setEnabled(false)
-			} else {
-				this.FOV.setEditable(true)
 				this.validateButton.setEnabled(true)
 			}
 		}

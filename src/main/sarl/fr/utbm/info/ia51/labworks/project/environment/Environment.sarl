@@ -76,8 +76,7 @@ agent Environment {
 				occurrence.obedienceRate,
 				occurrence.reactionTime,
 				occurrence.perceptionErrorRate,
-				occurrence.viewDistance,
-				occurrence.FOV
+				occurrence.viewDistance
 			);
 		}
 	}
@@ -115,21 +114,20 @@ agent Environment {
 		obedienceRate : double,
 		reactionTime : double,
 		perceptionErrorRate : double,
-		viewDistance : double,
-		FOV : double
+		viewDistance : double
 	) : void {
 		var nbAutonomous : int = (nbCars * autonomousProportions) as int
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			this.cars.add(UUID)
 			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
-				reactionTime, perceptionErrorRate, viewDistance, FOV)
+				reactionTime, perceptionErrorRate, viewDistance)
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			this.cars.add(UUID)
 			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
-				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
+				reactionTime, perceptionErrorRate, viewDistance, obedienceRate)
 		}
 	}
 
