@@ -71,6 +71,7 @@ agent Environment {
 	on StartSimulationEvent {
 		info("SIMULATION STARTED")
 		synchronized (this) {
+			this.roads.pickRandomIntersection()
 			this.frameDelayTask = task("frame_delay")
 			this.nbCars = occurrence.nbCars
 			this.addCars(
@@ -79,7 +80,7 @@ agent Environment {
 				occurrence.reactionTime,
 				occurrence.perceptionErrorRate,
 				occurrence.viewDistance
-			);
+			)
 		}
 	}
 
@@ -98,7 +99,6 @@ agent Environment {
 		synchronized (this) {
 			this.roads = new Graph(defaultContext)
 			this.roads.generateRandom()
-			this.roads.pickRandomIntersection()
 			this.UI.passGraph(this.roads)	
 		}
 	}

@@ -38,7 +38,7 @@ agent HumanCar extends Car {
 		// Event trigger before the agent begin to live or to be used.
 		// You should put all the initialization statements in this block of code.
 		synchronized (this) {
-			this.obedienceRate = occurrence.parameters.get(4) as Double
+			this.obedienceRate = occurrence.parameters.get(3) as Double
 		}
 		setSkill(new PerceptSkillHuman, PerceptCapacity)
 		info("New human car spawned.")

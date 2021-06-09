@@ -248,8 +248,8 @@ class SimView extends JPanel {
 		}
 	}
 	
-	def drawRoundabout(g : Graphics2D, intersection : Intersection) {
-		g.setColor(Color.white)
+	def drawRoundabout(g : Graphics2D, intersection : Intersection, color : Color) {
+		g.setColor(color)
 		for (i : 0 ..< intersection.nbOfLane + 1) {
 			if (i == 0 || i == intersection.nbOfLane) {
 				g.setStroke(this.defaultStroke)
@@ -309,7 +309,11 @@ class SimView extends JPanel {
 			)
 		}
         for (intersection : this.graph.getIntersections()) {
-			this.drawRoundabout(g, intersection)
+			this.drawRoundabout(
+				g,
+				intersection,
+				intersection === this.graph.intersectionToColor ? Color.pink: Color.black
+			)
         }
 		g.setStroke(new BasicStroke(2))
 		var renderedRoads : Set<Road> = new WeakHashSet<Road>()
