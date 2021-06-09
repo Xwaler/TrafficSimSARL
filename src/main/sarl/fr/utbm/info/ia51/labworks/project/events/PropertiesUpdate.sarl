@@ -6,25 +6,24 @@ event PropertiesUpdate extends Update {
 	var viewDistance : double
 	var FOV : double
 
-	new (reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
+	new (reactionTime : double, perceptionErrorRate : double, viewDistance : double) {
 		this.reactionTime = reactionTime
 		this.perceptionErrorRate = perceptionErrorRate
 		this.viewDistance = viewDistance
-		this.FOV = FOV
 	}
 }
 
 event AutonomousCarPropertiesUpdate extends PropertiesUpdate {
-	new (reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
-		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
+	new (reactionTime : double, perceptionErrorRate : double, viewDistance : double) {
+		super(reactionTime, perceptionErrorRate, viewDistance)
 	}
 }
 
 event HumanCarPropertiesUpdate extends PropertiesUpdate {
 	var obedienceRate : double
 	
-	new (obedienceRate : double, reactionTime : double, perceptionErrorRate : double, viewDistance : double, FOV : double) {
-		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
+	new (obedienceRate : double, reactionTime : double, perceptionErrorRate : double, viewDistance : double) {
+		super(reactionTime, perceptionErrorRate, viewDistance)
 		this.obedienceRate = obedienceRate
 	}
 }

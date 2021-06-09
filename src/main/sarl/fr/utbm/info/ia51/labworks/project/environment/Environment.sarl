@@ -37,6 +37,8 @@ import fr.utbm.info.ia51.labworks.project.road.Constants
 import java.util.Set
 import java.util.HashSet
 import java.util.Random
+import fr.utbm.info.ia51.labworks.project.road.Roundabout
+
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -52,6 +54,7 @@ agent Environment {
 
 	var nbCars : int
 	var cars : List<UUID> = new ArrayList<UUID>
+	var isCarHuman : List<Boolean> = new ArrayList<Boolean>
 	var intents : Map<UUID, Intent> = new WeakHashMap<UUID, Intent>
 	var physicsUpdates : Map<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
 	var carsProperties : Map<UUID, CarProperties> = new WeakHashMap<UUID, CarProperties>
@@ -79,8 +82,7 @@ agent Environment {
 				occurrence.obedienceRate,
 				occurrence.reactionTime,
 				occurrence.perceptionErrorRate,
-				occurrence.viewDistance,
-				occurrence.FOV
+				occurrence.viewDistance
 			);
 		}
 	}
@@ -100,6 +102,7 @@ agent Environment {
 		synchronized (this) {
 			this.roads = new Graph(defaultContext)
 			this.roads.generateRandom()
+			this.roads.pickRandomIntersection()
 			this.UI.passGraph(this.roads)	
 		}
 	}
@@ -118,21 +121,22 @@ agent Environment {
 		obedienceRate : double,
 		reactionTime : double,
 		perceptionErrorRate : double,
-		viewDistance : double,
-		FOV : double
+		viewDistance : double
 	) : void {
 		var nbAutonomous : int = (nbCars * autonomousProportions) as int
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			this.cars.add(UUID)
+			this.isCarHuman.add(false)
 			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
-				reactionTime, perceptionErrorRate, viewDistance, FOV)
+				reactionTime, perceptionErrorRate, viewDistance)
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			this.cars.add(UUID)
+			this.isCarHuman.add(true)
 			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
-				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
+				reactionTime, perceptionErrorRate, viewDistance, obedienceRate)
 		}
 	}
 
@@ -240,10 +244,12 @@ agent Environment {
 		
 		
 		this.carsProperties.clear()
-		for (car: this.cars) {
+		for (i : 0 ..< this.nbCars) {
+			var car : UUID = this.cars.get(i)
 			this.carsProperties.put(car, new CarProperties(
 				this.intents.get(car),
-				this.physicsUpdates.get(car)
+				this.physicsUpdates.get(car),
+				this.isCarHuman.get(i)
 			))
 		}
 		/* Send physics update to cars */
@@ -264,9 +270,11 @@ agent Environment {
 		this.tick++
 		if (this.tick % 120  == 0) {
 			for (intersection : this.roads.intersections) {
-				for (link : intersection.links) {
-					if (this.tick % 240 == 0 || intersection.getSignalisation(link) == Constants.FEU_ORANGE) {
-						intersection.incrementSignalisation(link)
+				if (!(intersection instanceof Roundabout)) {
+					for (link : intersection.links) {
+						if (this.tick % 240 == 0 || intersection.getSignalisation(link) == Constants.FEU_ORANGE) {
+							intersection.incrementSignalisation(link)
+						}
 					}
 				}
 			}

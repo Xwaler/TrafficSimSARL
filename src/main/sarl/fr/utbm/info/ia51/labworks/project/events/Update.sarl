@@ -96,8 +96,9 @@ class CarProperties {
 	public var lane : double
 	public var element : RoadElement
 	public var futureElement : RoadElement
+	public var isHuman : boolean
 	
-	new (intent : Intent, physicsUpdate: PhysicsUpdate) {
+	new (intent : Intent, physicsUpdate: PhysicsUpdate, isHuman : boolean) {
 		this.position = intent.currentPosition
 		this.futurePosition = physicsUpdate.newPosition
 		this.speed = intent.currentSpeed
@@ -106,5 +107,6 @@ class CarProperties {
 		this.lane = intent.currentLane
 		this.element = intent.currentElement
 		this.futureElement = physicsUpdate.newElement
+		this.isHuman = isHuman
 	}
 }

@@ -13,10 +13,9 @@ event StartSimulationEvent extends PropertiesUpdate {
 		obedienceRate : double,
 		reactionTime : double,
 		perceptionErrorRate : double,
-		viewDistance : double,
-		FOV : double
+		viewDistance : double
 	) {
-		super(reactionTime, perceptionErrorRate, viewDistance, FOV)
+		super(reactionTime, perceptionErrorRate, viewDistance)
 		this.nbCars = nbCars
 		this.autonomousProportions = autonomousProportions
 		this.obedienceRate = obedienceRate
