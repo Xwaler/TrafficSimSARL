@@ -34,6 +34,9 @@ import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
 import fr.utbm.info.ia51.labworks.project.events.Statistics
 import fr.utbm.info.ia51.labworks.project.road.Constants
+import java.util.Set
+import java.util.HashSet
+import java.util.Random
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -153,6 +156,8 @@ agent Environment {
 	}
 
 	synchronized def resolveConflictsAndComputeNewProperties() : void {
+
+		
 		// TODO: actually resolve conflicts
 		this.physicsUpdates.clear()
 		for (pair : this.intents.entrySet()) {
@@ -194,6 +199,46 @@ agent Environment {
 			}
 			this.physicsUpdates.put(carUUID, update)
 		}
+		
+		/* conflict resolution
+		 */
+		/**/var random : Random = new Random();
+		var visitedRoads : Set<Road> = new HashSet()
+		for (intersection : roads.getIntersections()) {
+			for (link : intersection.getLinks()) {
+				visitedRoads.add(link)
+			}
+			
+			var UUIDList : List<UUID> = new ArrayList(intersection.cars)
+			var UUIDListMinusOne : List<UUID> = new ArrayList(intersection.cars)
+
+			for (UUID : UUIDList) {
+				UUIDListMinusOne.remove(UUID)
+				for (neighbourgUUID : UUIDListMinusOne) {
+					if (UUID != neighbourgUUID) {
+						var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
+						var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
+						var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * intersection.length * this.roads.realSize
+						if (distance < 0.01 || distance > 0.01 && physicUpdate.newLane == neighbourgPhysicUpdate.newLane) {
+							if (physicUpdate.newPosition < neighbourgPhysicUpdate.newPosition) {
+								physicUpdate.newSpeed = physicUpdate.newSpeed / 2
+								neighbourgPhysicUpdate.newPosition = neighbourgPhysicUpdate.newPosition +
+									0.75 * physicUpdate.newSpeed
+							}
+							if (random.nextDouble < 0.3) {
+								physicUpdate.newLane = (physicUpdate.newLane > 0 ? physicUpdate.newLane -
+									1
+									: physicUpdate.newLane)
+								neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
+							}
+							//TODO emit accident
+						}
+					}
+				}
+			}
+		}/**/
+		
+		
 		this.carsProperties.clear()
 		for (car: this.cars) {
 			this.carsProperties.put(car, new CarProperties(

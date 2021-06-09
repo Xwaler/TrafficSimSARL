@@ -3,7 +3,7 @@ package fr.utbm.info.ia51.labworks.project.events
 import io.sarl.lang.core.Event
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
 
-event Intent extends Event {
+event Intent extends Event{
 	var intendedAcceleration : double
 	var intendedLane : double
 	var intendedIntersectionLane : double
