@@ -96,6 +96,7 @@ agent Environment {
 		synchronized (this) {
 			this.roads = new Graph(defaultContext)
 			this.roads.generateRandom()
+			this.roads.pickRandomIntersection()
 			this.UI.passGraph(this.roads)	
 		}
 	}

@@ -24,6 +24,7 @@ class Graph {
 	var generator : Random = new Random()
 	var entryPoints : List<EntryPoint> = new ArrayList<EntryPoint>()
 	var intersections : List<Intersection> = new ArrayList<Intersection>()
+	var intersectionToColor : Intersection
 
 	new (context : AgentContext) {
 		this.context = context
@@ -316,6 +317,11 @@ class Graph {
 		for (i : 0 ..< intersections.size()) {
 			System.out.println("Intersection " + (i + this.entryPoints.size()) + " : " + intersections.get(i))
 		}
+	}
+	
+	def pickRandomIntersection() : Intersection{
+		var rdm = generator.nextInt(this.intersections.size())
+		this.intersectionToColor = this.intersections.get(rdm)
 	}
 	
 	def clearCars() : void {
