@@ -34,6 +34,7 @@ import fr.utbm.info.ia51.labworks.project.events.RequestNewObjective
 import fr.utbm.info.ia51.labworks.project.events.NewObjective
 import fr.utbm.info.ia51.labworks.project.events.Statistics
 import fr.utbm.info.ia51.labworks.project.road.Constants
+import fr.utbm.info.ia51.labworks.project.road.Roundabout
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -49,6 +50,7 @@ agent Environment {
 
 	var nbCars : int
 	var cars : List<UUID> = new ArrayList<UUID>
+	var isCarHuman : List<Boolean> = new ArrayList<Boolean>
 	var intents : Map<UUID, Intent> = new WeakHashMap<UUID, Intent>
 	var physicsUpdates : Map<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
 	var carsProperties : Map<UUID, CarProperties> = new WeakHashMap<UUID, CarProperties>
@@ -122,12 +124,14 @@ agent Environment {
 		for (i : 0 ..< nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			this.cars.add(UUID)
+			this.isCarHuman.add(false)
 			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
 				reactionTime, perceptionErrorRate, viewDistance, FOV)
 		}
 		for (i : 0 ..< nbCars - nbAutonomous) {
 			var UUID = UUID::randomUUID()
 			this.cars.add(UUID)
+			this.isCarHuman.add(true)
 			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
 				reactionTime, perceptionErrorRate, viewDistance, FOV, obedienceRate)
 		}
@@ -195,10 +199,12 @@ agent Environment {
 			this.physicsUpdates.put(carUUID, update)
 		}
 		this.carsProperties.clear()
-		for (car: this.cars) {
+		for (i : 0 ..< this.nbCars) {
+			var car : UUID = this.cars.get(i)
 			this.carsProperties.put(car, new CarProperties(
 				this.intents.get(car),
-				this.physicsUpdates.get(car)
+				this.physicsUpdates.get(car),
+				this.isCarHuman.get(i)
 			))
 		}
 		/* Send physics update to cars */
@@ -219,9 +225,11 @@ agent Environment {
 		this.tick++
 		if (this.tick % 120  == 0) {
 			for (intersection : this.roads.intersections) {
-				for (link : intersection.links) {
-					if (this.tick % 240 == 0 || intersection.getSignalisation(link) == Constants.FEU_ORANGE) {
-						intersection.incrementSignalisation(link)
+				if (!(intersection instanceof Roundabout)) {
+					for (link : intersection.links) {
+						if (this.tick % 240 == 0 || intersection.getSignalisation(link) == Constants.FEU_ORANGE) {
+							intersection.incrementSignalisation(link)
+						}
 					}
 				}
 			}
