@@ -30,8 +30,8 @@ behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
 		var newAcceleration : double = 0
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
-		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(
+		if (occurrence.surroundingCars.size() > 0) {
+			carInFront = occurrence.surroundingCars.findFirst(
 			car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
@@ -57,7 +57,7 @@ behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
 				}
 			} else {
 				var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-				for (car : occurrence.perception.surroundingCars) {
+				for (car : occurrence.surroundingCars) {
 					if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
 						((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 						carsInAdjascentLanes.add(car)
@@ -119,8 +119,8 @@ behavior TwoWayRoadAutonomousBehavior extends RoadBehavior {
 		var newAcceleration : double = 0
 		var newLane : double = Math.round(occurrence.lane)
 		var carInFront : PerceptCar = null
-		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(
+		if (occurrence.surroundingCars.size() > 0) {
+			carInFront = occurrence.surroundingCars.findFirst(
 			car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
@@ -148,7 +148,7 @@ behavior TwoWayRoadAutonomousBehavior extends RoadBehavior {
 				}
 			} else {
 				var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-				for (car : occurrence.perception.surroundingCars) {
+				for (car : occurrence.surroundingCars) {
 					if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
 						((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 						carsInAdjascentLanes.add(car)

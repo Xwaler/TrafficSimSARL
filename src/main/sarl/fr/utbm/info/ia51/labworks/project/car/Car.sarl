@@ -34,6 +34,7 @@ import fr.utbm.info.ia51.labworks.project.road.Constants
 import fr.utbm.info.ia51.labworks.project.behaviors.RoadAccidentBehavior
 import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionAccidentBehavior
 import fr.utbm.info.ia51.labworks.project.road.EntryPoint
+import fr.utbm.info.ia51.labworks.project.events.PerceptCar
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, PerceptCapacity, DefaultContextInteractions
@@ -54,6 +55,7 @@ agent Car {
 	protected var perceptionErrorRate : double
 	protected var viewDistance : double
 	protected var carBehavior : Behavior
+	protected var surroundingCars : List<PerceptCar>
 	protected var accidented : boolean
 	var generator : Random = new Random()
 	
@@ -192,7 +194,11 @@ agent Car {
 			if (this.direction == -1 || this.carBehavior === null) {
 				emit(occurrence) [ it.UUID == this.ID ]
 			} else {
-				percept(occurrence.surroundingCars, this.viewDistance, this.perceptionErrorRate)
+				this.surroundingCars = percept(
+					occurrence.surroundingCars, 
+					this.viewDistance,
+					this.perceptionErrorRate
+				)
 				var nextIntersectionDirection : Integer = null
 				if (this.currentElement instanceof Road) {
 					var nextIntersection : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
@@ -208,7 +214,7 @@ agent Car {
 					}
 				}
 				wake(new BehaviorStep(
-					occurrence,
+					this.surroundingCars,
 					this.acceleration,
 					this.lane,
 					this.positionInRoad,

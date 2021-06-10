@@ -16,7 +16,7 @@ abstract class Intersection extends RoadElement {
 	public var y : double
 	public var radius : double
 	public var nbLanes : int
-	public var counter : int = 0
+	public var counter : double = 0
 	
 	new (context : AgentContext, links : List<Road>) {
 		super(context)

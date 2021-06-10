@@ -11,5 +11,5 @@ capacity AccelerateCapacity {
 }
 
 capacity PerceptCapacity {
-	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void
+	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : List<PerceptCar>
 }

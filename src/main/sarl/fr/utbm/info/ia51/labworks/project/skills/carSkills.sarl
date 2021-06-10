@@ -7,11 +7,11 @@ import java.util.Random
 import fr.utbm.info.ia51.labworks.project.road.Constants
 
 skill PerceptSkillHuman implements PerceptCapacity {
-	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
+	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : List<PerceptCar> {
 		var perceptCars : ArrayList<PerceptCar> = new ArrayList();
 		var random : Random = new Random();
 		for (car : surrounding) {
-			if (car.distance < viewDistance) {
+			if (car.distance < viewDistance * Constants.WORLD_SIZE_SCALLER) {
 				if (random.nextDouble >
 					((car.distance / (Constants.WORLD_SIZE_SCALLER * viewDistance)) + 1) ** 2 * perceptionErrorRate) {
 					perceptCars.add(car)
@@ -19,15 +19,16 @@ skill PerceptSkillHuman implements PerceptCapacity {
 			}
 		}
 		perceptCars.sort()
+		return perceptCars
 	}
 }
 
 skill PerceptSkillAutonomous implements PerceptCapacity {
-	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : void {
+	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : List<PerceptCar> {
 		var perceptCars : ArrayList<PerceptCar> = new ArrayList();
 		var random : Random = new Random();
 		for (car : surrounding){
-			if(car.distance < viewDistance){
+			if (car.distance < viewDistance * Constants.WORLD_SIZE_SCALLER) {
 				if (random.nextDouble >
 					((car.distance / (Constants.WORLD_SIZE_SCALLER * viewDistance)) + 1) ** 2 * perceptionErrorRate) {
 					perceptCars.add(car)
@@ -35,23 +36,24 @@ skill PerceptSkillAutonomous implements PerceptCapacity {
 			}
 		}
 		perceptCars.sort()
+		return perceptCars
 	}
 }
 
 skill AccelerateSkill implements AccelerateCapacity {
-	override accelerateDistance(distanceToReach : double, myDistance : int) : double {
-		return (distanceToReach - myDistance) / (60 * 60)
+	override accelerateDistance(frontDistance : double, distanceToReach : int) : double {
+		return (frontDistance - distanceToReach) / 60
 	}
 
 	override accelerate(speed : int, mySpeed : double) : double {
-		return (speed - mySpeed) / (60*3.6)
+		return (speed - mySpeed) / (60 * 3.6)
 	}
 
-	override decelerateDistance(distance : double, myDistance : int) : double {
-		return Constants.WORLD_SIZE_SCALLER * (distance - myDistance) / (60 * 60)
+	override decelerateDistance(frontDistance : double, distanceToReach : int) : double {
+		return Constants.WORLD_SIZE_SCALLER * (frontDistance - distanceToReach) / 60
 	}
-
+	
 	override decelerate(speed : int, mySpeed : double) : double {
-		return Constants.WORLD_SIZE_SCALLER * (speed - mySpeed) / (60*3.6)
+		return Constants.WORLD_SIZE_SCALLER * (speed - mySpeed) / (60 * 3.6)
 	}
 }

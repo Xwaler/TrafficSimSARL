@@ -2,13 +2,14 @@ package fr.utbm.info.ia51.labworks.project.events
 
 import io.sarl.lang.core.Event
 import fr.utbm.info.ia51.labworks.project.road.RoadElement
+import java.util.List
 
 event BehaviorInitialize extends Event {
 	
 }
 
 event BehaviorStep extends Event {
-	var perception : PerceptionUpdate
+	var surroundingCars : List<PerceptCar>
 	var acceleration : double
 	var lane : double
 	var position : double
@@ -20,7 +21,7 @@ event BehaviorStep extends Event {
 	var reactionTime : double
 
 	new (
-		perception : PerceptionUpdate,
+		surroundingCars : List<PerceptCar>,
 		acceleration : double,
 		lane : double,
 		position : double,
@@ -31,7 +32,7 @@ event BehaviorStep extends Event {
 		obedienceRate : double,
 		reactionTime : double
 	) {
-		this.perception = perception
+		this.surroundingCars = surroundingCars
 		this.acceleration = acceleration
 		this.lane = lane
 		this.position = position

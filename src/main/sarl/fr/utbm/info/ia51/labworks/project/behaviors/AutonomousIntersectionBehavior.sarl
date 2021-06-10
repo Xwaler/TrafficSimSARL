@@ -30,7 +30,7 @@ behavior EntryPointAutonomousBehavior extends IntersectionBehavior {
 
 	on BehaviorStep {
 		emit(new Intent(
-			occurrence.speed < 50 && new Random().nextBoolean ? 1 : 0,
+			occurrence.speed < 20 && new Random().nextBoolean ? 1 : 0,
 			occurrence.lane,
 			0,
 			occurrence.position,
@@ -60,8 +60,8 @@ behavior CrossIntersectionAutonomousBehavior extends IntersectionBehavior {
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
-		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(
+		if (occurrence.surroundingCars.size() > 0) {
+			carInFront = occurrence.surroundingCars.findFirst(
 			car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
@@ -76,7 +76,7 @@ behavior CrossIntersectionAutonomousBehavior extends IntersectionBehavior {
 			var nbOfIntersetionLane = incomingNode.getNbOfLane()
 			var carInIntersection = new ArrayList<PerceptCar>()
 			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-			for (car : occurrence.perception.surroundingCars) {
+			for (car : occurrence.surroundingCars) {
 				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
 					((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 					carsInAdjascentLanes.add(car)
@@ -147,7 +147,7 @@ behavior CrossIntersectionAutonomousBehavior extends IntersectionBehavior {
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ORANGE ||
 					incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
 
-						for (car : occurrence.perception.surroundingCars) {
+						for (car : occurrence.surroundingCars) {
 							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
 								carInIntersection.add(car)
 							}
@@ -223,8 +223,8 @@ behavior IntersectionTAutonomousBehavior extends IntersectionBehavior {
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
-		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(
+		if (occurrence.surroundingCars.size() > 0) {
+			carInFront = occurrence.surroundingCars.findFirst(
 			car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
@@ -240,7 +240,7 @@ behavior IntersectionTAutonomousBehavior extends IntersectionBehavior {
 			var nbOfIntersetionLane = incomingNode.getNbOfLane()
 			var carInIntersection = new ArrayList<PerceptCar>()
 			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-			for (car : occurrence.perception.surroundingCars) {
+			for (car : occurrence.surroundingCars) {
 				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
 					((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 					carsInAdjascentLanes.add(car)
@@ -311,7 +311,7 @@ behavior IntersectionTAutonomousBehavior extends IntersectionBehavior {
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_ORANGE ||
 					incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER) {
 
-						for (car : occurrence.perception.surroundingCars) {
+						for (car : occurrence.surroundingCars) {
 							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
 								carInIntersection.add(car)
 							}
@@ -413,8 +413,8 @@ behavior RoundaboutAutonomousBehavior extends IntersectionBehavior {
 		var carInFront : PerceptCar = null
 		var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
-		if (occurrence.perception.surroundingCars.size() > 0) {
-			carInFront = occurrence.perception.surroundingCars.findFirst(
+		if (occurrence.surroundingCars.size() > 0) {
+			carInFront = occurrence.surroundingCars.findFirst(
 			car |
 				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
@@ -429,7 +429,7 @@ behavior RoundaboutAutonomousBehavior extends IntersectionBehavior {
 			var nbOfIntersetionLane = incomingNode.getNbOfLane()
 			var carInIntersection = new ArrayList<PerceptCar>()
 			var carsInAdjascentLanes = new ArrayList<PerceptCar>()
-			for (car : occurrence.perception.surroundingCars) {
+			for (car : occurrence.surroundingCars) {
 				if (car.currentElement == occurrence.element && car.direction == occurrence.direction &&
 					((car.lane - occurrence.lane) < 1.5) && ((car.lane - occurrence.lane) >= 0.5)) {
 					carsInAdjascentLanes.add(car)
@@ -495,7 +495,7 @@ behavior RoundaboutAutonomousBehavior extends IntersectionBehavior {
 				if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.CEDER ||
 					incomingNode.getSignalisation(occurrence.element as Road) != Constants.FEU_ROUGE) {
 
-						for (car : occurrence.perception.surroundingCars) {
+						for (car : occurrence.surroundingCars) {
 							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
 								carInIntersection.add(car)
 							}

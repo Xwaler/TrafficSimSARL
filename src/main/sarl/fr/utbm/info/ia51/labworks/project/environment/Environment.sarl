@@ -176,7 +176,7 @@ agent Environment {
 			if (intent.currentElement instanceof Road) {
 				if (update.newPosition >= 1.0) {
 					update.newElement = intent.direction == 0 ? 
-						(intent.currentElement as Road).getPrimaryNode() : 
+						(intent.currentElement as Road).getPrimaryNode(): 
 						(intent.currentElement as Road).getSecondaryNode()
 					update.newPosition = (update.newElement as Intersection).linkThreshold.get(
 						(update.newElement as Intersection).links.indexOf(intent.currentElement)
@@ -254,8 +254,8 @@ agent Environment {
 						neighbourgPhysicUpdate.newAcceleration = 0
 						neighbourgPhysicUpdate.colliding = true
 						if (random.nextDouble < 0.3) {
-							physicUpdate.newLane = physicUpdate.newLane > 0
-								? physicUpdate.newLane -1
+							physicUpdate.newLane = physicUpdate.newLane >= 1
+								? physicUpdate.newLane - 1
 								: physicUpdate.newLane
 							neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
 						}
@@ -264,9 +264,6 @@ agent Environment {
 			}
 		}
 		for (road : visitedRoads) {
-			var UUIDList : List<UUID> = new ArrayList(road.cars)
-			var UUIDListMinusOne : List<UUID> = new ArrayList(road.cars)
-
 			for (i : 0 ..< road.cars.size()) {
 				var UUID = road.cars.get(i)
 				for (j : i + 1 ..< road.cars.size()) {
@@ -284,7 +281,7 @@ agent Environment {
 							neighbourgPhysicUpdate.newAcceleration = 0
 							neighbourgPhysicUpdate.colliding = true
 							if (random.nextDouble < 0.3) {
-								physicUpdate.newLane = physicUpdate.newLane > 0
+								physicUpdate.newLane = physicUpdate.newLane >= 1
 									? physicUpdate.newLane - 1
 									: physicUpdate.newLane
 								neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
