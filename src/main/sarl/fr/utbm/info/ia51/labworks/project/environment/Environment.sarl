@@ -46,8 +46,6 @@ agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
 	
 	var UI : MainFrame
-	var mesureFlux : double
-	var tauxAccident : double
 	var numberOfAccidents : double
 	var tempsTrajetHuman : List<Double>
 	var tempsTrajetAutonomous : List<Double>
@@ -515,7 +513,7 @@ agent Environment {
 				this.tempsTrajetAutonomous.add(occurrence.travelTime / 60)
 			}
 			this.UI.sendData(
-				0.0,
+				this.roads.intersectionToColor.counter / (tick / 60),
 				this.numberOfAccidents /
 					(this.numberOfAccidents + this.tempsTrajetHuman.size() + this.tempsTrajetAutonomous.size()) as double,
 				this.tempsTrajetHuman.stream().mapToDouble(d|d).average().orElse(0.0),
