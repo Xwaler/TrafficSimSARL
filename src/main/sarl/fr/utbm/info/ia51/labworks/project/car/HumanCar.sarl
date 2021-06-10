@@ -30,6 +30,7 @@ import fr.utbm.info.ia51.labworks.project.road.CrossIntersection
 import fr.utbm.info.ia51.labworks.project.road.IntersectionT
 import fr.utbm.info.ia51.labworks.project.road.IntersectionY
 import io.sarl.core.Behaviors
+import fr.utbm.info.ia51.labworks.project.behaviors.RoadAccidentBehavior
 
 agent HumanCar extends Car {
 	uses Logging, Behaviors
@@ -50,24 +51,26 @@ agent HumanCar extends Car {
 	}
 
 	on PhysicsUpdate {
-		if (this.currentElement instanceof Road && this.positionInRoad > 0.70 &&
-			this.carBehavior instanceof RoadBehavior) {
-			unregisterBehavior(this.carBehavior)
-			var intersectionComing : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
-			switch (intersectionComing.class) {
-				case Roundabout: {
-					this.registerNewBehavior(new RoundaboutHumanBehavior(this))
+		synchronized (this) {
+			if (!occurrence.colliding && this.currentElement instanceof Road && this.positionInRoad > 0.70 && 
+				(this.carBehavior instanceof RoadBehavior && !(this.carBehavior instanceof RoadAccidentBehavior))
+			) {
+				var intersectionComing : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
+				switch (intersectionComing.class) {
+					case Roundabout: {
+						this.registerNewBehavior(new RoundaboutHumanBehavior(this))
+					}
+					case CrossIntersection: {
+						this.registerNewBehavior(new CrossIntersectionHumanBehavior(this))
+					}
+					case IntersectionT: {
+						this.registerNewBehavior(new IntersectionTHumanBehavior(this))
+					}
+					case IntersectionY: {
+						this.registerNewBehavior(new IntersectionYHumanBehavior(this))
+					}
 				}
-				case CrossIntersection: {
-					this.registerNewBehavior(new CrossIntersectionHumanBehavior(this))
-				}
-				case IntersectionT: {
-					this.registerNewBehavior(new IntersectionTHumanBehavior(this))
-				}
-				case IntersectionY: {
-					this.registerNewBehavior(new IntersectionYHumanBehavior(this))
-				}
-			}
+			}	
 		}
 	}
 

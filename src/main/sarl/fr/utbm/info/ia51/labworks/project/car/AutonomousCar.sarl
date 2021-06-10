@@ -30,6 +30,7 @@ import fr.utbm.info.ia51.labworks.project.road.IntersectionT
 import fr.utbm.info.ia51.labworks.project.road.IntersectionY
 import fr.utbm.info.ia51.labworks.project.events.PhysicsUpdate
 import io.sarl.core.Behaviors
+import fr.utbm.info.ia51.labworks.project.behaviors.RoadAccidentBehavior
 
 agent AutonomousCar extends Car{
 	uses Logging, Behaviors
@@ -46,24 +47,26 @@ agent AutonomousCar extends Car{
 	}
 	
 	on PhysicsUpdate {
-		if (this.currentElement instanceof Road && this.positionInRoad > 0.70 &&
-			this.carBehavior instanceof RoadBehavior) {
-			unregisterBehavior(this.carBehavior)
-			var intersectionComing : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
-			switch (intersectionComing.class) {
-				case Roundabout: {
-					this.registerNewBehavior(new RoundaboutAutonomousBehavior(this))
+		synchronized (this) {
+			if (!occurrence.colliding && this.currentElement instanceof Road && this.positionInRoad > 0.70 && 
+				(this.carBehavior instanceof RoadBehavior && !(this.carBehavior instanceof RoadAccidentBehavior))
+			) {
+				var intersectionComing : Intersection = (this.currentElement as Road).getIncomingNode(this.direction)
+				switch (intersectionComing.class) {
+					case Roundabout: {
+						this.registerNewBehavior(new RoundaboutAutonomousBehavior(this))
+					}
+					case CrossIntersection: {
+						this.registerNewBehavior(new CrossIntersectionAutonomousBehavior(this))
+					}
+					case IntersectionT: {
+						this.registerNewBehavior(new IntersectionTAutonomousBehavior(this))
+					}
+					case IntersectionY: {
+						this.registerNewBehavior(new IntersectionYAutonomousBehavior(this))
+					}
 				}
-				case CrossIntersection: {
-					this.registerNewBehavior(new CrossIntersectionAutonomousBehavior(this))
-				}
-				case IntersectionT: {
-					this.registerNewBehavior(new IntersectionTAutonomousBehavior(this))
-				}
-				case IntersectionY: {
-					this.registerNewBehavior(new IntersectionYAutonomousBehavior(this))
-				}
-			}
+			}	
 		}
 	}
 
@@ -83,7 +86,6 @@ agent AutonomousCar extends Car{
 	on EnterEntryPoint {
 		info("Entered " + occurrence.road)
 		this.registerNewBehavior(new EntryPointAutonomousBehavior(this))
-		
 	}
 
 	@SuppressWarnings("discouraged_occurrence_readonly_use")

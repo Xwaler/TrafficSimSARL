@@ -38,7 +38,9 @@ import java.util.Set
 import java.util.HashSet
 import java.util.Random
 import fr.utbm.info.ia51.labworks.project.road.Roundabout
-
+import fr.utbm.info.ia51.labworks.project.road.EntryPoint
+import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
+import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 
 agent Environment {
 	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
@@ -46,6 +48,7 @@ agent Environment {
 	var UI : MainFrame
 	var mesureFlux : double
 	var tauxAccident : double
+	var numberOfAccidents : double
 	var tempsTrajetHuman : List<Double>
 	var tempsTrajetAutonomous : List<Double>
 	var roads : Graph
@@ -61,8 +64,6 @@ agent Environment {
 	
 	on Initialize {
 		synchronized (this) {
-			this.tempsTrajetHuman = new ArrayList<Double>
-			this.tempsTrajetAutonomous = new ArrayList<Double>
 			this.roads = new Graph(defaultContext)
 			this.roads.generateRandom()
 			this.UI = occurrence.parameters.get(0) as MainFrame
@@ -75,6 +76,9 @@ agent Environment {
 	on StartSimulationEvent {
 		info("SIMULATION STARTED")
 		synchronized (this) {
+			this.tempsTrajetHuman = new ArrayList<Double>
+			this.tempsTrajetAutonomous = new ArrayList<Double>
+			this.numberOfAccidents = 0.0
 			this.roads.pickRandomIntersection()
 			this.frameDelayTask = task("frame_delay")
 			this.nbCars = occurrence.nbCars
@@ -160,9 +164,6 @@ agent Environment {
 	}
 
 	synchronized def resolveConflictsAndComputeNewProperties() : void {
-
-		
-		// TODO: actually resolve conflicts
 		this.physicsUpdates.clear()
 		for (pair : this.intents.entrySet()) {
 			var update : PhysicsUpdate = new PhysicsUpdate()
@@ -171,8 +172,9 @@ agent Environment {
 			update.newAcceleration = intent.intendedAcceleration
 			update.newSpeed = intent.currentSpeed + update.newAcceleration
 			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
-			update.newLane = Math.max(0, intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 20))
+			update.newLane = intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 20)
 			update.newElement = intent.currentElement
+			update.colliding = false
 			if (intent.currentElement instanceof Road) {
 				if (update.newPosition >= 1.0) {
 					update.newElement = intent.direction == 0 ? 
@@ -182,21 +184,45 @@ agent Environment {
 						(update.newElement as Intersection).links.indexOf(intent.currentElement)
 					)
 					update.newLane = intent.intendedIntersectionLane
+				} else {
+					var targetLane : int = (intent.currentElement instanceof OneWayRoad)
+							? (intent.currentElement as OneWayRoad).nbOfLane: intent.direction == 0
+							? (intent.currentElement as TwoWayRoad).nbOfLanePrimary
+							: (intent.currentElement as TwoWayRoad).nbOfLaneSecondary
+					if (update.newLane > targetLane + 1) {
+						this.numberOfAccidents++
+						update.newPosition = 0
+						update.newLane = 0
+						update.newElement = this.roads.entryPoints.get(
+							this.roads.generator.nextInt(this.roads.entryPoints.size())
+						)
+					}
 				}
 			}
 			else if (intent.currentElement instanceof Intersection) {
-				var intersectionThreshold : double = (intent.currentElement as Intersection).linkThreshold.get(intent.direction)
-				if (intent.currentPosition < intersectionThreshold && update.newPosition >= intersectionThreshold) {
-					update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
+				if (update.newLane < -3) {
+					this.numberOfAccidents++
 					update.newPosition = 0
-					update.newLane = intent.intendedLane
+					update.newLane = 0
+					update.newElement = this.roads.entryPoints.get(
+						this.roads.generator.nextInt(this.roads.entryPoints.size())
+					)
 				} else {
-					if (update.newPosition > 1.0) {
-						update.newPosition -= 1.0
-						if (update.newPosition >= intersectionThreshold) {
-							update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
-							update.newPosition = 0
-							update.newLane = intent.intendedLane
+					var intersectionThreshold : double = (intent.currentElement as Intersection).linkThreshold.get(
+						intent.direction)
+					if (intent.currentPosition < intersectionThreshold && update.newPosition >= intersectionThreshold) {
+						update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
+						update.newPosition = 0
+						update.newLane = intent.intendedLane
+					} else {
+						if (update.newPosition > 1.0) {
+							update.newPosition -= 1.0
+							if (update.newPosition >= intersectionThreshold) {
+								update.newElement = (intent.currentElement as Intersection).getLinks().get(
+									intent.direction)
+								update.newPosition = 0
+								update.newLane = intent.intendedLane
+							}
 						}
 					}
 				}
@@ -213,35 +239,63 @@ agent Environment {
 				visitedRoads.add(link)
 			}
 			
-			var UUIDList : List<UUID> = new ArrayList(intersection.cars)
-			var UUIDListMinusOne : List<UUID> = new ArrayList(intersection.cars)
-
-			for (UUID : UUIDList) {
-				UUIDListMinusOne.remove(UUID)
-				for (neighbourgUUID : UUIDListMinusOne) {
-					if (UUID != neighbourgUUID) {
-						var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
-						var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
-						var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * intersection.length * this.roads.realSize
-						if (distance < 0.01 || distance > 0.01 && physicUpdate.newLane == neighbourgPhysicUpdate.newLane) {
-							if (physicUpdate.newPosition < neighbourgPhysicUpdate.newPosition) {
-								physicUpdate.newSpeed = physicUpdate.newSpeed / 2
-								neighbourgPhysicUpdate.newPosition = neighbourgPhysicUpdate.newPosition +
-									0.75 * physicUpdate.newSpeed
-							}
-							if (random.nextDouble < 0.3) {
-								physicUpdate.newLane = (physicUpdate.newLane > 0 ? physicUpdate.newLane -
-									1
-									: physicUpdate.newLane)
-								neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
-							}
-							//TODO emit accident
+			for (i : 0 ..< intersection.cars.size()) {
+				var UUID = intersection.cars.get(i)
+				for (j : i + 1 ..< intersection.cars.size()) {
+					var neighbourgUUID = intersection.cars.get(j)
+					var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
+					var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
+					if (physicUpdate.newElement instanceof EntryPoint ||
+						neighbourgPhysicUpdate.newElement instanceof EntryPoint) continue
+					var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * intersection.length
+					if (Math.abs(distance) < 0.002 && Math.abs(physicUpdate.newLane - neighbourgPhysicUpdate.newLane) < 0.5) {
+						physicUpdate.newSpeed = 0
+						physicUpdate.newAcceleration = 0
+						physicUpdate.colliding = true
+						neighbourgPhysicUpdate.newSpeed = 0
+						neighbourgPhysicUpdate.newAcceleration = 0
+						neighbourgPhysicUpdate.colliding = true
+						if (random.nextDouble < 0.3) {
+							physicUpdate.newLane = physicUpdate.newLane > 0
+								? physicUpdate.newLane -1
+								: physicUpdate.newLane
+							neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
 						}
 					}
 				}
 			}
-		}/**/
-		
+		}
+		for (road : visitedRoads) {
+			var UUIDList : List<UUID> = new ArrayList(road.cars)
+			var UUIDListMinusOne : List<UUID> = new ArrayList(road.cars)
+
+			for (i : 0 ..< road.cars.size()) {
+				var UUID = road.cars.get(i)
+				for (j : i + 1 ..< road.cars.size()) {
+					var neighbourgUUID = road.cars.get(j)
+					if (this.intents.get(UUID).direction == this.intents.get(neighbourgUUID).direction) {
+						var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
+						var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
+						var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * road.length
+						if (Math.abs(distance) < 0.002 &&
+							Math.abs(physicUpdate.newLane - neighbourgPhysicUpdate.newLane) < 0.5) {
+							physicUpdate.newSpeed = 0
+							physicUpdate.newAcceleration = 0
+							physicUpdate.colliding = true
+							neighbourgPhysicUpdate.newSpeed = 0
+							neighbourgPhysicUpdate.newAcceleration = 0
+							neighbourgPhysicUpdate.colliding = true
+							if (random.nextDouble < 0.3) {
+								physicUpdate.newLane = physicUpdate.newLane > 0
+									? physicUpdate.newLane - 1
+									: physicUpdate.newLane
+								neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
+							}
+						}
+					}
+				}
+			}
+		}
 		
 		this.carsProperties.clear()
 		for (i : 0 ..< this.nbCars) {
@@ -462,7 +516,8 @@ agent Environment {
 			}
 			this.UI.sendData(
 				0.0,
-				0.0,
+				this.numberOfAccidents /
+					(this.numberOfAccidents + this.tempsTrajetHuman.size() + this.tempsTrajetAutonomous.size()) as double,
 				this.tempsTrajetHuman.stream().mapToDouble(d|d).average().orElse(0.0),
 				this.tempsTrajetAutonomous.stream().mapToDouble(d|d).average().orElse(0.0)
 			)

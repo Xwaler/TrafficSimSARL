@@ -21,7 +21,7 @@ class Graph {
 	public var realSize : int = Constants.WORLD_SIZE_SCALLER * 1000
 
 	var context : AgentContext
-	var generator : Random = new Random()
+	public var generator : Random = new Random()
 	var entryPoints : List<EntryPoint> = new ArrayList<EntryPoint>()
 	var intersections : List<Intersection> = new ArrayList<Intersection>()
 	public var intersectionToColor : Intersection
@@ -406,5 +406,9 @@ class Graph {
 			}
 		}
 		return intersecting.size() > Math.floor(iter / 10000) ? intersecting.get(generator.nextInt(intersecting.size())) : null
+	}
+	
+	def resetRoadElements() {
+		
 	}
 }

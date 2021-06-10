@@ -31,6 +31,9 @@ import fr.utbm.info.ia51.labworks.project.skills.PerceptCapacity
 import java.util.Random
 import fr.utbm.info.ia51.labworks.project.events.Statistics
 import fr.utbm.info.ia51.labworks.project.road.Constants
+import fr.utbm.info.ia51.labworks.project.behaviors.RoadAccidentBehavior
+import fr.utbm.info.ia51.labworks.project.behaviors.IntersectionAccidentBehavior
+import fr.utbm.info.ia51.labworks.project.road.EntryPoint
 
 agent Car {
 	uses Lifecycle, Logging, Behaviors, PerceptCapacity, DefaultContextInteractions
@@ -51,6 +54,7 @@ agent Car {
 	protected var perceptionErrorRate : double
 	protected var viewDistance : double
 	protected var carBehavior : Behavior
+	protected var accidented : boolean
 	var generator : Random = new Random()
 	
 	on Initialize {
@@ -64,9 +68,9 @@ agent Car {
 	@SuppressWarnings("discouraged_occurrence_readonly_use")
 	on EnterEntryPoint {
 		synchronized (this) {
+			var isNew : boolean = this.currentElement === null
 			this.currentElement = occurrence.road
 			this.startPoint = occurrence.road
-			this.direction = 0
 			this.travelTime = 0
 			if (!this.pathFinding(occurrence.destination)) {
 				this.path = new ArrayList<Intersection>()
@@ -74,16 +78,18 @@ agent Car {
 				this.endPoint = (this.startPoint as Intersection).getLinks().get(0).getSecondaryNode()
 				this.path.add(this.endPoint as Intersection)
 			}
-			emit(new Intent(
-				0,
-				this.lane,
-				0,
-				this.positionInRoad,
-				this.speed,
-				this.lane,
-				this.currentElement,
-				this.direction
-			))
+			if (isNew) {
+				emit(new Intent(
+					0,
+					this.lane,
+					0,
+					this.positionInRoad,
+					this.speed,
+					this.lane,
+					this.currentElement,
+					this.direction
+				))
+			}
 		}
 	}
 	
@@ -92,9 +98,15 @@ agent Car {
 	}
 
 	synchronized def registerNewBehavior(carBehavior : Behavior) : void {
-		this.carBehavior = carBehavior
-		registerBehavior(this.carBehavior);
-		wake(new BehaviorInitialize)
+		if (!(this.carBehavior instanceof RoadAccidentBehavior ||
+			this.carBehavior instanceof IntersectionAccidentBehavior)) {
+			if (this.carBehavior !== null) {
+				unregisterBehavior(this.carBehavior)
+			}
+			this.carBehavior = carBehavior
+			registerBehavior(this.carBehavior);
+			wake(new BehaviorInitialize)
+		}
 	}
 	
 	on PropertiesUpdate {
@@ -109,14 +121,15 @@ agent Car {
 	on PhysicsUpdate {
 		synchronized (this) {
 			this.travelTime++
+			this.lane = occurrence.newLane
 			this.positionInRoad = occurrence.newPosition
 			this.speed = occurrence.newSpeed
 			this.acceleration = occurrence.newAcceleration
-			this.lane = occurrence.newLane
 			if (this.currentElement !== occurrence.newElement) {
 				info("Changed RoadElement")
-				unregisterBehavior(this.carBehavior)
+				if (this.carBehavior !== null) unregisterBehavior(this.carBehavior)
 				this.carBehavior = null
+				this.accidented = false
 				if (occurrence.newElement instanceof Road && this.currentElement instanceof Intersection) {
 					if ((occurrence.newElement as Road).primaryNodeIs(this.currentElement as Intersection)) {
 						this.direction = 1
@@ -124,10 +137,10 @@ agent Car {
 						this.direction = 0
 					}
 					this.lane = this.generator.nextInt((occurrence.newElement instanceof OneWayRoad)
-						? (occurrence.newElement as OneWayRoad).nbOfLane : this.direction == 1
-						? (occurrence.newElement as TwoWayRoad).nbOfLaneSecondary
-						: (occurrence.newElement as TwoWayRoad).nbOfLanePrimary)
-				} else if (occurrence.newElement instanceof Intersection) {
+						? (occurrence.newElement as OneWayRoad).nbOfLane : this.direction == 1 ? (occurrence.
+						newElement as TwoWayRoad).nbOfLaneSecondary : (occurrence.newElement as TwoWayRoad).
+						nbOfLanePrimary)
+				} else if (occurrence.newElement instanceof Intersection && !(occurrence.newElement instanceof EntryPoint)) {
 					var newIntersection : Intersection = occurrence.newElement as Intersection
 					if (newIntersection == this.endPoint) {
 						this.startPoint = this.endPoint
@@ -151,8 +164,24 @@ agent Car {
 							}
 						}
 					}
+				} else {
+					this.startPoint = occurrence.newElement
+					this.path = new ArrayList<Intersection>()
+					this.path.add(this.startPoint as Intersection)
+					this.endPoint = (this.startPoint as Intersection).getLinks().get(0).getSecondaryNode()
+					this.path.add(this.endPoint as Intersection)
+					this.direction = 0
 				}
 				this.currentElement = occurrence.newElement
+			}
+			if (occurrence.colliding && !this.accidented) {
+				this.accidented = true
+				info("Had an accident")
+				if (this.currentElement instanceof Road) {
+					this.registerNewBehavior(new RoadAccidentBehavior(this))
+				} else {
+					this.registerNewBehavior(new IntersectionAccidentBehavior(this))
+				}
 			}
 		}
 	}

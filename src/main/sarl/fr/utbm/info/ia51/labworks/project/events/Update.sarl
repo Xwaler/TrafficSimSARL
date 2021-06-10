@@ -23,6 +23,7 @@ event PhysicsUpdate extends Update {
 	var newAcceleration : double
 	var newLane : double
 	var newElement : RoadElement
+	var colliding : boolean
 
 	new {}
 
@@ -31,17 +32,19 @@ event PhysicsUpdate extends Update {
 		newSpeed : double,
 		newAcceleration : double,
 		newLane : double,
-		newElement : RoadElement
+		newElement : RoadElement,
+		accidented : boolean
 	) {
 		this.newPosition = newPosition
 		this.newSpeed = newSpeed
 		this.newAcceleration = newAcceleration
 		this.newLane = newLane
 		this.newElement = newElement
+		this.colliding = accidented
 	}
 }
 
-event RequestNewObjective {
+event RequestNewObjective extends Event {
 	var currentNode : Intersection
 	
 	new (currentNode : Intersection) {
@@ -49,7 +52,7 @@ event RequestNewObjective {
 	}
 }
 
-event NewObjective {
+event NewObjective extends Event {
 	var newObjective : Intersection
 	
 	new (newObjective : Intersection) {
@@ -97,6 +100,7 @@ class CarProperties {
 	public var element : RoadElement
 	public var futureElement : RoadElement
 	public var isHuman : boolean
+	public var colliding : boolean
 	
 	new (intent : Intent, physicsUpdate: PhysicsUpdate, isHuman : boolean) {
 		this.position = intent.currentPosition
@@ -108,5 +112,6 @@ class CarProperties {
 		this.element = intent.currentElement
 		this.futureElement = physicsUpdate.newElement
 		this.isHuman = isHuman
+		this.colliding = physicsUpdate.colliding
 	}
 }

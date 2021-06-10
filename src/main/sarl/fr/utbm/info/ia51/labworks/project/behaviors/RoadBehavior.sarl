@@ -5,17 +5,39 @@ import io.sarl.lang.core.Behavior
 import io.sarl.core.DefaultContextInteractions
 
 import fr.utbm.info.ia51.labworks.project.events.BehaviorInitialize
-import java.util.Random
 import fr.utbm.info.ia51.labworks.project.events.Intent
 import fr.utbm.info.ia51.labworks.project.events.BehaviorStep
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateSkill
 import fr.utbm.info.ia51.labworks.project.skills.AccelerateCapacity
+import fr.utbm.info.ia51.labworks.project.road.OneWayRoad
+import fr.utbm.info.ia51.labworks.project.road.TwoWayRoad
 
 behavior RoadBehavior extends Behavior  {
-	uses Logging, DefaultContextInteractions
+	uses Logging
 
 	on BehaviorInitialize {
 		setSkill(new AccelerateSkill, AccelerateCapacity)
 		info(this.class.simpleName + " was started.")
+	}
+}
+
+behavior RoadAccidentBehavior extends RoadBehavior {
+	uses Logging, DefaultContextInteractions
+	
+	on BehaviorStep {
+		var targetLane : int = (occurrence.element instanceof OneWayRoad)
+				? (occurrence.element as OneWayRoad).nbOfLane: occurrence.direction == 0 
+				? (occurrence.element as TwoWayRoad).nbOfLanePrimary
+				: (occurrence.element as TwoWayRoad).nbOfLaneSecondary
+		emit(new Intent(
+			0,
+			targetLane + 2,
+			0,
+			occurrence.position,
+			occurrence.speed,
+			occurrence.lane,
+			occurrence.element,
+			occurrence.direction
+		))
 	}
 }
