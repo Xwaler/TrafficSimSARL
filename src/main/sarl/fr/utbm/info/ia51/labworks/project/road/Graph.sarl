@@ -11,8 +11,8 @@ import java.util.WeakHashMap
 import java.util.Map.Entry
 
 class Graph {
-	var minEntryNode : int = 1
-	var maxEntryNode : int = 3
+	var minEntryNode : int = 3
+	var maxEntryNode : int = 6
 	var minOtherNodes : int = 6
 	var maxOtherNodes : int = 10
 	var minNodeLinks : int = 3
@@ -328,18 +328,6 @@ class Graph {
 		var rdm = generator.nextInt(this.intersections.size())
 		this.intersectionToColor = this.intersections.get(rdm)
 	}
-	
-	def clearCars() : void {
-		for (entryPoint: this.entryPoints) {
-			entryPoint.getCars().clear()
-		}
-		for (intersection: this.intersections) {
-			intersection.getCars().clear()
-			for (link: intersection.getLinks()) {
-				link.getCars().clear()
-			}
-		}
-	}
 
 	def ccw(A : Intersection, B : Intersection, C : Intersection) {
 		return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)	
@@ -409,6 +397,11 @@ class Graph {
 	}
 	
 	def resetRoadElements() {
-		
+		for (entryPoint : this.entryPoints) {
+			entryPoint.clear()
+		}
+		for (intersection : this.intersections) {
+			intersection.clear()
+		}
 	}
 }

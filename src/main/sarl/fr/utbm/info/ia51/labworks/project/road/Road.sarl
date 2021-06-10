@@ -49,4 +49,8 @@ abstract class Road extends RoadElement {
 	def entryAllowed(intersection : Intersection) : boolean {
 		return true
 	}
+	
+	def clear() {
+		this.cars.clear()
+	}
 }

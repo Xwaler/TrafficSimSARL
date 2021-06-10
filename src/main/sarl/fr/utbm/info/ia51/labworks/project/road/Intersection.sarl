@@ -97,4 +97,12 @@ abstract class Intersection extends RoadElement {
 		super.exit(car)
 		this.counter++
 	}
+	
+	def clear() {
+		this.cars.clear()
+		this.counter = 0
+		for (link : this.links) {
+			link.clear()
+		}
+	}
 }
