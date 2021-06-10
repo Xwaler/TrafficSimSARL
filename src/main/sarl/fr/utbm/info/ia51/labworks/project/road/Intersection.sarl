@@ -6,6 +6,7 @@ import java.util.List
 import java.util.ArrayList
 import java.util.Map
 import java.util.HashMap
+import java.util.UUID
 
 abstract class Intersection extends RoadElement {
 	public var links : List<Road>
@@ -15,6 +16,7 @@ abstract class Intersection extends RoadElement {
 	public var y : double
 	public var radius : double
 	public var nbLanes : int
+	public var counter : int = 0
 	
 	new (context : AgentContext, links : List<Road>) {
 		super(context)
@@ -89,5 +91,10 @@ abstract class Intersection extends RoadElement {
 			str += linkThreshold.get(i) + ': ' + links.get(i).toString() + ', '
 		}
 		return str + ']'
+	}
+	
+	def exit(car : UUID){
+		super.exit(car)
+		counter++
 	}
 }

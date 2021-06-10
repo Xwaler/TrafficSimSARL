@@ -460,8 +460,9 @@ agent Environment {
 			} else {
 				this.tempsTrajetAutonomous.add(occurrence.travelTime / 60)
 			}
+			this.mesureFlux = this.roads.intersectionToColor.counter / (tick/60)
 			this.UI.sendData(
-				0.0,
+				this.mesureFlux,
 				0.0,
 				this.tempsTrajetHuman.stream().mapToDouble(d|d).average().orElse(0.0),
 				this.tempsTrajetAutonomous.stream().mapToDouble(d|d).average().orElse(0.0)
