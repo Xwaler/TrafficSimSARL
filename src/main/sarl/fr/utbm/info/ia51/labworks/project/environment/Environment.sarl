@@ -239,12 +239,12 @@ agent Environment {
 			
 			for (i : 0 ..< intersection.cars.size()) {
 				var UUID = intersection.cars.get(i)
+				var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
+				if (physicUpdate.newElement instanceof EntryPoint) continue
 				for (j : i + 1 ..< intersection.cars.size()) {
 					var neighbourgUUID = intersection.cars.get(j)
-					var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
 					var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
-					if (physicUpdate.newElement instanceof EntryPoint ||
-						neighbourgPhysicUpdate.newElement instanceof EntryPoint) continue
+					if (neighbourgPhysicUpdate.newElement instanceof EntryPoint) continue
 					var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * intersection.length
 					if (Math.abs(distance) < 0.002 && Math.abs(physicUpdate.newLane - neighbourgPhysicUpdate.newLane) < 0.5) {
 						physicUpdate.newSpeed = 0
@@ -266,10 +266,10 @@ agent Environment {
 		for (road : visitedRoads) {
 			for (i : 0 ..< road.cars.size()) {
 				var UUID = road.cars.get(i)
+				var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
 				for (j : i + 1 ..< road.cars.size()) {
 					var neighbourgUUID = road.cars.get(j)
 					if (this.intents.get(UUID).direction == this.intents.get(neighbourgUUID).direction) {
-						var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
 						var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
 						var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * road.length
 						if (Math.abs(distance) < 0.002 &&
@@ -451,7 +451,7 @@ agent Environment {
 							}
 						}
 						
-						if (distanceNeighbourObserver <= maxViewDistance){
+						if (distanceNeighbourObserver <= maxViewDistance) {
 							result.add(
 								new PerceptCar(
 									distanceNeighbourObserver,
@@ -487,7 +487,7 @@ agent Environment {
 			var carProperties : CarProperties = pair.getValue()
 			var result : List<PerceptCar> = new ArrayList<PerceptCar>()
 			recursiveAdd(
-				Integer.parseInt(UI.settingsFrame.viewDistance.getText()),
+				Integer.parseInt(UI.settingsFrame.viewDistance.getText()) * Constants.WORLD_SIZE_SCALLER,
 				carProperties,
 				carUUID,
 				result,

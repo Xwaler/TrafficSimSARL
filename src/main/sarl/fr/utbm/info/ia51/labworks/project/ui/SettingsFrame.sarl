@@ -34,7 +34,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 	var defaultObedienceRate = 90
 	var defaultReaction = 10
 	var defaultPerception = 10
-	var defaultViewDistance = 10
+	var defaultViewDistance = 30
 	
 	var simRunning = false
 	
