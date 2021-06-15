@@ -13,7 +13,7 @@ skill PerceptSkillHuman implements PerceptCapacity {
 		for (car : surrounding) {
 			if (car.distance < viewDistance * Constants.WORLD_SIZE_SCALLER) {
 				if (random.nextDouble >
-					((car.distance / (Constants.WORLD_SIZE_SCALLER * viewDistance)) + 1) ** 2 * perceptionErrorRate) {
+					((car.distance / (viewDistance * Constants.WORLD_SIZE_SCALLER)) + 1) ** 2 * perceptionErrorRate) {
 					perceptCars.add(car)
 				}
 			}
@@ -27,10 +27,10 @@ skill PerceptSkillAutonomous implements PerceptCapacity {
 	def percept(surrounding : List<PerceptCar>, viewDistance : double, perceptionErrorRate : double) : List<PerceptCar> {
 		var perceptCars : ArrayList<PerceptCar> = new ArrayList();
 		var random : Random = new Random();
-		for (car : surrounding){
+		for (car : surrounding) {
 			if (car.distance < viewDistance * Constants.WORLD_SIZE_SCALLER) {
 				if (random.nextDouble >
-					((car.distance / (Constants.WORLD_SIZE_SCALLER * viewDistance)) + 1) ** 2 * perceptionErrorRate) {
+					((car.distance / (viewDistance * Constants.WORLD_SIZE_SCALLER)) + 1) ** 2 * perceptionErrorRate) {
 					perceptCars.add(car)
 				}
 			}

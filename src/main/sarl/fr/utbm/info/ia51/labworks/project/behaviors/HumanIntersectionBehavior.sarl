@@ -70,11 +70,11 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 				car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
-	
+
 		if (occurrence.element instanceof Road) {
 			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
 			var nbOfLane = (occurrence.element instanceof OneWayRoad)
@@ -163,12 +163,12 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 					if (!makeSomeMess) {
 		
 						for (car : occurrence.surroundingCars) {
-							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
+							if (car.currentElement == incomingNode) {
 								carInIntersection.add(car)
 							}
 						}
 		
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -242,11 +242,11 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 				car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
-	
+
 		if (occurrence.element instanceof Road) {
 			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
 			var nbOfLane = (occurrence.element instanceof OneWayRoad)
@@ -336,12 +336,12 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 					if (!makeSomeMess) {
 		
 						for (car : occurrence.surroundingCars) {
-							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
+							if (car.currentElement == incomingNode) {
 								carInIntersection.add(car)
 							}
 						}
 		
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -416,7 +416,7 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 				car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
@@ -507,12 +507,12 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 					if (!makeSomeMess) {			
 
 						for (car : occurrence.surroundingCars) {
-							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
+							if (car.currentElement == incomingNode) {
 								carInIntersection.add(car)
 							}
 						}
 
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0, occurrence.speed)
@@ -588,11 +588,11 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 				car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
-		
+
 		if (occurrence.element instanceof Road) {
 			var incomingNode : Intersection = occurrence.element.getIncomingNode(occurrence.direction)
 			var nbOfLane = (occurrence.element instanceof OneWayRoad)
@@ -608,7 +608,6 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 					carsInAdjascentLanes.add(car)
 				}
 			}
-			
 			if (carInFront !== null) {
 				if (carInFront.distance < (safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) {
 					newAcceleration = decelerateDistance(carInFront.distance, safetyDistance)
@@ -676,12 +675,12 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 					if (!makeSomeMess) {
 							
 						for (car : occurrence.surroundingCars) {
-							if (car.currentElement == incomingNode && (car.lane - intersectionLane) < 1.5) {
+							if (car.currentElement == incomingNode) {
 								carInIntersection.add(car)
 							}
 						}
 							
-						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 6)) {
+						if (carInIntersection.stream().allMatch(car|car.distance > Constants.WORLD_SIZE_SCALLER * 12)) {
 							newAcceleration = accelerate(20, occurrence.speed)
 						} else {
 							newAcceleration = decelerate(0,occurrence.speed)

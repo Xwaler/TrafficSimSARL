@@ -33,7 +33,7 @@ behavior OneWayRoadAutonomousBehavior extends RoadBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 			car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
@@ -122,7 +122,7 @@ behavior TwoWayRoadAutonomousBehavior extends RoadBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 			car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 					car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}

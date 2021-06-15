@@ -35,12 +35,12 @@ behavior OneWayRoadHumanBehavior extends RoadBehavior {
 		var carInFront : PerceptCar = null
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
-				car | 
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element && 
+				car |
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element && 
 				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
-		
+
 		if (carInFront !== null) {
 			var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 				
@@ -131,11 +131,11 @@ behavior TwoWayRoadHumanBehavior extends RoadBehavior {
 		if (occurrence.surroundingCars.size() > 0) {
 			carInFront = occurrence.surroundingCars.findFirst(
 				car |
-				Math.round(car.lane) == Math.round(occurrence.lane) && car.currentElement == occurrence.element &&
+				Math.abs(car.lane - occurrence.lane) < 0.5 && car.currentElement == occurrence.element &&
 				car.direction == occurrence.direction && car.position > occurrence.position
 			)
 		}
-
+		
 		if (carInFront !== null) {
 			var safetyDistance : int = Constants.WORLD_SIZE_SCALLER * 6 * ((occurrence.speed / 10) as int)
 
