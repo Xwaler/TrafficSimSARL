@@ -377,15 +377,23 @@ agent Environment {
 						}						
 					}
 				}
-
-				/* Keep going through adjacent element */
-				for (road : (currentElement as Intersection).getLinks()) {
-					recursiveAdd(
-						maxViewDistance, selfProperties, selfUUID, 
-						result, distanceToObserver + currentElement.length * this.roads.realSize, 
-						currentElement, road
-					)
+				
+				if (distanceToObserver + currentElement.length * this.roads.realSize < maxViewDistance) {
+					/* Keep going through adjacent element */
+					for (road : (currentElement as Intersection).getLinks()) {
+						recursiveAdd(
+							maxViewDistance,
+							selfProperties,
+							selfUUID,
+							result,
+							distanceToObserver + currentElement.length * this.roads.realSize,
+							currentElement,
+							road
+						)
+					}
 				}
+
+				
 			} else {
 				/* Element is a Road */
 				var currentElementAsRoad : Road = (currentElement as Road);
