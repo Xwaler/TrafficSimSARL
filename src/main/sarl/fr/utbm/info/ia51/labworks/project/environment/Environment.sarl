@@ -344,11 +344,11 @@ agent Environment {
 		if (currentElement != previousElement) {
 			/* Element is a intersection */
 			if (currentElement instanceof Intersection) {
-				var currentElementAsIntersection : Intersection = (currentElement as Intersection);
+				var currentElementAsIntersection : Intersection = (currentElement as RoadElement) as Intersection
 				for (neighbour : currentElement.cars) {
 					/* ignore self */
 					if (neighbour != selfUUID) {
-						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
+						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour)
 						var distanceNeighbourObserver : double = distanceToObserver;
 						
 						var positionInIntersection : double;
@@ -373,7 +373,7 @@ agent Environment {
 									neighbourCarProperties.futureSpeed,
 									neighbourCarProperties.lane
 								)
-							);
+							)
 						}						
 					}
 				}
@@ -392,10 +392,10 @@ agent Environment {
 				for (neighbour : currentElement.cars) {
 					/* ignore self */
 					if (neighbour != selfUUID) {
-						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
+						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour)
 						
 						/* Compute the distance between the observer and the neighbor */
-						var distanceNeighbourObserver : double = distanceToObserver;
+						var distanceNeighbourObserver : double = distanceToObserver
 						
 						/* Compute neighbor direction */
 						var neighborDirection : int 
@@ -467,7 +467,7 @@ agent Environment {
 									neighborDirection,
 									neighbourCarProperties.futureSpeed, neighbourCarProperties.lane
 								)
-							);
+							)
 						}
 					}
 				}
