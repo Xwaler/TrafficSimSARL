@@ -93,6 +93,7 @@ agent Environment {
 	on StopSimulationEvent {
 		synchronized (this) {
 			this.cars.clear()
+			this.isCarHuman.clear()
 			this.roads.resetRoadElements()
 			this.intents.clear()
 			this.physicsUpdates.clear()
