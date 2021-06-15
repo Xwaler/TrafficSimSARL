@@ -1,17 +1,12 @@
 package fr.utbm.info.ia51.project
 
+import io.sarl.bootstrap.SRE
+import io.sarl.bootstrap.SREBootstrap
+import fr.utbm.info.ia51.project.TrafficSim
 
-import fr.utbm.info.ia51.project.ui.MainFrame
-import io.sarl.core.Initialize
-import io.sarl.core.Lifecycle
-import io.sarl.core.DefaultContextInteractions
-import fr.utbm.info.ia51.project.environment.Environment
-
-agent TrafficSimBoot{
-	uses Lifecycle, DefaultContextInteractions
-	
-	on Initialize {
-		var ui = new MainFrame(defaultContext);
-		spawn(typeof(Environment), ui)
+class TrafficSimBoot {
+	static def main(args : String[]) : void {
+		val bs : SREBootstrap = SRE.bootstrap
+		bs.startAgent(typeof(TrafficSim))
 	}
 }

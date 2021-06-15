@@ -12,6 +12,7 @@
 		<janus.version>3.${sarl.version}</janus.version>
 		<target.jdk.version>1.8</target.jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <cliRunnerMainClass>fr.utbm.info.ia51.project.TraficSimBoot</cliRunnerMainClass>
 	</properties>
 
 	<dependencies>
@@ -19,31 +20,67 @@
 			<groupId>io.sarl.maven</groupId>
 			<artifactId>io.sarl.maven.sdk</artifactId>
 			<version>${sarl.version}</version>
+			<exclusions>
+	          <exclusion>
+	            <groupId>org.openjfx-jre8</groupId>
+	            <artifactId>javafx-fxml</artifactId>
+	          </exclusion>
+	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.janusproject</groupId>
 			<artifactId>io.janusproject.kernel</artifactId>
 			<version>3.0.11.0</version>
+			<exclusions>
+	          <exclusion>
+	            <groupId>org.openjfx-jre8</groupId>
+	            <artifactId>javafx-fxml</artifactId>
+	          </exclusion>
+	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.gis</groupId>
 			<artifactId>gisroad</artifactId>
 			<version>16.0</version>
+			<exclusions>
+	          <exclusion>
+	            <groupId>org.openjfx-jre8</groupId>
+	            <artifactId>javafx-fxml</artifactId>
+	          </exclusion>
+	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.gis.ui</groupId>
 			<artifactId>gisroadfx</artifactId>
 			<version>16.0</version>
+			<exclusions>
+	          <exclusion>
+	            <groupId>org.openjfx-jre8</groupId>
+	            <artifactId>javafx-fxml</artifactId>
+	          </exclusion>
+	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.core</groupId>
 			<artifactId>mathphysics</artifactId>
 			<version>16.0</version>
+			<exclusions>
+	          <exclusion>
+	            <groupId>org.openjfx-jre8</groupId>
+	            <artifactId>javafx-fxml</artifactId>
+	          </exclusion>
+	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.core</groupId>
 			<artifactId>mathstochastic</artifactId>
 			<version>16.0</version>
+			<exclusions>
+	          <exclusion>
+	            <groupId>org.openjfx-jre8</groupId>
+	            <artifactId>javafx-fxml</artifactId>
+	          </exclusion>
+	        </exclusions>
 		</dependency>
 	</dependencies>
 
@@ -60,6 +97,33 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>make-assembly-with-deps</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>with-dependencies.xml</descriptor>
+							</descriptors>
+							<archive>
+                                <manifest>
+                                    <mainClass>${cliRunnerMainClass}</mainClass>
+                                </manifest>
+                                <manifestEntries>
+                                    <Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
+                                </manifestEntries>
+                            </archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>io.sarl.maven</groupId>
 				<artifactId>sarl-maven-plugin</artifactId>
 				<version>${sarl.version}</version>
@@ -72,5 +136,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
