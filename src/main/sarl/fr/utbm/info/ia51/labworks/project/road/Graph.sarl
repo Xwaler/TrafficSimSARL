@@ -397,6 +397,7 @@ class Graph {
 	}
 	
 	def resetRoadElements() {
+		this.intersectionToColor = null
 		for (entryPoint : this.entryPoints) {
 			entryPoint.clear()
 		}

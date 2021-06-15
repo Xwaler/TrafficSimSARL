@@ -97,6 +97,9 @@ agent Environment {
 			this.intents.clear()
 			this.physicsUpdates.clear()
 			this.carsProperties.clear()
+			this.numberOfAccidents = 0
+			this.tempsTrajetHuman.clear()
+			this.tempsTrajetAutonomous.clear()
 			frameDelayTask.cancel()
 		}
 	}

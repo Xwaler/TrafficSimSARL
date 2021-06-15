@@ -59,6 +59,13 @@ class FeedBackPanel extends JPanel{
 		this.add(trajetPanelAutonome)
 	}
 	
+	def clear() {
+		this.mesureFlux.setText("")
+		this.tauxAccident.setText("")
+		this.vitesseTrajetHumain.setText("")
+		this.vitesseTrajetAutonomous.setText("")
+	}
+	
 	def updateFields(mesureFlux : double, tauxAccident : double, tempsTrajetHumain : double, tempsTrajetAutonome : double) {
 		this.mesureFlux.setText("" + (Math.round(mesureFlux * 100) / 100.0) + " voitures/s")
 		this.tauxAccident.setText("" + Math.round(tauxAccident * 100) + " %")
