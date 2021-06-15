@@ -175,8 +175,18 @@ behavior CrossIntersectionHumanBehavior extends IntersectionBehavior {
 						}
 					}
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					for (car : occurrence.surroundingCars) {
+						if (car.currentElement == incomingNode) {
+							carInIntersection.add(car)
+						}
+					}
 					if (occurrence.speed > 20) {
-						newAcceleration = decelerate(20, occurrence.speed)
+						if (carInIntersection.stream().allMatch(car|car.distance < Constants.WORLD_SIZE_SCALLER * 12)) {
+							newAcceleration = decelerate(0, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(20, occurrence.speed)
+						}
+						
 					} else {
 						newAcceleration = accelerate(20, occurrence.speed)
 					}
@@ -349,8 +359,18 @@ behavior IntersectionTHumanBehavior extends IntersectionBehavior {
 					}
 		
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					for (car : occurrence.surroundingCars) {
+						if (car.currentElement == incomingNode) {
+							carInIntersection.add(car)
+						}
+					}
 					if (occurrence.speed > 20) {
-						newAcceleration = decelerate(20, occurrence.speed)
+						if (carInIntersection.stream().allMatch(car|car.distance < Constants.WORLD_SIZE_SCALLER * 12)) {
+							newAcceleration = decelerate(0, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(20, occurrence.speed)
+						}
+						
 					} else {
 						newAcceleration = accelerate(20, occurrence.speed)
 					}
@@ -520,8 +540,18 @@ behavior IntersectionYHumanBehavior extends IntersectionBehavior {
 					}
 
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					for (car : occurrence.surroundingCars) {
+						if (car.currentElement == incomingNode) {
+							carInIntersection.add(car)
+						}
+					}
 					if (occurrence.speed > 20) {
-						newAcceleration = decelerate(20, occurrence.speed)
+						if (carInIntersection.stream().allMatch(car|car.distance < Constants.WORLD_SIZE_SCALLER * 12)) {
+							newAcceleration = decelerate(0, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(20, occurrence.speed)
+						}
+						
 					} else {
 						newAcceleration = accelerate(20, occurrence.speed)
 					}
@@ -622,7 +652,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance >
 							(safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) &&
-							newLane != Math.min(nbOfLane, 2)) {
+							newLane != Math.min(nbOfLane-1, 2)) {
 							newLane = newLane + 1
 						}
 						intersectionLane = 2
@@ -631,7 +661,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance >
 							(safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) &&
-							newLane != Math.min(nbOfLane, 1)) {
+							newLane != Math.min(nbOfLane - 1, 1)) {
 							if (occurrence.lane > 1) {
 								newLane = newLane - 1
 							} else {
@@ -653,7 +683,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance >
 							(safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) &&
-							newLane != Math.min(nbOfLane, 1)) {
+							newLane != Math.min(nbOfLane - 1, 1)) {
 							newLane = newLane + 1
 						}
 						intersectionLane = 1
