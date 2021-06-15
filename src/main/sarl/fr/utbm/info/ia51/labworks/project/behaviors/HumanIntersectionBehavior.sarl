@@ -622,7 +622,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance >
 							(safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) &&
-							newLane != Math.min(nbOfLane, 2)) {
+							newLane != Math.min(nbOfLane-1, 2)) {
 							newLane = newLane + 1
 						}
 						intersectionLane = 2
@@ -631,7 +631,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance >
 							(safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) &&
-							newLane != Math.min(nbOfLane, 1)) {
+							newLane != Math.min(nbOfLane - 1, 1)) {
 							if (occurrence.lane > 1) {
 								newLane = newLane - 1
 							} else {
@@ -653,7 +653,7 @@ behavior RoundaboutHumanBehavior extends IntersectionBehavior {
 						if ((carsInAdjascentLanes.size() == 0 ||
 							carsInAdjascentLanes.get(0).distance >
 							(safetyDistance - (occurrence.speed / 3.6) * occurrence.reactionTime)) &&
-							newLane != Math.min(nbOfLane, 1)) {
+							newLane != Math.min(nbOfLane - 1, 1)) {
 							newLane = newLane + 1
 						}
 						intersectionLane = 1

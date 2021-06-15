@@ -264,9 +264,7 @@ class SettingsFrame extends JFrame implements ActionListener, KeyListener, Windo
 	
 	def windowActivated(arg0 : WindowEvent) {}
 	
-	def windowClosed(arg0 : WindowEvent) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
-	}
+	def windowClosed(arg0 : WindowEvent) {}
 	
 	def windowClosing(arg0 : WindowEvent) {
 		this.startButton.setEnabled(true)
