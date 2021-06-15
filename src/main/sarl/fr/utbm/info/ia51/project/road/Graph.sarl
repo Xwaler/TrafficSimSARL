@@ -22,8 +22,8 @@ class Graph {
 
 	var context : AgentContext
 	public var generator : Random = new Random()
-	var entryPoints : List<EntryPoint> = new ArrayList<EntryPoint>()
-	var intersections : List<Intersection> = new ArrayList<Intersection>()
+	var entryPoints : List<EntryPoint>
+	var intersections : List<Intersection>
 	public var intersectionToColor : Intersection
 
 	new (context : AgentContext) {
@@ -52,6 +52,9 @@ class Graph {
 	}
 	
 	def generateRandom() {
+		this.entryPoints = new ArrayList<EntryPoint>()
+		this.intersections = new ArrayList<Intersection>()
+		
 		var index : List<Integer> = new ArrayList<Integer>()
 		var edges : List<List<Integer>> = new ArrayList<List<Integer>>()
 		/* Initialize entry nodes */
@@ -176,7 +179,7 @@ class Graph {
 		 */
 		var iter : int = 0
 		var toChange : Intersection = this.isIntertwined(iter)
-		while (toChange !== null) {
+		while (toChange !== null && iter < 60000) {
 			if (toChange instanceof EntryPoint) {
 				toChange.x = generator.nextDouble * 0.05 + 0.05
 				toChange.y = generator.nextDouble * 0.90 + 0.05
@@ -186,6 +189,10 @@ class Graph {
 			}
 			iter++
 			toChange = this.isIntertwined(iter)
+		}
+		if (iter >= 60000) {
+			System.out.println('Very bad generation detected, retrying')
+			return this.generateRandom
 		}
 
 		/* Fix intersections with only one way roads connected to it

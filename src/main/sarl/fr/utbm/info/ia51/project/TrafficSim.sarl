@@ -1,6 +1,5 @@
 package fr.utbm.info.ia51.project
 
-
 import fr.utbm.info.ia51.project.ui.MainFrame
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle

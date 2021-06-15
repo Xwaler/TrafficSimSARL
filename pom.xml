@@ -20,67 +20,21 @@
 			<groupId>io.sarl.maven</groupId>
 			<artifactId>io.sarl.maven.sdk</artifactId>
 			<version>${sarl.version}</version>
-			<exclusions>
-	          <exclusion>
-	            <groupId>org.openjfx-jre8</groupId>
-	            <artifactId>javafx-fxml</artifactId>
-	          </exclusion>
-	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.janusproject</groupId>
 			<artifactId>io.janusproject.kernel</artifactId>
-			<version>3.0.11.0</version>
-			<exclusions>
-	          <exclusion>
-	            <groupId>org.openjfx-jre8</groupId>
-	            <artifactId>javafx-fxml</artifactId>
-	          </exclusion>
-	        </exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.arakhne.afc.gis</groupId>
-			<artifactId>gisroad</artifactId>
-			<version>16.0</version>
-			<exclusions>
-	          <exclusion>
-	            <groupId>org.openjfx-jre8</groupId>
-	            <artifactId>javafx-fxml</artifactId>
-	          </exclusion>
-	        </exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.arakhne.afc.gis.ui</groupId>
-			<artifactId>gisroadfx</artifactId>
-			<version>16.0</version>
-			<exclusions>
-	          <exclusion>
-	            <groupId>org.openjfx-jre8</groupId>
-	            <artifactId>javafx-fxml</artifactId>
-	          </exclusion>
-	        </exclusions>
+			<version>3.${sarl.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.core</groupId>
 			<artifactId>mathphysics</artifactId>
 			<version>16.0</version>
-			<exclusions>
-	          <exclusion>
-	            <groupId>org.openjfx-jre8</groupId>
-	            <artifactId>javafx-fxml</artifactId>
-	          </exclusion>
-	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.arakhne.afc.core</groupId>
 			<artifactId>mathstochastic</artifactId>
 			<version>16.0</version>
-			<exclusions>
-	          <exclusion>
-	            <groupId>org.openjfx-jre8</groupId>
-	            <artifactId>javafx-fxml</artifactId>
-	          </exclusion>
-	        </exclusions>
 		</dependency>
 	</dependencies>
 
