@@ -172,7 +172,7 @@ agent Environment {
 			var carUUID : UUID = pair.getKey()
 			var intent : Intent = pair.getValue()
 			update.newAcceleration = intent.intendedAcceleration
-			update.newSpeed = intent.currentSpeed + update.newAcceleration
+			update.newSpeed = Math.max(0, intent.currentSpeed + update.newAcceleration)
 			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
 			update.newLane = intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 20)
 			update.newElement = intent.currentElement
@@ -364,8 +364,8 @@ agent Environment {
 						}
 
 						distanceNeighbourObserver +=
-							Math.min((positionInIntersection - neighbourCarProperties.futurePosition) % 1,
-								(neighbourCarProperties.futurePosition - positionInIntersection) % 1)
+							Math.abs(positionInIntersection - neighbourCarProperties.futurePosition) *
+								currentElement.length * this.roads.realSize
 
 						if (distanceNeighbourObserver <= maxViewDistance) {
 							result.add(
