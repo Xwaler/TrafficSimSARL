@@ -161,8 +161,18 @@ behavior CrossIntersectionAutonomousBehavior extends IntersectionBehavior {
 					
 
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					for (car : occurrence.surroundingCars) {
+						if (car.currentElement == incomingNode) {
+							carInIntersection.add(car)
+						}
+					}
 					if (occurrence.speed > 20) {
-						newAcceleration = decelerate(20, occurrence.speed)
+						if (carInIntersection.stream().allMatch(car|car.distance < Constants.WORLD_SIZE_SCALLER * 12)) {
+							newAcceleration = decelerate(0, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(20, occurrence.speed)
+						}
+						
 					} else {
 						newAcceleration = accelerate(20, occurrence.speed)
 					}
@@ -325,8 +335,18 @@ behavior IntersectionTAutonomousBehavior extends IntersectionBehavior {
 					
 
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					for (car : occurrence.surroundingCars) {
+						if (car.currentElement == incomingNode) {
+							carInIntersection.add(car)
+						}
+					}
 					if (occurrence.speed > 20) {
-						newAcceleration = decelerate(20, occurrence.speed)
+						if (carInIntersection.stream().allMatch(car|car.distance < Constants.WORLD_SIZE_SCALLER * 12)) {
+							newAcceleration = decelerate(0, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(20, occurrence.speed)
+						}
+						
 					} else {
 						newAcceleration = accelerate(20, occurrence.speed)
 					}
@@ -495,8 +515,18 @@ behavior IntersectionYAutonomousBehavior extends IntersectionBehavior {
 						newAcceleration = decelerate(0, occurrence.speed)
 					}
 				} else if (incomingNode.getSignalisation(occurrence.element as Road) == Constants.FEU_VERT) {
+					for (car : occurrence.surroundingCars) {
+						if (car.currentElement == incomingNode) {
+							carInIntersection.add(car)
+						}
+					}
 					if (occurrence.speed > 20) {
-						newAcceleration = decelerate(20, occurrence.speed)
+						if (carInIntersection.stream().allMatch(car|car.distance < Constants.WORLD_SIZE_SCALLER * 12)) {
+							newAcceleration = decelerate(0, occurrence.speed)
+						} else {
+							newAcceleration = decelerate(20, occurrence.speed)
+						}
+						
 					} else {
 						newAcceleration = accelerate(20, occurrence.speed)
 					}
