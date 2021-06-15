@@ -344,27 +344,37 @@ agent Environment {
 		if (currentElement != previousElement) {
 			/* Element is a intersection */
 			if (currentElement instanceof Intersection) {
+				var currentElementAsIntersection : Intersection = (currentElement as Intersection);
+				for (neighbour : currentElement.cars) {
+					/* ignore self */
+					if (neighbour != selfUUID) {
+						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
+						var distanceNeighbourObserver : double = distanceToObserver;
+						
+						var positionInIntersection : double;
+						if (previousElement !== null) {
+							positionInIntersection = currentElementAsIntersection.linkThreshold.get(
+								currentElementAsIntersection.links.indexOf(previousElement))
+						} else {
+							positionInIntersection = selfProperties.futurePosition;
+						}
 
-				/* If the observer see the whole intersection */
-				if (distanceToObserver + currentElement.length * this.roads.realSize <= maxViewDistance) {
-					/* add all cars in the intersection */
-					for (neighbour : currentElement.cars){
-						/* don't add self */
-						if (neighbour != selfUUID) {
-							var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
-							//if the observed car changed element during the past frame, direction hasn't been updated yet
+						distanceNeighbourObserver +=
+							Math.min((positionInIntersection - neighbourCarProperties.futurePosition) % 1,
+								(neighbourCarProperties.futurePosition - positionInIntersection) % 1)
+
+						if (distanceNeighbourObserver <= maxViewDistance) {
 							result.add(
 								new PerceptCar(
-									distanceToObserver,
+									distanceNeighbourObserver,
 									neighbourCarProperties.position,
 									currentElement,
-									((neighbourCarProperties.element ==	neighbourCarProperties.futureElement) ? 
-										neighbourCarProperties.direction : -1),
-									neighbourCarProperties.futureSpeed, 
+									neighbourCarProperties.direction,
+									neighbourCarProperties.futureSpeed,
 									neighbourCarProperties.lane
 								)
 							);
-						}
+						}						
 					}
 				}
 
@@ -377,15 +387,12 @@ agent Environment {
 					)
 				}
 			} else {
-				// TODO changed neighbor to observed
 				/* Element is a Road */
 				var currentElementAsRoad : Road = (currentElement as Road);
 				for (neighbour : currentElement.cars) {
 					/* ignore self */
 					if (neighbour != selfUUID) {
 						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour);
-						//TODO put this as parameter instead of PU, might need to add an UUID
-						var selfCarProperties : CarProperties = carsProperties.get(selfUUID);
 						
 						/* Compute the distance between the observer and the neighbor */
 						var distanceNeighbourObserver : double = distanceToObserver;
@@ -402,13 +409,13 @@ agent Environment {
 						}
 						
 						var selfDirection : int
-						if (selfCarProperties.element == selfCarProperties.futureElement) {
-							selfDirection = selfCarProperties.direction
+						if (selfProperties.element == selfProperties.futureElement) {
+							selfDirection = selfProperties.direction
 						} else {
 							/* If the car has changed element during the past frame, direction is unknown, 
 							 * since the current element is a road, direction can be deduced
 							 */
-							selfDirection = (currentElementAsRoad.nodes.indexOf(selfCarProperties.element) ==
+							selfDirection = (currentElementAsRoad.nodes.indexOf(selfProperties.element) ==
 								0 ? 1 : 0)
 						}
 						
