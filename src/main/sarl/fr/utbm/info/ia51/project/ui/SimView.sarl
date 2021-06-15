@@ -1,0 +1,332 @@
+package fr.utbm.info.ia51.project.ui
+
+import javax.swing.JPanel
+import java.awt.Dimension
+import java.awt.Color
+import javax.swing.BoxLayout
+import java.awt.Graphics
+import fr.utbm.info.ia51.project.road.Graph
+import java.util.Map
+import java.util.UUID
+import fr.utbm.info.ia51.project.road.Road
+import fr.utbm.info.ia51.project.road.Intersection
+import fr.utbm.info.ia51.project.events.CarProperties
+import fr.utbm.info.ia51.project.road.OneWayRoad
+import java.awt.Graphics2D
+import java.awt.BasicStroke
+import java.awt.RenderingHints
+import java.util.Set
+import org.arakhne.afc.references.WeakHashSet
+import java.awt.Stroke
+import fr.utbm.info.ia51.project.road.TwoWayRoad
+import fr.utbm.info.ia51.project.road.Constants
+
+class SimView extends JPanel {
+	val dimension : Dimension
+	var graph : Graph
+	var carsProperties : Map<UUID, CarProperties>
+
+	var laneWidth : int = 9
+	var carDiameter : int = 8
+	var feuDiameter : int = 6
+
+	var rh : RenderingHints
+	var defaultStroke : Stroke
+	var dashedStroke : Stroke
+
+	new (dimension : Dimension) {
+		this.dimension = dimension
+		this.layout = new BoxLayout(this, BoxLayout::X_AXIS)
+		this.setPreferredSize(dimension)
+		this.setBackground(Color.gray)
+
+		this.rh = new RenderingHints(
+			RenderingHints.KEY_ANTIALIASING,
+			RenderingHints.VALUE_ANTIALIAS_ON
+		)
+		this.dashedStroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, #[9, 3], 0);
+	}
+	
+	def setGraph(graph : Graph) : void {
+		this.carsProperties = null
+		this.graph = graph
+		this.repaint()
+	}
+	
+	def setCarsProperties(carsProperties : Map<UUID, CarProperties>) {
+		this.carsProperties = carsProperties
+		this.repaint()
+	}
+	
+	def getRoadBetween(from : Intersection, to : Intersection) : Road {
+		for (link : from.getLinks()) {
+			if (
+				(link.getPrimaryNode() === from && link.getSecondaryNode() === to) || 
+				(link.getPrimaryNode() === to && link.getSecondaryNode() === from)
+			) {
+				return link
+			}
+		}
+	}
+	
+	def drawOneWayRoad(g : Graphics2D, primary : Intersection, secondary : Intersection) : void {
+		assert getRoadBetween(primary, secondary) instanceof OneWayRoad
+		var road : OneWayRoad = getRoadBetween(primary, secondary) as OneWayRoad
+		g.setColor(Color.white)
+		
+		var angle : double = Math.atan2(secondary.y - primary.y, secondary.x - primary.x)
+		var primaryCosShift : double = primary.x + Math.cos(angle) * primary.radius
+		var primarySinShift : double = primary.y + Math.sin(angle) * primary.radius
+		var secondaryCosShift : double = secondary.x + Math.cos(angle + Math.PI) * secondary.radius
+		var secondarySinShift : double = secondary.y + Math.sin(angle + Math.PI) * secondary.radius
+		var cos : double = Math.cos(angle + Math.PI / 2)
+		var sin : double = Math.sin(angle + Math.PI / 2)
+		
+		for (var i : double = -road.nbOfLane / 2.0; i <= road.nbOfLane / 2.0; i += 1.0) {
+			if (i == -road.nbOfLane / 2.0 || i == road.nbOfLane / 2.0) {
+				g.setStroke(this.defaultStroke)
+			} else {
+				g.setStroke(this.dashedStroke)
+			}
+			g.drawLine(
+				(primaryCosShift * this.dimension.width + i * cos * this.laneWidth) as int,
+				(primarySinShift * this.dimension.height + i * sin * this.laneWidth) as int,
+				(secondaryCosShift * this.dimension.width + i * cos * this.laneWidth) as int,
+				(secondarySinShift * this.dimension.height + i * sin * this.laneWidth) as int
+			)
+		}
+		switch (road.getSecondaryNode().signalisationLinks.get(road)) {
+			case Constants.FEU_ROUGE: {
+				g.setColor(Color.red)
+			}
+			case Constants.FEU_ORANGE: {
+				g.setColor(Color.orange)
+			}
+			case Constants.FEU_VERT: {
+				g.setColor(Color.green)
+			}
+		}
+		g.fillOval(
+			(secondaryCosShift * this.dimension.width - (road.nbOfLane / 2.0 + 0.5) * cos * this.laneWidth -
+				feuDiameter / 2) as int,
+			(secondarySinShift * this.dimension.height - (road.nbOfLane / 2.0 + 0.5) * sin * this.laneWidth -
+				feuDiameter / 2) as int,
+			feuDiameter,
+			feuDiameter
+		)
+
+		/*g.setStroke(this.dashedStroke)
+		g.drawArc(
+			(primaryCosShift * this.dimension.width - road.nbOfLane * this.laneWidth / 2) as int,
+			(primarySinShift * this.dimension.height - road.nbOfLane * this.laneWidth / 2) as int, 
+			road.nbOfLane * this.laneWidth, road.nbOfLane * this.laneWidth,
+			Math.toDegrees(angle - Math.PI / 2) as int, 180
+		)*/
+
+		g.setStroke(this.defaultStroke)
+		if (this.carsProperties !== null) {
+			for (car : road.getCars()) {
+				var carProperties : CarProperties = this.carsProperties.get(car)
+				if (carProperties.isHuman) {
+					g.setColor(Color.blue)
+				} else {
+					g.setColor(Color.magenta)
+				}
+				var fromCos : double = carProperties.direction == 0 ? secondaryCosShift : primaryCosShift
+				var toCos : double = carProperties.direction == 0 ? primaryCosShift : secondaryCosShift
+				var fromSin : double = carProperties.direction == 0 ? secondarySinShift : primarySinShift
+				var toSin : double = carProperties.direction == 0 ? primarySinShift : secondarySinShift
+				var cosC : double = (road.nbOfLane / 2.0 - 0.5 - carProperties.lane) *
+					(carProperties.direction == 0 ? cos : -cos)
+				var sinC : double = (road.nbOfLane / 2.0 - 0.5 - carProperties.lane) *
+					(carProperties.direction == 0 ? sin : -sin)
+				g.fillOval(
+					((carProperties.position * toCos + (1 - carProperties.position) * fromCos) *
+						this.dimension.width + cosC * this.laneWidth - this.carDiameter / 2
+					) as int,
+					((carProperties.position * toSin + (1 - carProperties.position) * fromSin) *
+						this.dimension.height + sinC * this.laneWidth - this.carDiameter / 2
+					) as int,
+					this.carDiameter,
+					this.carDiameter
+				)
+			}
+		}
+	}
+	
+	def drawTwoWayRoad(g : Graphics2D, primary : Intersection, secondary : Intersection) : void {
+		assert getRoadBetween(primary, secondary) instanceof TwoWayRoad
+		var road : TwoWayRoad = getRoadBetween(primary, secondary) as TwoWayRoad
+		g.setColor(Color.white)
+		
+		var angle : double = Math.atan2(secondary.y - primary.y, secondary.x - primary.x)
+		var primaryCosShift : double = primary.x + Math.cos(angle) * primary.radius
+		var primarySinShift : double = primary.y + Math.sin(angle) * primary.radius
+		var secondaryCosShift : double = secondary.x + Math.cos(angle + Math.PI) * secondary.radius
+		var secondarySinShift : double = secondary.y + Math.sin(angle + Math.PI) * secondary.radius
+		var cos : double = Math.cos(angle + Math.PI / 2)
+		var sin : double = Math.sin(angle + Math.PI / 2)
+
+		for (var i : double = -road.nbOfLaneSecondary; i <= road.nbOfLanePrimary; i += 1.0) {
+			if (i == -road.nbOfLaneSecondary || i == 0 || i == road.nbOfLanePrimary) {
+				g.setStroke(this.defaultStroke)
+			} else {
+				g.setStroke(this.dashedStroke)
+			}
+			g.drawLine(
+				(primaryCosShift * this.dimension.width + i * cos * this.laneWidth) as int,
+				(primarySinShift * this.dimension.height + i * sin * this.laneWidth) as int,
+				(secondaryCosShift * this.dimension.width + i * cos * this.laneWidth) as int,
+				(secondarySinShift * this.dimension.height + i * sin * this.laneWidth) as int
+			)
+		}
+		switch (road.getPrimaryNode().signalisationLinks.get(road)) {
+			case Constants.FEU_ROUGE: {
+				g.setColor(Color.red)
+			}
+			case Constants.FEU_ORANGE: {
+				g.setColor(Color.orange)
+			}
+			case Constants.FEU_VERT: {
+				g.setColor(Color.green)
+			}
+		}
+		g.fillOval(
+			(primaryCosShift * this.dimension.width + (road.nbOfLanePrimary + 1) * cos * this.laneWidth -
+				feuDiameter / 2) as int,
+			(primarySinShift * this.dimension.height + (road.nbOfLanePrimary + 1) * sin * this.laneWidth -
+				feuDiameter / 2) as int,
+			feuDiameter, feuDiameter
+		)
+		switch (road.getSecondaryNode().signalisationLinks.get(road)) {
+			case Constants.FEU_ROUGE: {
+				g.setColor(Color.red)
+			}
+			case Constants.FEU_ORANGE: {
+				g.setColor(Color.orange)
+			}
+			case Constants.FEU_VERT: {
+				g.setColor(Color.green)
+			}
+		}
+		g.fillOval(
+			(secondaryCosShift * this.dimension.width - (road.nbOfLaneSecondary + 1) * cos * this.laneWidth -
+				feuDiameter / 2) as int,
+			(secondarySinShift * this.dimension.height - (road.nbOfLaneSecondary + 1) * sin * this.laneWidth -
+				feuDiameter / 2) as int,
+			feuDiameter,
+			feuDiameter
+		)
+
+		g.setColor(Color.blue)
+		g.setStroke(this.defaultStroke)
+		if (this.carsProperties !== null) {
+			for (car : road.getCars()) {
+				var carProperties : CarProperties = this.carsProperties.get(car)
+				if (carProperties.isHuman) {
+					g.setColor(Color.blue)
+				} else {
+					g.setColor(Color.magenta)
+				}
+				var fromCos : double = carProperties.direction == 0 ? secondaryCosShift : primaryCosShift
+				var toCos : double = carProperties.direction == 0 ? primaryCosShift : secondaryCosShift
+				var fromSin : double = carProperties.direction == 0 ? secondarySinShift : primarySinShift
+				var toSin : double = carProperties.direction == 0 ? primarySinShift : secondarySinShift
+				var cosC : double = (0.5 + carProperties.lane) * (carProperties.direction == 0 ? cos : -cos)
+				var sinC : double = (0.5 + carProperties.lane) * (carProperties.direction == 0 ? sin : -sin)
+				g.fillOval(
+					((carProperties.position * toCos + (1 - carProperties.position) * fromCos) *
+						this.dimension.width + cosC * this.laneWidth - this.carDiameter / 2
+					) as int,
+					((carProperties.position * toSin + (1 - carProperties.position) * fromSin) *
+						this.dimension.height + sinC * this.laneWidth - this.carDiameter / 2
+					) as int,
+					this.carDiameter,
+					this.carDiameter
+				)
+			}
+		}
+	}
+	
+	def drawRoundabout(g : Graphics2D, intersection : Intersection, color : Color) {
+		g.setColor(color)
+		for (i : 0 ..< intersection.nbOfLane + 1) {
+			if (i == 0 || i == intersection.nbOfLane) {
+				g.setStroke(this.defaultStroke)
+			} else {
+				g.setStroke(this.dashedStroke)
+			}
+			g.drawOval(
+				((intersection.x - intersection.radius) * this.dimension.width + i * this.laneWidth) as int,
+				((intersection.y - intersection.radius) * this.dimension.height + i * this.laneWidth) as int,
+				(intersection.radius * 2 * this.dimension.width - i * 2 * this.laneWidth) as int,
+				(intersection.radius * 2 * this.dimension.height - i * 2 * this.laneWidth) as int
+			)
+		}
+		
+		g.setColor(Color.blue)
+		for (car : intersection.getCars()) {
+			var carProperties : CarProperties = this.carsProperties.get(car)
+			if (carProperties.isHuman) {
+				g.setColor(Color.blue)
+			} else {
+				g.setColor(Color.magenta)
+			}
+			var angle = carProperties.position * 2 * Math.PI
+			var cosC = Math.cos(angle) * (intersection.radius * this.dimension.width - 
+				this.laneWidth / 2 - (intersection.nbLanes - 1 - carProperties.lane) * this.laneWidth
+			)
+			var sinC = Math.sin(angle) * (intersection.radius * this.dimension.height - 
+				this.laneWidth / 2 - (intersection.nbLanes - 1 - carProperties.lane) * this.laneWidth
+			)
+			g.fillOval(
+				(intersection.x * this.dimension.width + 
+					cosC - this.carDiameter / 2) as int,
+				(intersection.y * this.dimension.height + 
+					sinC - this.carDiameter / 2
+				) as int,
+				this.carDiameter,
+				this.carDiameter
+			)
+		}
+	}
+
+	def paintComponent(graphics : Graphics) {
+        super.paintComponent(graphics)
+		var g : Graphics2D = graphics as Graphics2D
+		g.scale(1, -1)
+		g.translate(0, -getHeight())
+		g.setRenderingHints(this.rh)
+		this.defaultStroke = g.getStroke();
+
+		g.setColor(Color.black)
+		for (entryPoint : this.graph.getEntryPoints()) {
+			g.fillRect(
+				((entryPoint.x - entryPoint.radius) * this.dimension.width) as int,
+				((entryPoint.y - entryPoint.radius) * this.dimension.height) as int,
+				(entryPoint.radius * 2 * this.dimension.width) as int,
+				(entryPoint.radius * 2 * this.dimension.height) as int
+			)
+		}
+        for (intersection : this.graph.getIntersections()) {
+			this.drawRoundabout(
+				g,
+				intersection,
+				intersection === this.graph.intersectionToColor ? Color.pink: Color.black
+			)
+        }
+		g.setStroke(new BasicStroke(2))
+		var renderedRoads : Set<Road> = new WeakHashSet<Road>()
+		for (intersection : this.graph.getIntersections()) {
+			for (road : intersection.getLinks()) {
+				if (renderedRoads.contains(road)) continue
+				if (road instanceof OneWayRoad) {
+					this.drawOneWayRoad(g, road.getPrimaryNode(), road.getSecondaryNode())
+				} else {
+					this.drawTwoWayRoad(g, road.getPrimaryNode(), road.getSecondaryNode())
+				}
+				renderedRoads.add(road)
+			}
+		}
+	}
+}

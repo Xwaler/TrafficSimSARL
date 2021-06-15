@@ -1,0 +1,549 @@
+package fr.utbm.info.ia51.project.environment
+
+import io.sarl.core.Initialize
+import io.sarl.core.AgentSpawned
+import io.sarl.core.Logging
+import io.sarl.core.Lifecycle
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Schedules
+import java.util.UUID
+import java.util.ArrayList
+
+import fr.utbm.info.ia51.project.ui.MainFrame
+import fr.utbm.info.ia51.project.car.AutonomousCar
+import fr.utbm.info.ia51.project.car.HumanCar
+import fr.utbm.info.ia51.project.road.Graph
+import fr.utbm.info.ia51.project.events.StartSimulationEvent
+import fr.utbm.info.ia51.project.events.Intent
+import fr.utbm.info.ia51.project.events.PhysicsUpdate
+import fr.utbm.info.ia51.project.events.PerceptionUpdate
+import fr.utbm.info.ia51.project.events.StopSimulationEvent
+import java.util.List
+import fr.utbm.info.ia51.project.road.Road
+import fr.utbm.info.ia51.project.road.Intersection
+
+import java.util.WeakHashMap
+import fr.utbm.info.ia51.project.road.RoadElement
+
+import java.util.Map
+import io.sarl.core.AgentTask
+import fr.utbm.info.ia51.project.events.CarProperties
+import fr.utbm.info.ia51.project.events.PerceptCar
+import fr.utbm.info.ia51.project.events.GenerateRoadsEvent
+import fr.utbm.info.ia51.project.events.RequestNewObjective
+import fr.utbm.info.ia51.project.events.NewObjective
+import fr.utbm.info.ia51.project.events.Statistics
+import fr.utbm.info.ia51.project.road.Constants
+import java.util.Set
+import java.util.HashSet
+import java.util.Random
+import fr.utbm.info.ia51.project.road.Roundabout
+import fr.utbm.info.ia51.project.road.EntryPoint
+import fr.utbm.info.ia51.project.road.OneWayRoad
+import fr.utbm.info.ia51.project.road.TwoWayRoad
+
+agent Environment {
+	uses Logging, DefaultContextInteractions, Lifecycle, Schedules
+	
+	var UI : MainFrame
+	var numberOfAccidents : double
+	var tempsTrajetHuman : List<Double>
+	var tempsTrajetAutonomous : List<Double>
+	var roads : Graph
+	var frameDelayTask : AgentTask
+	var tick : int = 0
+
+	var nbCars : int
+	var cars : List<UUID> = new ArrayList<UUID>
+	var isCarHuman : List<Boolean> = new ArrayList<Boolean>
+	var intents : Map<UUID, Intent> = new WeakHashMap<UUID, Intent>
+	var physicsUpdates : Map<UUID, PhysicsUpdate> = new WeakHashMap<UUID, PhysicsUpdate>
+	var carsProperties : Map<UUID, CarProperties> = new WeakHashMap<UUID, CarProperties>
+	
+	on Initialize {
+		synchronized (this) {
+			this.roads = new Graph(defaultContext)
+			this.roads.generateRandom()
+			this.UI = occurrence.parameters.get(0) as MainFrame
+			this.UI.passGraph(this.roads)
+			this.UI.passCarsProperties(this.carsProperties)
+			this.UI.contentPane.repaint()
+		}
+	}
+	
+	on StartSimulationEvent {
+		info("SIMULATION STARTED")
+		synchronized (this) {
+			this.tempsTrajetHuman = new ArrayList<Double>
+			this.tempsTrajetAutonomous = new ArrayList<Double>
+			this.numberOfAccidents = 0.0
+			this.roads.pickRandomIntersection()
+			this.frameDelayTask = task("frame_delay")
+			this.nbCars = occurrence.nbCars
+			this.addCars(
+				occurrence.autonomousProportions,
+				occurrence.obedienceRate,
+				occurrence.reactionTime,
+				occurrence.perceptionErrorRate,
+				occurrence.viewDistance
+			)
+		}
+	}
+
+	on StopSimulationEvent {
+		synchronized (this) {
+			this.cars.clear()
+			this.isCarHuman.clear()
+			this.roads.resetRoadElements()
+			this.intents.clear()
+			this.physicsUpdates.clear()
+			this.carsProperties.clear()
+			this.numberOfAccidents = 0
+			this.tempsTrajetHuman.clear()
+			this.tempsTrajetAutonomous.clear()
+			frameDelayTask.cancel()
+		}
+	}
+	
+	on GenerateRoadsEvent {
+		synchronized (this) {
+			this.roads = new Graph(defaultContext)
+			this.roads.generateRandom()
+			this.UI.passGraph(this.roads)	
+		}
+	}
+	
+	on AgentSpawned {
+		synchronized (this) {
+			var agentID : UUID = occurrence.agentID
+			if (this.cars.contains(agentID)) {
+				this.roads.enter(agentID)
+			}
+		}
+	}
+	
+	synchronized def addCars(
+		autonomousProportions : double, 
+		obedienceRate : double,
+		reactionTime : double,
+		perceptionErrorRate : double,
+		viewDistance : double
+	) : void {
+		var nbAutonomous : int = (nbCars * autonomousProportions) as int
+		for (i : 0 ..< nbAutonomous) {
+			var UUID = UUID::randomUUID()
+			this.cars.add(UUID)
+			this.isCarHuman.add(false)
+			spawnInContextWithID(typeof(AutonomousCar), UUID, defaultContext, 
+				reactionTime, perceptionErrorRate, viewDistance)
+		}
+		for (i : 0 ..< nbCars - nbAutonomous) {
+			var UUID = UUID::randomUUID()
+			this.cars.add(UUID)
+			this.isCarHuman.add(true)
+			spawnInContextWithID(typeof(HumanCar), UUID, defaultContext, 
+				reactionTime, perceptionErrorRate, viewDistance, obedienceRate)
+		}
+	}
+
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on Intent {
+		synchronized (this) {
+			if (this.cars.contains(occurrence.source.UUID)) {
+				this.intents.put(occurrence.source.UUID, occurrence)
+				if (this.intents.size() == this.nbCars) {
+					this.resolveConflictsAndComputeNewProperties()
+					this.UI.passCarsProperties(this.carsProperties)
+					this.UI.repaint()
+					frameDelayTask.cancel()
+					frameDelayTask.in(1000 / 60) [
+						this.updateGraph()
+						this.computePerceptions()
+					]
+				}
+			}
+		}
+	}
+
+	synchronized def resolveConflictsAndComputeNewProperties() : void {
+		this.physicsUpdates.clear()
+		for (pair : this.intents.entrySet()) {
+			var update : PhysicsUpdate = new PhysicsUpdate()
+			var carUUID : UUID = pair.getKey()
+			var intent : Intent = pair.getValue()
+			update.newAcceleration = intent.intendedAcceleration
+			update.newSpeed = Math.max(0, intent.currentSpeed + update.newAcceleration)
+			update.newPosition = intent.currentPosition + (update.newSpeed / (this.roads.realSize * intent.currentElement.getLength()))
+			update.newLane = intent.currentLane + (Math.signum(intent.intendedLane - intent.currentLane) / 20)
+			update.newElement = intent.currentElement
+			update.colliding = false
+			if (intent.currentElement instanceof Road) {
+				if (update.newPosition >= 1.0) {
+					update.newElement = intent.direction == 0 ? 
+						(intent.currentElement as Road).getPrimaryNode(): 
+						(intent.currentElement as Road).getSecondaryNode()
+					update.newPosition = (update.newElement as Intersection).linkThreshold.get(
+						(update.newElement as Intersection).links.indexOf(intent.currentElement)
+					)
+					update.newLane = intent.intendedIntersectionLane
+				} else {
+					var targetLane : int = (intent.currentElement instanceof OneWayRoad)
+							? (intent.currentElement as OneWayRoad).nbOfLane: intent.direction == 0
+							? (intent.currentElement as TwoWayRoad).nbOfLanePrimary
+							: (intent.currentElement as TwoWayRoad).nbOfLaneSecondary
+					if (update.newLane > targetLane + 1) {
+						this.numberOfAccidents++
+						update.newPosition = 0
+						update.newLane = 0
+						update.newElement = this.roads.entryPoints.get(
+							this.roads.generator.nextInt(this.roads.entryPoints.size())
+						)
+					}
+				}
+			}
+			else if (intent.currentElement instanceof Intersection) {
+				if (update.newLane < -3) {
+					this.numberOfAccidents++
+					update.newPosition = 0
+					update.newLane = 0
+					update.newElement = this.roads.entryPoints.get(
+						this.roads.generator.nextInt(this.roads.entryPoints.size())
+					)
+				} else {
+					var intersectionThreshold : double = (intent.currentElement as Intersection).linkThreshold.get(
+						intent.direction)
+					if (intent.currentPosition < intersectionThreshold && update.newPosition >= intersectionThreshold) {
+						update.newElement = (intent.currentElement as Intersection).getLinks().get(intent.direction)
+						update.newPosition = 0
+						update.newLane = intent.intendedLane
+					} else {
+						if (update.newPosition > 1.0) {
+							update.newPosition -= 1.0
+							if (update.newPosition >= intersectionThreshold) {
+								update.newElement = (intent.currentElement as Intersection).getLinks().get(
+									intent.direction)
+								update.newPosition = 0
+								update.newLane = intent.intendedLane
+							}
+						}
+					}
+				}
+			}
+			this.physicsUpdates.put(carUUID, update)
+		}
+		
+		/* conflict resolution
+		 */
+		/**/var random : Random = new Random();
+		var visitedRoads : Set<Road> = new HashSet()
+		for (intersection : roads.getIntersections()) {
+			for (link : intersection.getLinks()) {
+				visitedRoads.add(link)
+			}
+			
+			for (i : 0 ..< intersection.cars.size()) {
+				var UUID = intersection.cars.get(i)
+				var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
+				if (physicUpdate.newElement instanceof EntryPoint) continue
+				for (j : i + 1 ..< intersection.cars.size()) {
+					var neighbourgUUID = intersection.cars.get(j)
+					var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
+					if (neighbourgPhysicUpdate.newElement instanceof EntryPoint) continue
+					var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * intersection.length
+					if (Math.abs(distance) < 0.002 && Math.abs(physicUpdate.newLane - neighbourgPhysicUpdate.newLane) < 0.5) {
+						physicUpdate.newSpeed = 0
+						physicUpdate.newAcceleration = 0
+						physicUpdate.colliding = true
+						neighbourgPhysicUpdate.newSpeed = 0
+						neighbourgPhysicUpdate.newAcceleration = 0
+						neighbourgPhysicUpdate.colliding = true
+						if (random.nextDouble < 0.3) {
+							physicUpdate.newLane = physicUpdate.newLane >= 1
+								? physicUpdate.newLane - 1
+								: physicUpdate.newLane
+							neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
+						}
+					}
+				}
+			}
+		}
+		for (road : visitedRoads) {
+			for (i : 0 ..< road.cars.size()) {
+				var UUID = road.cars.get(i)
+				var physicUpdate : PhysicsUpdate = physicsUpdates.get(UUID)
+				for (j : i + 1 ..< road.cars.size()) {
+					var neighbourgUUID = road.cars.get(j)
+					if (this.intents.get(UUID).direction == this.intents.get(neighbourgUUID).direction) {
+						var neighbourgPhysicUpdate : PhysicsUpdate = physicsUpdates.get(neighbourgUUID)
+						var distance = (physicUpdate.newPosition - neighbourgPhysicUpdate.newPosition) * road.length
+						if (Math.abs(distance) < 0.002 &&
+							Math.abs(physicUpdate.newLane - neighbourgPhysicUpdate.newLane) < 0.5) {
+							physicUpdate.newSpeed = 0
+							physicUpdate.newAcceleration = 0
+							physicUpdate.colliding = true
+							neighbourgPhysicUpdate.newSpeed = 0
+							neighbourgPhysicUpdate.newAcceleration = 0
+							neighbourgPhysicUpdate.colliding = true
+							if (random.nextDouble < 0.3) {
+								physicUpdate.newLane = physicUpdate.newLane >= 1
+									? physicUpdate.newLane - 1
+									: physicUpdate.newLane
+								neighbourgPhysicUpdate.newLane = neighbourgPhysicUpdate.newLane + 1
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		this.carsProperties.clear()
+		for (i : 0 ..< this.nbCars) {
+			var car : UUID = this.cars.get(i)
+			this.carsProperties.put(car, new CarProperties(
+				this.intents.get(car),
+				this.physicsUpdates.get(car),
+				this.isCarHuman.get(i)
+			))
+		}
+		/* Send physics update to cars */
+		for (pair : this.physicsUpdates.entrySet()) {
+			emit(pair.getValue())[ it.UUID == pair.getKey() ]
+		}
+	}
+	
+	synchronized def updateGraph() : void {
+		for (pair : this.carsProperties.entrySet()) {
+			var carUUID : UUID = pair.getKey()
+			var carProperties : CarProperties = pair.getValue()
+			if (carProperties.element !== carProperties.futureElement) {
+				carProperties.element.exit(carUUID)
+				carProperties.futureElement.enter(carUUID)
+			}
+		}
+		this.tick++
+		if (this.tick % 120  == 0) {
+			for (intersection : this.roads.intersections) {
+				if (!(intersection instanceof Roundabout)) {
+					for (link : intersection.links) {
+						if (this.tick % 240 == 0 || intersection.getSignalisation(link) == Constants.FEU_ORANGE) {
+							intersection.incrementSignalisation(link)
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	synchronized def recursiveAdd(
+		maxViewDistance : int,
+		selfProperties : CarProperties,
+		selfUUID : UUID,
+		result : List<PerceptCar>,
+		distanceToObserver : double,
+		previousElement : RoadElement, currentElement : RoadElement
+	) : void {
+		/* Check if the current element hasn't already been processed (making sure that the previous element isn't processed again, 
+		 * in case of a loop, this does not work, but loop smaller than the view distance aren't possible
+		 */
+		if (currentElement != previousElement) {
+			/* Element is a intersection */
+			if (currentElement instanceof Intersection) {
+				var currentElementAsIntersection : Intersection = (currentElement as RoadElement) as Intersection
+				for (neighbour : currentElement.cars) {
+					/* ignore self */
+					if (neighbour != selfUUID) {
+						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour)
+						var distanceNeighbourObserver : double = distanceToObserver;
+						
+						var positionInIntersection : double;
+						if (previousElement !== null) {
+							positionInIntersection = currentElementAsIntersection.linkThreshold.get(
+								currentElementAsIntersection.links.indexOf(previousElement))
+						} else {
+							positionInIntersection = selfProperties.futurePosition;
+						}
+
+						distanceNeighbourObserver +=
+							Math.abs(positionInIntersection - neighbourCarProperties.futurePosition) *
+								currentElement.length * this.roads.realSize
+
+						if (distanceNeighbourObserver <= maxViewDistance) {
+							result.add(
+								new PerceptCar(
+									distanceNeighbourObserver,
+									neighbourCarProperties.position,
+									currentElement,
+									neighbourCarProperties.direction,
+									neighbourCarProperties.futureSpeed,
+									neighbourCarProperties.lane
+								)
+							)
+						}						
+					}
+				}
+				
+				if (distanceToObserver + currentElement.length * this.roads.realSize < maxViewDistance) {
+					/* Keep going through adjacent element */
+					for (road : (currentElement as Intersection).getLinks()) {
+						recursiveAdd(
+							maxViewDistance,
+							selfProperties,
+							selfUUID,
+							result,
+							distanceToObserver + currentElement.length * this.roads.realSize,
+							currentElement,
+							road
+						)
+					}
+				}
+
+				
+			} else {
+				/* Element is a Road */
+				var currentElementAsRoad : Road = (currentElement as Road);
+				for (neighbour : currentElement.cars) {
+					/* ignore self */
+					if (neighbour != selfUUID) {
+						var neighbourCarProperties : CarProperties = carsProperties.get(neighbour)
+						
+						/* Compute the distance between the observer and the neighbor */
+						var distanceNeighbourObserver : double = distanceToObserver
+						
+						/* Compute neighbor direction */
+						var neighborDirection : int 
+						if (neighbourCarProperties.element == neighbourCarProperties.futureElement) {
+							neighborDirection = neighbourCarProperties.direction
+						} else {
+							/* If the car has changed element during the past frame, direction is unknown, 
+							 * since the current element is a road, direction can be deduced
+							 */
+							neighborDirection = (currentElementAsRoad.nodes.indexOf(neighbourCarProperties.element) == 0 ? 1 : 0)
+						}
+						
+						var selfDirection : int
+						if (selfProperties.element == selfProperties.futureElement) {
+							selfDirection = selfProperties.direction
+						} else {
+							/* If the car has changed element during the past frame, direction is unknown, 
+							 * since the current element is a road, direction can be deduced
+							 */
+							selfDirection = (currentElementAsRoad.nodes.indexOf(selfProperties.element) ==
+								0 ? 1 : 0)
+						}
+						
+						var doesNeighborGoInTheSameDirection : boolean
+						if (previousElement === null) {
+							/* for the first element processed, the two cars are part of the same road */
+							doesNeighborGoInTheSameDirection = (selfDirection == neighborDirection)
+						} else {
+							/* for the adjacent element, the point from which the observer might enter this element (previousElement) is
+							 * used to compute of the neighbor is going in the same direction or not
+							 * if neighbor doesn't go toward previous element, it goes in the same direction
+							 */
+							doesNeighborGoInTheSameDirection = (neighborDirection != currentElementAsRoad.nodes.indexOf(previousElement))
+
+						}
+						
+						if (doesNeighborGoInTheSameDirection) {
+							if (previousElement === null) {
+								distanceNeighbourObserver = 
+									(neighbourCarProperties.futurePosition - selfProperties.futurePosition) * 
+									currentElement.length * this.roads.realSize
+								if (distanceNeighbourObserver < 0) {
+									distanceNeighbourObserver = distanceNeighbourObserver * -1
+								}
+							} else {
+								distanceNeighbourObserver += 
+									neighbourCarProperties.futurePosition * currentElement.length * this.roads.realSize
+							}
+						} else {
+							if (previousElement === null) {
+								distanceNeighbourObserver = ((1 - neighbourCarProperties.futurePosition) -
+									selfProperties.futurePosition) * currentElement.length * this.roads.realSize
+								if (distanceNeighbourObserver < 0) {
+									distanceNeighbourObserver = distanceNeighbourObserver * -1
+								}
+							} else {
+								distanceNeighbourObserver +=
+									(1 - neighbourCarProperties.futurePosition) * currentElement.length *
+										this.roads.realSize
+							}
+						}
+						
+						if (distanceNeighbourObserver <= maxViewDistance) {
+							result.add(
+								new PerceptCar(
+									distanceNeighbourObserver,
+									neighbourCarProperties.position,
+									currentElement, 
+									neighborDirection,
+									neighbourCarProperties.futureSpeed, neighbourCarProperties.lane
+								)
+							)
+						}
+					}
+				}
+				
+
+				if (distanceToObserver + currentElement.length * this.roads.realSize <= maxViewDistance) {
+					/* Keep going through next roads */
+					for (intersection : currentElementAsRoad.nodes) {
+						recursiveAdd(
+							maxViewDistance, selfProperties, selfUUID,
+							result, distanceToObserver + currentElement.length * this.roads.realSize,
+							currentElement, intersection
+						)
+					}
+				}
+			}
+		}
+	}
+	
+	synchronized def computePerceptions() : void {
+		// TODO: migrate PU and INT to CarProperties
+		for (pair : this.carsProperties.entrySet()) {
+			var carUUID : UUID = pair.getKey()
+			var carProperties : CarProperties = pair.getValue()
+			var result : List<PerceptCar> = new ArrayList<PerceptCar>()
+			recursiveAdd(
+				Integer.parseInt(UI.settingsFrame.viewDistance.getText()) * Constants.WORLD_SIZE_SCALLER,
+				carProperties,
+				carUUID,
+				result,
+				0 as double,
+				null,
+				carProperties.futureElement
+			)
+			emit(new PerceptionUpdate(
+				result
+			))[it.UUID == carUUID]
+		}
+		this.intents.clear()
+	}
+	
+	on Statistics {
+		synchronized (this) {
+			if (occurrence.isHuman) {
+				this.tempsTrajetHuman.add(occurrence.travelTime / 60)
+			} else {
+				this.tempsTrajetAutonomous.add(occurrence.travelTime / 60)
+			}
+			this.UI.sendData(
+				this.roads.intersectionToColor.counter / (tick / 60),
+				this.numberOfAccidents /
+					(this.numberOfAccidents + this.tempsTrajetHuman.size() + this.tempsTrajetAutonomous.size()) as double,
+				this.tempsTrajetHuman.stream().mapToDouble(d|d).average().orElse(0.0),
+				this.tempsTrajetAutonomous.stream().mapToDouble(d|d).average().orElse(0.0)
+			)
+		}
+	}
+	
+	@SuppressWarnings("discouraged_occurrence_readonly_use")
+	on RequestNewObjective {
+		synchronized (this) {
+			emit(
+				new NewObjective(this.roads.getNewObjectiveDifferentFrom(occurrence.currentNode))
+			) [ it.UUID == occurrence.source.UUID ]
+		}
+	}
+}

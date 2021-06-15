@@ -1,4 +1,4 @@
-package fr.utbm.info.ia51.labworks.project.environment.^agent
+package fr.utbm.info.ia51.project.environment.^agent
 
 agent Car{
 	
