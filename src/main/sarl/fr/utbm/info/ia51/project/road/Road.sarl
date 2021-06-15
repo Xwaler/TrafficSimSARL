@@ -1,0 +1,56 @@
+package fr.utbm.info.ia51.project.road
+
+import java.util.List
+import java.util.ArrayList
+
+abstract class Road extends RoadElement {
+	public var nbOfLane : int
+	public var nbOfLanePrimary : int
+	public var nbOfLaneSecondary : int
+	public var nodes : List<Intersection> = new ArrayList<Intersection>(2) //TODO public for surrounding computation, getter might be better
+	
+	def addNode(node : Intersection) {
+		if (!this.nodes.contains(node)) {
+			this.nodes.add(node)
+		}
+	}
+
+	def primaryNodeIs(node : Intersection) {
+		return node === this.nodes.get(0)
+	}
+
+	def secondaryNodeIs(node : Intersection) {
+		return node === this.nodes.get(1)
+	}
+	
+	def getPrimaryNode() : Intersection {
+		return this.nodes.get(0)
+	}
+	
+	def getSecondaryNode() : Intersection {
+		return this.nodes.get(1)
+	}
+
+	def getOtherNode(node : Intersection) {
+		assert this.primaryNodeIs(node) || this.secondaryNodeIs(node)
+		if (this.primaryNodeIs(node)) {
+			return this.getSecondaryNode()
+		} else {
+			return this.getPrimaryNode()
+		}
+	}
+
+	def getLinks() : List<Road> {}
+	
+	def toString() : String {
+		return this.class.simpleName + "@" + this.hashCode
+	}
+	
+	def entryAllowed(intersection : Intersection) : boolean {
+		return true
+	}
+	
+	def clear() {
+		this.cars.clear()
+	}
+}

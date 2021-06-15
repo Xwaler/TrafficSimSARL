@@ -1,0 +1,21 @@
+package fr.utbm.info.ia51.project.road
+
+import java.util.UUID
+
+import fr.utbm.info.ia51.project.road.Road
+import fr.utbm.info.ia51.project.events.EnterOneWayRoad
+
+class OneWayRoad extends Road {
+	def enter(car : UUID) {
+		super.enter(car)
+		this.context.getDefaultSpace().emit(this.roadElementUUID, new EnterOneWayRoad(this))[it.UUID == car]
+	}
+
+	def getIncomingNode(direction : int) : Intersection {
+		return this.getSecondaryNode()
+	}
+	
+	def entryAllowed(intersection : Intersection) : boolean {
+		return intersection == this.getPrimaryNode()
+	}
+}

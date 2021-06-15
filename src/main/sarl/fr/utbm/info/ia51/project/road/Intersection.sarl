@@ -1,0 +1,108 @@
+package fr.utbm.info.ia51.project.road
+
+import io.sarl.lang.core.AgentContext
+
+import java.util.List
+import java.util.ArrayList
+import java.util.Map
+import java.util.HashMap
+import java.util.UUID
+
+abstract class Intersection extends RoadElement {
+	public var links : List<Road>
+	public var signalisationLinks : Map<Road, Integer>
+	public var linkThreshold : List<Double>
+	public var x : double
+	public var y : double
+	public var radius : double
+	public var nbLanes : int
+	public var counter : double = 0
+	
+	new (context : AgentContext, links : List<Road>) {
+		super(context)
+		this.links = links
+		for (l : links) {
+			l.addNode(this)
+		}
+		this.linkThreshold = new ArrayList<Double>()
+		this.signalisationLinks = new HashMap<Road, Integer>()
+	}
+	
+	def getLinks() : List<Road> {
+		return this.links
+	}
+
+	def getAccessibleLinks() : List<Road> {
+		var accessible : List<Road> = new ArrayList<Road>()
+		for (link : this.links) {
+			if (link.entryAllowed(this)) {
+				accessible.add(link)
+			}
+		}
+		return accessible
+	}
+	
+	def getNbOfLane() : int {
+		return this.nbLanes
+	}
+	
+	def getSignalisation(road : Road) : int {
+		return this.signalisationLinks.get(road)
+	}
+	
+	def incrementSignalisation(road : Road) : void {
+		this.signalisationLinks.put(
+			road,
+			(this.signalisationLinks.get(road) + 1) % (Constants.FEU_ROUGE + 1)
+		)
+	}
+	
+	def getWantedExit(direction : int) : Road {
+		return this.links.get(direction)
+	}
+	
+	def getWantedExitDirection(direction : int) : int {
+		var wantedExit : Road = this.getWantedExit(direction)
+		return wantedExit.nodes.indexOf(wantedExit.getOtherNode(this))
+	}
+	
+	def getNextExit(position : double) : Road {
+		for (var i : int = this.linkThreshold.size() - 1; i >= 0; i--) {
+			if (this.linkThreshold.get(i) <= position) {
+				return this.links.get(i)
+			}
+		}
+		return this.links.get(0)
+	}
+	
+	def exitIsOnTheRight(entryDirection : int, exitDirection : int) {
+		return this.links.indexOf(this.getNextExit(entryDirection)) == exitDirection
+	}
+
+	def exitIsOnCenter(entryDirection : int, exitDirection : int) {
+		return this.links.indexOf(this.getNextExit((entryDirection + 1) % this.links.size())) == exitDirection
+	}
+
+	def getIncomingNode(direction : int) : Intersection {}
+
+	def toString() : String {
+		var str : String = this.class.simpleName + '@' + this.hashCode + '['
+		for (i : 0 ..< links.size()) {
+			str += linkThreshold.get(i) + ': ' + links.get(i).toString() + ', '
+		}
+		return str + ']'
+	}
+	
+	def exit(car : UUID){
+		super.exit(car)
+		this.counter++
+	}
+	
+	def clear() {
+		this.cars.clear()
+		this.counter = 0
+		for (link : this.links) {
+			link.clear()
+		}
+	}
+}
