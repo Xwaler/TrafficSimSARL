@@ -12,7 +12,7 @@
 		<janus.version>3.${sarl.version}</janus.version>
 		<target.jdk.version>1.8</target.jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cliRunnerMainClass>fr.utbm.info.ia51.project.TraficSimBoot</cliRunnerMainClass>
+        <cliRunnerMainClass>fr.utbm.info.ia51.project.TrafficSimBoot</cliRunnerMainClass>
 	</properties>
 
 	<dependencies>
